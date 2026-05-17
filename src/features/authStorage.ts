@@ -1,3 +1,4 @@
+//This file ONLY talks to browser localStorage.
 const AUTH_KEY = "booking_user";
 
 export type LocalUser = {
