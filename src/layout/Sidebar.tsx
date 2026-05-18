@@ -6,7 +6,7 @@ const Sidebar = () => {
 return(
     <aside className="w-64 bg-white border-r border-gray-200 p-4">
         <nav className="space-y-2">
-            <NavLink to= "/dashbord"
+            <NavLink to= "/dashboard"
             end
             className={({isActive}) =>
             `${linkClass} ${
