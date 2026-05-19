@@ -6,6 +6,7 @@ import ProtectedRoute from "../layout/ProtectedRoute";
 import Login from "../pages/Login";
 import Home from "../pages/Home";
 import Booking from "../pages/Booking";
+import BookingForm from "../pages/BookingForm";
 import Cabins from "../pages/Cabins";
 import User from "../pages/User";
 import Profile from "../pages/Profile";
@@ -27,6 +28,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: "bookings", element: <Booking /> },
+      { path: "book", element: <BookingForm /> },
       { path: "cabins", element: <Cabins /> },
       { path: "profile", element: <Profile /> },
       { path: "user", element: <User /> },

@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { useUser } from "../authentication/useUser";
-import { useUpdatePassword } from "../authentication/useUpdatePassword";
+import { supabase } from "../services/supabase";
 
 const Profile = () => {
   const { user } = useUser();
-  const { updateUserPassword, isPending } = useUpdatePassword();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -30,28 +30,31 @@ const Profile = () => {
       return;
     }
 
-    updateUserPassword(password, {
-      onSuccess: () => {
-        setSuccess("Password changed successfully!");
-        setPassword("");
-        setConfirmPassword("");
-      },
-      onError: (err: any) => {
-        setError(err.message || "Failed to change password");
-      },
+    setIsLoading(true);
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: password,
     });
+
+    if (updateError) {
+      setError(updateError.message);
+    } else {
+      setSuccess("Password changed successfully!");
+      setPassword("");
+      setConfirmPassword("");
+    }
+    setIsLoading(false);
   };
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-      
+
       {/* USER INFO */}
       <div className="bg-white rounded-xl p-6 border border-gray-200">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Email</label>
-            <p className="mt-1 text-gray-900">{user?.email || "N/A"}</p>
+            <p className="mt-1 text-gray-900 font-medium">{user?.email || "N/A"}</p>
           </div>
         </div>
       </div>
@@ -101,10 +104,10 @@ const Profile = () => {
 
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isLoading}
             className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition-colors text-white font-semibold py-3 rounded-xl"
           >
-            {isPending ? "Changing..." : "Change Password"}
+            {isLoading ? "Changing..." : "Change Password"}
           </button>
         </form>
       </div>
