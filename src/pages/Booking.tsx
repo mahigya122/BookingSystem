@@ -1,115 +1,75 @@
-import { useBookings } from "../authentication/useBookings";
-import { useState, useMemo, useEffect } from "react";
-import BookingSubnav from "../components/subnav/BookingSubnav";
-import { useDeleteBooking } from "../authentication/useDeleteBooking";
+import { useState } from "react";
+
+import BookingSubnav from "../components/booking/BookingSubnav";
+import BookingTable from "../components/booking/BookingTable";
+import BookingPagination from "../components/booking/BookingPagination";
 import EditBookingModal from "../components/booking/EditBookingModal";
 
-type StatusFilter = "all" | "checked-in" | "checked-out" | "booked";
+import { useBookings } from "../authentication/useBookings";
+import { useDeleteBooking } from "../authentication/useDeleteBooking";
 
-type SortType =
-  | "recent"
-  | "earlier"
-  | "price-high"
-  | "price-low";
+import { useFilteredBookings } from "../hooks/useFilteredBookings";
+import { usePagination } from "../hooks/usePagination";
 
-const Booking = () => {
-  const { bookings, isLoading } = useBookings();
+import type {
+  Booking,
+  BookingStatus,
+  SortType,
+} from "../types/booking";
 
-  const [ filter, setFilter] = useState<StatusFilter>("all");
-  const [ sort, setSort] = useState<SortType>("recent");
+const BookingPage = () => {
+  const { bookings = [], isLoading } =
+    useBookings();
+
+  const { removeBooking } =
+    useDeleteBooking();
+
+  const [filter, setFilter] =
+    useState<BookingStatus>("all");
+
+  const [sort, setSort] =
+    useState<SortType>("recent");
+
   const [search, setSearch] = useState("");
-  const [editingBooking, setEditingBooking] = useState<any | null>(null);
 
-  const { removeBooking } = useDeleteBooking();
+  const [editingBooking, setEditingBooking] =
+    useState<Booking | null>(null);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
+  const filteredBookings =
+    useFilteredBookings({
+      bookings,
+      filter,
+      sort,
+      search,
+    });
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData,
+  } = usePagination(filteredBookings);
 
   const handleDelete = (id: string) => {
-    const confirmDelete = confirm(
-      "Are you sure you want to delete this booking?"
+    const confirmed = confirm(
+      "Delete booking?"
     );
 
-    if (!confirmDelete) return;
+    if (!confirmed) return;
 
     removeBooking(id);
   };
 
-  const handleEdit = (booking: any) => {
-  setEditingBooking(booking);
-};
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
 
-  const filterBookings = useMemo(() => {
-    if (!bookings) return [];
-    let result = [...bookings];
-
-  //filter
-    if ( filter !== "all") {
-      result = result.filter((b: any) => b.status === filter);
-    }
-
-    //search
-    if (search.trim()) {
-    result = result.filter((b: any) =>
-    b.guests?.full_name
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
-    );
-   }
-
-    //sort
-    result.sort ((a: any, b: any) => {
-      switch (sort) {
-
-        case "recent":
-        return(
-          new Date (b.start_date).getTime() - 
-          new Date(a.start_date).getTime() 
-        );
-
-        case "earlier":
-        return(
-          new Date (a.start_date).getTime() - 
-          new Date(b.start_date).getTime() 
-        );
-
-        case "price-high":
-        return b.total_price - a.total_price;
-
-        case "price-low":
-        return a.total_price - b.total_price;
-
-        default:
-          return 0;
-      }
-    });
-
-    return result;
-  }, [bookings, filter, sort, search]);
-
-  const totalPages = Math.max(1, Math.ceil(filterBookings.length / ITEMS_PER_PAGE));
-
-  useEffect(() => {
-    if (currentPage > totalPages) setCurrentPage(totalPages);
-  }, [totalPages]);
-
-  // Reset to first page when filters/search/sort or the bookings list change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filter, sort, search, bookings]);
-
-  const paginatedBookings = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filterBookings.slice(start, start + ITEMS_PER_PAGE);
-  }, [filterBookings, currentPage]);
-
-  return(
+  return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900">
+      <h1 className="text-3xl font-bold">
         Bookings
       </h1>
 
-      {/* SUB NAV */}
       <BookingSubnav
         onFilterChange={setFilter}
         onSortChange={setSort}
@@ -117,149 +77,30 @@ const Booking = () => {
         currentSort={sort}
       />
 
-      {/* TABLE */}
-      {isLoading ? (
-        <p className="text-gray-500">Loading bookings...</p>
-      ) : bookings && bookings.length > 0 ? (
-        <div className="bg-white rounded-xl shadow overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                  Guest
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                  Cabin
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                  Start Date
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                  End Date
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                  Total Price
-                </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
-                  Actions
-                </th>
-              </tr>
-            </thead>
+      <div className="bg-white rounded-xl shadow overflow-hidden">
+        <BookingTable
+          bookings={paginatedData}
+          onDelete={handleDelete}
+          onEdit={setEditingBooking}
+        />
 
-            <tbody className="divide-y divide-gray-200">
-              {paginatedBookings.map((booking: any) => (
-                <tr key={booking.id} className="hover:bg-gray-50">
-                  
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {booking.guests?.full_name || "N/A"}
-                  </td>
+        <BookingPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+        />
+      </div>
 
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {booking.cabins?.name || "N/A"}
-                  </td>
-
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {new Date(booking.start_date).toLocaleDateString()}
-                  </td>
-
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {new Date(booking.end_date).toLocaleDateString()}
-                  </td>
-
-                  <td className="px-6 py-4 text-sm">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        booking.status === "checked-in"
-                          ? "bg-green-100 text-green-800"
-                          : booking.status === "checked-out"
-                          ? "bg-gray-200 text-gray-800"
-                          : booking.status === "booked"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {booking.status}
-                    </span>
-                  </td>
-
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                    ${booking.total_price}
-                  </td>
-
-                  <td className="px-6 py-4">
-                   <div className="flex items-center gap-2">
-    
-                  <button
-                   onClick={() => handleEdit(booking)}
-                   disabled={booking.status === "checked-out"}
-                   className={`px-3 py-1 rounded-lg ${
-                     booking.status === "checked-out"
-                       ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                       : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"
-                   }`}
-                  >
-                  Edit
-                  </button>
-
-                  <button
-                   onClick={() => handleDelete(booking.id)}
-                   className="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200"
-                  >
-                   Delete
-                  </button>
-
-                </div>
-              </td>
-
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* Pagination */}
-          <div className="px-6 py-4 bg-white border-t border-gray-200 flex items-center justify-between">
-            <div className="text-sm text-gray-500">
-              Showing {filterBookings.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filterBookings.length)} of {filterBookings.length}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className={`px-3 py-1 rounded-lg ${currentPage === 1 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"}`}
-              >
-                Previous
-              </button>
-
-              <span className="text-sm text-gray-700">Page {currentPage} of {totalPages}</span>
-
-              <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className={`px-3 py-1 rounded-lg ${currentPage === totalPages ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"}`}
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <p className="text-gray-500">No bookings available.</p>
+      {editingBooking && (
+        <EditBookingModal
+          booking={editingBooking}
+          onClose={() =>
+            setEditingBooking(null)
+          }
+        />
       )}
-      
-      {/* EDIT MODAL */}
-    {editingBooking && (
-      <EditBookingModal
-        booking={editingBooking}
-        onClose={() => setEditingBooking(null)}
-      />
-    )}
-
     </div>
   );
 };
 
-export default Booking;
+export default BookingPage;

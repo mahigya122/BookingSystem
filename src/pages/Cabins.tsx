@@ -1,62 +1,90 @@
+import { useState } from "react";
+
 import { useCabins } from "../authentication/useCabins";
+import { useDeleteCabin } from "../authentication/useDeleteCabin";
+
+import CabinSubnav from "../components/cabin/CabinSubnav";
+import CabinTable from "../components/cabin/CabinTable";
+import CabinPagination from "../components/cabin/CabinPagination";
+import CreateCabinModal from "../components/cabin/CreateCabinModal";
+import EditCabinModal from "../components/cabin/EditCabinModal";
+
+import { useFilteredCabins } from "../hooks/useFilteredCabins";
+import { usePagination } from "../hooks/usePagination";
+import type { Cabin as CabinType } from "../types/cabin";
 
 const Cabins = () => {
-  const { cabins, isLoading } = useCabins();
+  const { cabins = [], isLoading } = useCabins();
 
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-gray-900">Cabins</h1>
+  const { removeCabin } = useDeleteCabin();
 
-      {isLoading ? (
-        <p className="text-gray-500">Loading cabins...</p>
-      ) : cabins && cabins.length > 0 ? (
-        <div className="bg-white rounded-xl shadow overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Image</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Name</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Capacity</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Price/Night</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Discount</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Description</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              
-              {[...cabins].reverse().map((cabin: any) => (
-                <tr key={cabin.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm">
-                    {cabin.image_url ? (
-                      <img 
-                        src={cabin.image_url} 
-                        alt={cabin.name}
-                        className="h-16 w-20 object-cover rounded"
-                        onError={(e) => {
-                          e.currentTarget.src = "https://via.placeholder.com/80x60?text=No+Image";
-                        }}
-                      />
-                    ) : (
-                      <div className="h-16 w-20 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
-                        No image
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">{cabin.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{cabin.capacity} guests</td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">${cabin.price_per_night}</td>
-                  <td className="px-6 py-4 text-sm text-gray-500">{cabin.discount || 0}%</td>
-                  <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{cabin.description}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-gray-500">No cabins available.</p>
-      )}
-    </div>
+  const [filter, setFilter] = useState("");
+  const [sort, setSort] = useState("");
+
+  const [showCreate, setShowCreate] = useState(false);
+
+  const [editingCabin, setEditingCabin] = useState<CabinType | null>(null);
+
+  const filteredCabins = useFilteredCabins(
+    cabins, 
+    filter,
+    sort
   );
-};
 
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData,
+  } = usePagination(filteredCabins);
+
+  const handleDelete = (id: string) => {
+    const conformDelete = confirm(
+      "Delete this cabin?"
+    );
+
+  if (!conformDelete) return;
+  removeCabin(id);  
+  };
+
+  if (isLoading) {
+    return <p>Loading Cabins.....</p>
+  }
+
+return (
+  <div className="space-y-6"> 
+  <h1 className= "text-3xl font-bold">Cabins</h1>
+
+  <CabinSubnav
+  onFilterChange = {setFilter}
+  onSortChange = {setSort}
+  onAddCabin = {() => setShowCreate(true)}
+  />
+
+  <CabinTable
+  cabins={paginatedData}
+  onDelete={handleDelete}
+  onEdit={setEditingCabin}
+  />
+
+  <CabinPagination
+  currentPage={currentPage}
+  totalPages={totalPages}
+  setCurrentPage={setCurrentPage}
+  />
+
+  {showCreate && (
+    <CreateCabinModal
+    onClose={() => setShowCreate(false)}
+    />
+  )}
+  { editingCabin && (
+    <EditCabinModal
+    cabin= {editingCabin}
+    onClose= {() => setEditingCabin(null)}
+    />
+  )}
+  </div>
+);
+};
 export default Cabins;

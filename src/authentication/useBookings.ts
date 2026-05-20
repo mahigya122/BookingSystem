@@ -18,7 +18,14 @@ export function useBookings() {
         `);
 
       if (error) throw error;
-      return data;
+      // Normalize related rows: Supabase returns related rows as arrays.
+      // Convert `guests` and `cabins` to single objects (take first related row)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (data || []).map((d: any) => ({
+        ...d,
+        guests: Array.isArray(d.guests) ? d.guests[0] : d.guests,
+        cabins: Array.isArray(d.cabins) ? d.cabins[0] : d.cabins,
+      }));
     },
   });
 

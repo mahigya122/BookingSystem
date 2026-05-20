@@ -15,8 +15,7 @@ export async function initializeData() {
   try {
     console.log("🌱 Initializing data...");
 
-    // Always refresh cabins with new images
-    await supabase.from("cabins").delete().gte("id", 0);
+    // Only refresh or seed cabins when needed
 
     // Check if guests and bookings already exist
     const { count: guestCount } = await supabase
@@ -30,6 +29,8 @@ export async function initializeData() {
     // If guests and bookings exist, only refresh cabins
     if (guestCount && guestCount > 0 && bookingCount && bookingCount > 0) {
       console.log("Refreshing cabins with new images...");
+      // remove existing cabins so we can re-insert fresh ones
+      await supabase.from("cabins").delete().gte("id", 0);
       const cabins = generateCabins();
       const { error: cErr } = await supabase.from("cabins").insert(cabins);
       if (cErr) throw cErr;
@@ -53,6 +54,8 @@ export async function initializeData() {
     console.log("Guests seeded");
 
     // 2. INSERT CABINS
+    // Ensure cabins table is clean before seeding
+    await supabase.from("cabins").delete().gte("created_at", "1970-01-01");
     const cabins = generateCabins();
     const { data: cabinData, error: cErr } = await supabase
       .from("cabins")

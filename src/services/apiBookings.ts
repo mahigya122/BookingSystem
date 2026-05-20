@@ -2,15 +2,14 @@ import { supabase } from "./supabase";
 
 // DELETE BOOKING
 export async function deleteBooking(id: string) {
-    const { error } = await supabase
+  const { error } = await supabase
     .from("bookings")
     .delete()
     .eq("id", id);
 
-    if ( error ) {
-        throw new Error(error.message);
-    }
-
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 // UPDATE BOOKING
@@ -22,7 +21,9 @@ export interface UpdateBookingData {
   status: string;
 }
 
-export async function updateBooking(bookingData: UpdateBookingData) {
+export async function updateBooking(
+  bookingData: UpdateBookingData
+) {
   const { error } = await supabase
     .from("bookings")
     .update({
