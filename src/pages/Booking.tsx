@@ -1,7 +1,6 @@
 import { useBookings } from "../authentication/useBookings";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import BookingSubnav from "../components/subnav/BookingSubnav";
-import { useMemo } from "react";
 import { useDeleteBooking } from "../authentication/useDeleteBooking";
 import EditBookingModal from "../components/booking/EditBookingModal";
 
@@ -88,6 +87,22 @@ const Booking = () => {
     return result;
   }, [bookings, filter, sort, search]);
 
+  const totalPages = Math.max(1, Math.ceil(filterBookings.length / ITEMS_PER_PAGE));
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [totalPages]);
+
+  // Reset to first page when filters/search/sort or the bookings list change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, sort, search, bookings]);
+
+  const paginatedBookings = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filterBookings.slice(start, start + ITEMS_PER_PAGE);
+  }, [filterBookings, currentPage]);
+
   return(
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-gray-900">
@@ -135,7 +150,7 @@ const Booking = () => {
             </thead>
 
             <tbody className="divide-y divide-gray-200">
-              {filterBookings.map((booking: any) => (
+              {paginatedBookings.map((booking: any) => (
                 <tr key={booking.id} className="hover:bg-gray-50">
                   
                   <td className="px-6 py-4 text-sm text-gray-900">
@@ -203,10 +218,38 @@ const Booking = () => {
               ))}
             </tbody>
           </table>
+
+          {/* Pagination */}
+          <div className="px-6 py-4 bg-white border-t border-gray-200 flex items-center justify-between">
+            <div className="text-sm text-gray-500">
+              Showing {filterBookings.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filterBookings.length)} of {filterBookings.length}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded-lg ${currentPage === 1 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"}`}
+              >
+                Previous
+              </button>
+
+              <span className="text-sm text-gray-700">Page {currentPage} of {totalPages}</span>
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded-lg ${currentPage === totalPages ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"}`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
         </div>
       ) : (
         <p className="text-gray-500">No bookings available.</p>
       )}
+      
       {/* EDIT MODAL */}
     {editingBooking && (
       <EditBookingModal
