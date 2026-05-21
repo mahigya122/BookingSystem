@@ -2,17 +2,18 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../services/supabase";
 
 export function useGuests() {
-  const { data: guests, isLoading, error } = useQuery({
+  const { data: guests = [], isLoading} = useQuery({
     queryKey: ["guests"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("guests")
-        .select("*");
+        .select("*")
+        .order("created_at", {ascending: false});
 
-      if (error) throw error;
-      return data;
+      if (error) throw new Error(error.message);
+      return data; 
     },
   });
 
-  return { guests, isLoading, error };
+  return { guests, isLoading };
 }

@@ -13,12 +13,15 @@ const EditBookingModal = ({ booking, onClose} : Props) => {
   const [endDate, setEndDate] = useState("");
   const [status, setStatus] = useState("");
 
+  const [hasBreakfast, setHasBreakfast] = useState(false);
+
 // INITIALIZE FORM
 useEffect(() => {
   if (booking) {
     setStartDate(booking.start_date);
     setEndDate(booking.end_date);
     setStatus(booking.status);
+    setHasBreakfast(booking.has_breakfast);
   }
 }, [booking]);
 
@@ -36,11 +39,13 @@ const Pricing = useMemo(() => {
     if (nights <= 0) return null;
 
     const cabinPrice = booking.cabins?.price_per_night || 0;
-    const total = Math.round(cabinPrice * nights);
+  const breakfastPrice = hasBreakfast ? nights * 12 : 0;
+    const total = Math.round(cabinPrice * nights + breakfastPrice);
 
      return{
         nights,
         total,
+        breakfastPrice,
      };
     }, [startDate, endDate, booking]
 );
@@ -54,6 +59,7 @@ const Pricing = useMemo(() => {
         start_date: startDate,
         end_date: endDate,
         total_price: Pricing.total,
+        has_breakfast: hasBreakfast,
         status,
       },
       {
@@ -156,6 +162,20 @@ const Pricing = useMemo(() => {
             </option>
           </select>
         </div>
+
+        <div className="flex items-center gap-3">
+        <input
+         type="checkbox"
+         checked={hasBreakfast}
+         onChange={(e) =>
+         setHasBreakfast(e.target.checked)
+        }
+        />
+
+       <label>
+          Include Breakfast
+       </label>
+       </div>
 
         {/* PRICING */}
         {Pricing && (

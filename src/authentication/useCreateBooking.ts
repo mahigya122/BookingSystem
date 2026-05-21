@@ -9,6 +9,7 @@ interface CreateBookingData {
   start_date: string;
   end_date: string;
   total_price: number;
+  has_breakfast: boolean;
 }
 
 export function useCreateBooking() {
@@ -70,6 +71,7 @@ export function useCreateBooking() {
             end_date: bookingData.end_date,
             total_price: bookingData.total_price,
             status: "booked",
+            has_breakfast: bookingData.has_breakfast,
           },
         ]);
 
@@ -78,11 +80,17 @@ export function useCreateBooking() {
       }
     },
 
-    onSuccess: () => {
-      // Refresh bookings automatically
-      queryClient.invalidateQueries({
-        queryKey: ["bookings"],
-      });
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["bookings"],
+          refetchType: "all",
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["guests"],
+          refetchType: "all",
+        }),
+      ]);
     },
   });
 

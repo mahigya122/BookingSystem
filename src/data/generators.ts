@@ -1,5 +1,17 @@
 import { faker } from "@faker-js/faker";
 
+type SeedGuest = {
+  id?: string;
+  full_name: string;
+  email: string;
+  phone: string;
+};
+
+type SeedCabin = {
+  id?: string;
+  name: string;
+};
+
 // --------------------
 // GUESTS
 // --------------------
@@ -28,7 +40,7 @@ export const generateCabins = () => {
 // --------------------
 // BOOKINGS
 // --------------------
-export const generateBookings = (guests: any[], cabins: any[]) => {
+export const generateBookings = (guests: SeedGuest[], cabins: SeedCabin[]) => {
   return Array.from({ length: 10 }).map(() => {
     const start = faker.date.soon({ days: 30 });
     const end = faker.date.soon({ days: 7, refDate: start });

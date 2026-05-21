@@ -16,8 +16,8 @@ export function useDeleteCabin() {
         });   
     },
     
-    onError: (err: any) => {
-        toast.error(err.message);
+    onError: (err: unknown) => {
+        toast.error(err instanceof Error ? err.message : "Failed to delete cabin");
     },
     });
 

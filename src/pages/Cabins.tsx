@@ -8,6 +8,7 @@ import CabinTable from "../components/cabin/CabinTable";
 import CabinPagination from "../components/cabin/CabinPagination";
 import CreateCabinModal from "../components/cabin/CreateCabinModal";
 import EditCabinModal from "../components/cabin/EditCabinModal";
+import CabinDetailModal from "../components/cabin/CabinDetailModal";
 
 import { useFilteredCabins } from "../hooks/useFilteredCabins";
 import { usePagination } from "../hooks/usePagination";
@@ -18,12 +19,13 @@ const Cabins = () => {
 
   const { removeCabin } = useDeleteCabin();
 
-  const [filter, setFilter] = useState("");
-  const [sort, setSort] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [sort, setSort] = useState("recent");
 
   const [showCreate, setShowCreate] = useState(false);
 
   const [editingCabin, setEditingCabin] = useState<CabinType | null>(null);
+  const [selectedCabin, setSelectedCabin] = useState<any | null>(null);
 
   const filteredCabins = useFilteredCabins(
     cabins, 
@@ -58,6 +60,7 @@ return (
   <CabinSubnav
   onFilterChange = {setFilter}
   onSortChange = {setSort}
+  currentSort={sort}
   onAddCabin = {() => setShowCreate(true)}
   />
 
@@ -65,6 +68,7 @@ return (
   cabins={paginatedData}
   onDelete={handleDelete}
   onEdit={setEditingCabin}
+  onView={setSelectedCabin}
   />
 
   <CabinPagination
@@ -84,6 +88,12 @@ return (
     onClose= {() => setEditingCabin(null)}
     />
   )}
+  {selectedCabin && (
+  <CabinDetailModal
+    cabin={selectedCabin}
+    onClose={() => setSelectedCabin(null)}
+  />
+)}
   </div>
 );
 };

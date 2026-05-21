@@ -6,14 +6,15 @@ interface Props {
   bookings: Booking[];
 
   onDelete: (id: string) => void;
-
   onEdit: (booking: Booking) => void;
+  onDetails: (booking: Booking) => void;
 }
 
 const BookingTable = ({
   bookings,
   onDelete,
   onEdit,
+  onDetails,
 }: Props) => {
   return (
     <table className="w-full">
@@ -56,6 +57,7 @@ const BookingTable = ({
             booking={booking}
             onDelete={onDelete}
             onEdit={onEdit}
+            onDetails={onDetails}
           />
         ))}
       </tbody>

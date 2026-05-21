@@ -12,10 +12,12 @@ export type SortType =
 
 export interface Booking {
   id: string;
+  created_at?: string;
   start_date: string;
   end_date: string;
   total_price: number;
   status: BookingStatus;   //string
+  has_breakfast: boolean;
 
   guests?: {
     full_name: string;

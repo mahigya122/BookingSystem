@@ -19,6 +19,7 @@ export interface UpdateBookingData {
   end_date: string;
   total_price: number;
   status: string;
+  has_breakfast: boolean;
 }
 
 export async function updateBooking(
@@ -31,6 +32,7 @@ export async function updateBooking(
       end_date: bookingData.end_date,
       total_price: bookingData.total_price,
       status: bookingData.status,
+      has_breakfast: bookingData.has_breakfast,
     })
     .eq("id", bookingData.id);
 

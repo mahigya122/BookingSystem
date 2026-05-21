@@ -8,7 +8,7 @@ const Sidebar = () => {
         <SidebarLink to="/dashboard/bookings" icon="📅" label="Bookings" />
         <SidebarLink to="/dashboard/book" icon="✏️" label="Book" />
         <SidebarLink to="/dashboard/cabins" icon="🏨" label="Cabins" />
-        <SidebarLink to="/dashboard/user" icon="👤" label="User" />
+        <SidebarLink to="/dashboard/guests" icon="👤" label="Guests" />
         <SidebarLink to="/dashboard/settings" icon="⚙️" label="Settings" />
       </nav>
     </aside>

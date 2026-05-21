@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 import { login as loginApi } from "../services/apiAuth";
 
+type LoginResponse = Awaited<ReturnType<typeof loginApi>>;
+
 export function useLogin() {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
@@ -11,7 +13,7 @@ export function useLogin() {
     const { mutate: login, isPending } = useMutation({
         mutationFn: loginApi,
 
-        onSuccess: (data: any) => {
+        onSuccess: (data: LoginResponse) => {
             queryClient.setQueryData(["user"], data.user);
             navigate("/dashboard", { replace: true });
         },

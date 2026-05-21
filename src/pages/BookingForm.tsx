@@ -1,8 +1,20 @@
 import { useMemo, useState } from "react";
 import { useCreateBooking } from "../authentication/useCreateBooking";
 import { useCabins } from "../authentication/useCabins";
+import type { Cabin } from "../types/cabin";
 
-const INITIAL_FORM_STATE = {
+interface BookingFormState {
+  guest_full_name: string;
+  guest_email: string;
+  guest_phone: string;
+  capacity: string;
+  cabin_id: string;
+  start_date: string;
+  end_date: string;
+  has_breakfast: boolean;
+}
+
+const INITIAL_FORM_STATE: BookingFormState = {
   guest_full_name: "",
   guest_email: "",
   guest_phone: "",
@@ -10,46 +22,38 @@ const INITIAL_FORM_STATE = {
   cabin_id: "",
   start_date: "",
   end_date: "",
+  has_breakfast: false,
 };
 
 const BookingForm = () => {
   const { createBooking, isPending } = useCreateBooking();
-  const { cabins = [] , isLoading} = useCabins();
+  const { cabins = [], isLoading } = useCabins();
 
-  const [form, setForm] = useState(INITIAL_FORM_STATE);
+  const [form, setForm] = useState<BookingFormState>(INITIAL_FORM_STATE);
   const [error, setError] = useState("");
 
-  // ------------------------
-  // INPUT HANDLER
-  // ------------------------
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setForm((prev: any) => ({
+    const { name, value, type } = e.target;
+    setForm((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]:
+      type === "checkbox"
+        ? (e.target as HTMLInputElement).checked
+        : value,
     }));
   };
 
-  // ------------------------
-  // FILTER CABINS BY CAPACITY
-  // ------------------------
   const filteredCabins = useMemo(() => {
     if (!form.capacity) return cabins;
-    return cabins.filter(
-      (c: any) => c.capacity >= Number(form.capacity)
-    );
+    return cabins.filter((cabin: Cabin) => cabin.capacity >= Number(form.capacity));
   }, [form.capacity, cabins]);
 
-  // ------------------------
-  // PRICE CALCULATION
-  // ------------------------
   const pricing = useMemo(() => {
     if (!form.cabin_id || !form.start_date || !form.end_date) return null;
 
-    const cabin = cabins.find(
-      (c: any) => c.id === form.cabin_id
-    );
+    const cabin = cabins.find((cabin: Cabin) => cabin.id === form.cabin_id);
 
     if (!cabin) return null;
 
@@ -62,26 +66,26 @@ const BookingForm = () => {
     if (nights <= 0) return null;
 
     const base = cabin.price_per_night * nights;
+    const breakfastPrice = form.has_breakfast
+      ? nights * 12
+      : 0;
     const discount = cabin.discount || 0;
     const discountAmount = (base * discount) / 100;
 
     return {
       nights,
       base,
+      breakfastPrice,
       discount,
       discountAmount,
-      total: base - discountAmount,
+      total: base + breakfastPrice - discountAmount,
     };
   }, [form, cabins]);
 
-  // ------------------------
-  // SUBMIT
-  // ------------------------
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    // simple validation
     if (
       !form.guest_full_name ||
       !form.guest_email ||
@@ -108,22 +112,20 @@ const BookingForm = () => {
         start_date: form.start_date,
         end_date: form.end_date,
         total_price: pricing.total,
+        has_breakfast: form.has_breakfast,
       },
       {
         onSuccess: () => {
           setForm(INITIAL_FORM_STATE);
           alert("Booking created!");
         },
-        onError: (err: any) => {
-          setError(err.message || "Something went wrong");
+        onError: (err: unknown) => {
+          setError(err instanceof Error ? err.message : "Something went wrong");
         },
       }
     );
   };
 
-  // ------------------------
-  // UI
-  // ------------------------
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold">Create Booking</h1>
@@ -136,7 +138,6 @@ const BookingForm = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
 
-        {/* USER INFO */}
         <div className="grid gap-3">
           <input
             name="guest_full_name"
@@ -163,16 +164,14 @@ const BookingForm = () => {
           />
         </div>
 
-        {/* CAPACITY FILTER */}
         <input
           name="capacity"
           placeholder="Required capacity (e.g. 2, 4, 6)"
-          value={(form as any).capacity || ""}
+          value={form.capacity}
           onChange={handleChange}
           className="border p-2 rounded w-full"
         />
 
-        {/* CABIN SELECT */}
         <select
           name="cabin_id"
           value={form.cabin_id}
@@ -182,14 +181,13 @@ const BookingForm = () => {
           <option value="">Select cabin</option>
 
           {!isLoading &&
-            filteredCabins.map((c: any) => (
-              <option key={c.id} value={c.id}>
-                {c.name} - ${c.price_per_night}/night
+            filteredCabins.map((cabin: Cabin) => (
+              <option key={cabin.id} value={cabin.id}>
+                {cabin.name} - ${cabin.price_per_night}/night
               </option>
             ))}
         </select>
 
-        {/* DATES */}
         <div className="grid grid-cols-2 gap-3">
           <input
             type="date"
@@ -208,11 +206,24 @@ const BookingForm = () => {
           />
         </div>
 
-        {/* PRICING */}
+        <div className="flex items-center gap-3">
+        <input
+         type="checkbox"
+         name="has_breakfast"
+         checked={form.has_breakfast}
+         onChange={handleChange}
+        />
+
+        <label className="text-sm font-medium">
+        Include Breakfast (+$12/night)
+        </label>
+        </div>
+
         {pricing && (
           <div className="bg-gray-100 p-4 rounded space-y-1">
             <p>Nights: {pricing.nights}</p>
             <p>Base: ${pricing.base}</p>
+            <p>Breakfast: ${pricing.breakfastPrice}</p>
             <p>Discount: {pricing.discount}%</p>
             <p className="font-bold text-indigo-600">
               Total: ${pricing.total}
@@ -220,7 +231,6 @@ const BookingForm = () => {
           </div>
         )}
 
-        {/* BUTTONS */}
         <button
           disabled={isPending}
           className="bg-indigo-600 text-white px-4 py-2 rounded w-full"

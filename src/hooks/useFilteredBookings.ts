@@ -36,8 +36,12 @@ export function useFilteredBookings({
       switch (sort) {
         case "recent":
           return (
-            new Date(b.start_date).getTime() -
-            new Date(a.start_date).getTime()
+            new Date(
+              (b as { created_at?: string }).created_at ?? b.start_date
+            ).getTime() -
+            new Date(
+              (a as { created_at?: string }).created_at ?? a.start_date
+            ).getTime()
           );
 
         case "earlier":

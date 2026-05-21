@@ -21,6 +21,10 @@ export function useFilteredCabins(
     //sort
     result.sort((a,b) => {
         switch (sort) {
+        case "recent":
+          // Keep the query order (newest first) as the default recent sort.
+          return 0;
+
             case "price-high":
                 return b.price_per_night - a.price_per_night;
 

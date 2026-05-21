@@ -4,12 +4,14 @@ interface Props {
   booking: Booking;
   onDelete: (id: string) => void;
   onEdit: (booking: Booking) => void;
+  onDetails: (booking: Booking) => void;
 }
 
 const BookingRow = ({
   booking,
   onDelete,
   onEdit,
+  onDetails,
 }: Props) => {
   return (
     <tr className="hover:bg-gray-50">
@@ -43,6 +45,7 @@ const BookingRow = ({
 
       <td className="px-6 py-4">
         <div className="flex gap-2">
+
           <button
             onClick={() => onEdit(booking)}
             disabled={booking.status === "checked-out"}
@@ -66,6 +69,14 @@ const BookingRow = ({
           >
             Delete
           </button>
+
+          <button
+            onClick={() => onDetails(booking)}
+            className="px-3 py-1 rounded-lg bg-yellow-100 text-yellow-600 hover:bg-yellow-200"
+          >
+            Details
+          </button>
+
         </div>
       </td>
     </tr>

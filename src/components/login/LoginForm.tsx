@@ -19,8 +19,8 @@ const LoginForm = () => {
         login(
             { email, password },
             {
-                onError: (err: any) => {
-                    setError(err.message || "Login failed");
+                onError: (err: unknown) => {
+                    setError(err instanceof Error ? err.message : "Login failed");
                 },
             }
         );

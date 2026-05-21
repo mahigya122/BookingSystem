@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import BookingSubnav from "../components/booking/BookingSubnav";
 import BookingTable from "../components/booking/BookingTable";
 import BookingPagination from "../components/booking/BookingPagination";
 import EditBookingModal from "../components/booking/EditBookingModal";
+import BookingDetailModal from "../components/booking/BookingDetailModal";
 
 import { useBookings } from "../authentication/useBookings";
 import { useDeleteBooking } from "../authentication/useDeleteBooking";
@@ -35,6 +36,9 @@ const BookingPage = () => {
   const [editingBooking, setEditingBooking] =
     useState<Booking | null>(null);
 
+  const [detailBooking, setDetailBooking] =
+    useState<Booking | null>(null);
+
   const filteredBookings =
     useFilteredBookings({
       bookings,
@@ -42,6 +46,10 @@ const BookingPage = () => {
       sort,
       search,
     });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredBookings]);
 
   const {
     currentPage,
@@ -82,6 +90,7 @@ const BookingPage = () => {
           bookings={paginatedData}
           onDelete={handleDelete}
           onEdit={setEditingBooking}
+          onDetails={setDetailBooking}
         />
 
         <BookingPagination
@@ -97,6 +106,13 @@ const BookingPage = () => {
           onClose={() =>
             setEditingBooking(null)
           }
+        />
+      )}
+
+      {detailBooking && (
+        <BookingDetailModal
+          booking={detailBooking}
+          onClose={() => setDetailBooking(null)}
         />
       )}
     </div>

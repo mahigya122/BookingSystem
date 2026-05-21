@@ -17,31 +17,52 @@ export async function initializeData() {
 
     // Only refresh or seed cabins when needed
 
-    // Check if guests and bookings already exist
-    const { count: guestCount } = await supabase
+    // Check table state first
+    const { count: guestCount, error: guestCountErr } = await supabase
       .from("guests")
       .select("id", { count: "exact", head: true });
 
-    const { count: bookingCount } = await supabase
+    const { count: bookingCount, error: bookingCountErr } = await supabase
       .from("bookings")
       .select("id", { count: "exact", head: true });
 
-    // If guests and bookings exist, only refresh cabins
-    if (guestCount && guestCount > 0 && bookingCount && bookingCount > 0) {
-      console.log("Refreshing cabins with new images...");
-      // remove existing cabins so we can re-insert fresh ones
-      await supabase.from("cabins").delete().gte("id", 0);
+    const { count: cabinCount, error: cabinCountErr } = await supabase
+      .from("cabins")
+      .select("id", { count: "exact", head: true });
+
+    if (guestCountErr) throw guestCountErr;
+    if (bookingCountErr) throw bookingCountErr;
+    if (cabinCountErr) throw cabinCountErr;
+
+    // All seeded already: do nothing on refresh
+    if (guestCount && guestCount > 0 && bookingCount && bookingCount > 0 && cabinCount && cabinCount > 0) {
+      console.log("Data already initialized. Skipping seed.");
+      return;
+    }
+
+    // If only cabins are missing, seed just cabins
+    if (guestCount && guestCount > 0 && bookingCount && bookingCount > 0 && (!cabinCount || cabinCount === 0)) {
+      console.log("Guests and bookings exist; seeding missing cabins...");
       const cabins = generateCabins();
       const { error: cErr } = await supabase.from("cabins").insert(cabins);
       if (cErr) throw cErr;
-      console.log("Cabins refreshed");
+      console.log("Cabins seeded");
       return;
     }
 
     // Otherwise, seed everything from scratch
     // Clean tables if partially empty
-    await supabase.from("bookings").delete().gte("created_at", "1970-01-01");
-    await supabase.from("guests").delete().gte("created_at", "1970-01-01");
+    const { error: deleteBookingsErr } = await supabase
+      .from("bookings")
+      .delete()
+      .not("id", "is", null);
+    if (deleteBookingsErr) throw deleteBookingsErr;
+
+    const { error: deleteGuestsErr } = await supabase
+      .from("guests")
+      .delete()
+      .not("id", "is", null);
+    if (deleteGuestsErr) throw deleteGuestsErr;
 
     // 1. INSERT GUESTS
     const guests = generateGuests();
@@ -55,7 +76,11 @@ export async function initializeData() {
 
     // 2. INSERT CABINS
     // Ensure cabins table is clean before seeding
-    await supabase.from("cabins").delete().gte("created_at", "1970-01-01");
+    const { error: deleteCabinsErr } = await supabase
+      .from("cabins")
+      .delete()
+      .not("id", "is", null);
+    if (deleteCabinsErr) throw deleteCabinsErr;
     const cabins = generateCabins();
     const { data: cabinData, error: cErr } = await supabase
       .from("cabins")
@@ -72,7 +97,10 @@ export async function initializeData() {
     if (bErr) throw bErr;
     console.log("Bookings seeded");
     console.log("Data initialization complete");
-  } catch (err: any) {
-    console.error("Data initialization failed:", err.message);
+  } catch (err: unknown) {
+    console.error(
+      "Data initialization failed:",
+      err instanceof Error ? err.message : err
+    );
   }
 }

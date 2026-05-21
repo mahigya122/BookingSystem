@@ -5,18 +5,20 @@ interface Props{
     cabins: Cabin[];
     onEdit: (cabin: Cabin) => void;
     onDelete: (id: string) => void;
+     onView: (cabin: Cabin) => void;
 }
 
 const CabinTable = ({
     cabins,
     onEdit,
     onDelete,
+    onView,
 }: Props) => {
 
 return(
-    <div className="bg-white rounded-xl shadow overflow-x-auto">
+    <div className="bg-white rounded-xl shadow overflow-hidden">
 
-      <table className="w-full">
+    <table className="w-full border-collapse">
 
         <thead className="bg-gray-50 border-b">
             <tr>
@@ -25,7 +27,7 @@ return(
                 <th className="px-6 py-4 text-left"> Capacity </th>
                 <th className="px-6 py-4 text-left"> Price / Night </th>
                 <th className="px-6 py-4 text-left"> Discount </th>
-                <th className="px-6 py-4 text-left"> Actions </th>
+                <th className="pl-6 pr-3 py-4 text-left"> Actions </th>
             </tr>
         </thead>
 
@@ -36,6 +38,7 @@ return(
                 cabin= {cabin}
                 onEdit= {onEdit}
                 onDelete= {onDelete}
+                onView= {onView}
                 />
             ))}
         </tbody>

@@ -9,7 +9,8 @@ export function useCabins() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cabins")
-        .select("*");
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error){
         throw new Error(error.message);

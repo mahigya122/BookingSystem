@@ -3,16 +3,33 @@ import { useState } from "react";
 interface Props {
   onFilterChange: (value: string) => void;
   onSortChange: (value: string) => void;
+  currentSort: string;
   onAddCabin: () => void;
 }
 
 const CabinSubnav = ({
   onFilterChange,
   onSortChange,
+  currentSort,
   onAddCabin,
 }: Props) => {
   const [active, setActive] = useState("all");
   const [sortOpen, setSortOpen] = useState(false);
+
+  const sortLabelMap: Record<string, string> = {
+    recent: "Recently Added",
+    "price-high": "Price High -> Low",
+    "price-low": "Price Low -> High",
+    "capacity-high": "Capacity High -> Low",
+    "capacity-low": "Capacity Low -> High",
+  };
+
+  const activeSortLabel = sortLabelMap[currentSort] || "Recently Added";
+
+  const handleSort = (value: string) => {
+    onSortChange(value);
+    setSortOpen(false);
+  };
 
   const handleFilter = (value: string) => {
     setActive(value);
@@ -57,35 +74,42 @@ const CabinSubnav = ({
             onClick={() => setSortOpen((p) => !p)}
             className="bg-gray-100 px-4 py-2 rounded-lg"
           >
-            Sort ▾
+            {activeSortLabel} ▾
           </button>
 
           {sortOpen && (
             <div className="absolute right-0 mt-2 bg-white border rounded-lg shadow-lg w-52">
 
               <button
-                onClick={() => onSortChange("price-high")}
+                onClick={() => handleSort("recent")}
+                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+              >
+                Recently Added
+              </button>
+
+              <button
+                onClick={() => handleSort("price-high")}
                 className="block w-full text-left px-4 py-2 hover:bg-gray-100"
               >
                 Price High → Low
               </button>
 
               <button
-                onClick={() => onSortChange("price-low")}
+                onClick={() => handleSort("price-low")}
                 className="block w-full text-left px-4 py-2 hover:bg-gray-100"
               >
                 Price Low → High
               </button>
 
               <button
-                onClick={() => onSortChange("capacity-high")}
+                onClick={() => handleSort("capacity-high")}
                 className="block w-full text-left px-4 py-2 hover:bg-gray-100"
               >
                 Capacity High → Low
               </button>
 
               <button
-                onClick={() => onSortChange("capacity-low")}
+                onClick={() => handleSort("capacity-low")}
                 className="block w-full text-left px-4 py-2 hover:bg-gray-100"
               >
                 Capacity Low → High
