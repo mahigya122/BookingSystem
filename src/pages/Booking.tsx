@@ -47,16 +47,16 @@ const BookingPage = () => {
       search,
     });
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filteredBookings]);
-
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData,
   } = usePagination(filteredBookings);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredBookings, setCurrentPage]);
 
   const handleDelete = (id: string) => {
     const confirmed = confirm(
@@ -102,6 +102,7 @@ const BookingPage = () => {
 
       {editingBooking && (
         <EditBookingModal
+          key={editingBooking.id}
           booking={editingBooking}
           onClose={() =>
             setEditingBooking(null)

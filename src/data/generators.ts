@@ -16,7 +16,7 @@ type SeedCabin = {
 // GUESTS
 // --------------------
 export const generateGuests = () => {
-  return Array.from({ length: 10 }).map(() => ({
+  return Array.from({ length: 50 }).map(() => ({
     full_name: faker.person.fullName(),
     email: faker.internet.email(),
     phone: faker.phone.number(),
@@ -27,7 +27,7 @@ export const generateGuests = () => {
 // CABINS
 // --------------------
 export const generateCabins = () => {
-  return Array.from({ length: 5 }).map((_, i) => ({
+  return Array.from({ length: 10 }).map((_, i) => ({
     name: `Cabin ${i + 1}`,
     capacity: faker.number.int({ min: 2, max: 10 }),
     price_per_night: faker.number.int({ min: 80, max: 500 }),
@@ -41,9 +41,12 @@ export const generateCabins = () => {
 // BOOKINGS
 // --------------------
 export const generateBookings = (guests: SeedGuest[], cabins: SeedCabin[]) => {
-  return Array.from({ length: 10 }).map(() => {
-    const start = faker.date.soon({ days: 30 });
-    const end = faker.date.soon({ days: 7, refDate: start });
+  return Array.from({ length: 50 }).map(() => {
+    const start = faker.date.between({
+      from: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000),
+      to: new Date(),
+    });
+    const end = faker.date.soon({ days: faker.number.int({ min: 2, max: 14 }), refDate: start });
 
     const cabin = faker.helpers.arrayElement(cabins);
     const guest = faker.helpers.arrayElement(guests);

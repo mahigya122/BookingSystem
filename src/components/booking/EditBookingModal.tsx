@@ -1,29 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import type { Booking } from "../../types/booking";
 import { useUpdateBooking } from "../../authentication/useUpdateBooking";
 
 interface Props {
-  booking: any;
+  booking: Booking;
   onClose: () => void;
 }
 
 const EditBookingModal = ({ booking, onClose} : Props) => {
   const { editBooking, isPending } = useUpdateBooking();
 
-  const [ startDate, setStartDate ] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [status, setStatus] = useState("");
-
-  const [hasBreakfast, setHasBreakfast] = useState(false);
-
-// INITIALIZE FORM
-useEffect(() => {
-  if (booking) {
-    setStartDate(booking.start_date);
-    setEndDate(booking.end_date);
-    setStatus(booking.status);
-    setHasBreakfast(booking.has_breakfast);
-  }
-}, [booking]);
+  const [startDate, setStartDate] = useState(booking.start_date);
+  const [endDate, setEndDate] = useState(booking.end_date);
+  const [status, setStatus] = useState<Booking["status"]>(booking.status);
+  const [hasBreakfast, setHasBreakfast] = useState(booking.has_breakfast);
 
 // PRICE CALCULATION
 const Pricing = useMemo(() => {
@@ -47,7 +37,7 @@ const Pricing = useMemo(() => {
         total,
         breakfastPrice,
      };
-    }, [startDate, endDate, booking]
+    }, [startDate, endDate, booking, hasBreakfast]
 );
   // SAVE
   const handleSave = () => {
@@ -145,7 +135,7 @@ const Pricing = useMemo(() => {
           <select
             value={status}
             onChange={(e) =>
-              setStatus(e.target.value)
+              setStatus(e.target.value as Booking["status"])
             }
             className="w-full border rounded-lg p-2 mt-1"
           >

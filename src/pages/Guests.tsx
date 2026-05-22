@@ -6,7 +6,6 @@ import { useDeleteGuest } from "../authentication/useDeleteGuest";
 import GuestSubnav from "../components/guest/GuestSubnav";
 import GuestTable from "../components/guest/GuestTable";
 import GuestPagination from "../components/guest/GuestPagination";
-import CreateGuestModal from "../components/guest/CreateGuestModal";
 import EditGuestModal from "../components/guest/EditGuestModal";
 
 import { useFilteredGuests } from "../hooks/useFilteredGuests";
@@ -17,7 +16,6 @@ const Guests = () => {
   const { guests = [], isLoading } = useGuests();
   const { removeGuest } = useDeleteGuest();
 
-  const [showCreate, setShowCreate] = useState(false);
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<GuestSortType>("recent");
@@ -49,13 +47,10 @@ const Guests = () => {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Guests</h1>
-
       <GuestSubnav
         onSearchChange={setSearch}
         onSortChange={setSort}
         currentSort={sort}
-        onAddGuest={() => setShowCreate(true)}
       />
 
       <GuestTable
@@ -70,12 +65,9 @@ const Guests = () => {
         setCurrentPage={setCurrentPage}
       />
 
-      {showCreate && (
-        <CreateGuestModal onClose={() => setShowCreate(false)} />
-      )}
-
       {editingGuest && (
         <EditGuestModal
+          key={editingGuest.id}
           guest={editingGuest}
           onClose={() => setEditingGuest(null)}
         />

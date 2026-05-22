@@ -6,18 +6,6 @@ export interface GuestData {
   phone: string;
 }
 
-// CREATE
-export async function createGuest(data: GuestData) {
-  const { error, data: createdGuest } = await supabase
-    .from("guests")
-    .insert([data])
-    .select()
-    .single();
-
-  if (error) throw new Error(error.message);
-  return createdGuest;
-}
-
 // UPDATE
 export async function updateGuest(data: { id: string } & GuestData) {
   const { error, data: updatedGuest } = await supabase

@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
-import { useCreateBooking } from "../authentication/useCreateBooking";
-import { useCabins } from "../authentication/useCabins";
-import type { Cabin } from "../types/cabin";
+import { useCreateBooking } from "../../authentication/useCreateBooking";
+import { useCabins } from "../../authentication/useCabins";
+import { useSettings } from "../../authentication/useSettings";
+import type { Cabin } from "../../types/cabin";
 
 interface BookingFormState {
   guest_full_name: string;
@@ -28,6 +29,7 @@ const INITIAL_FORM_STATE: BookingFormState = {
 const BookingForm = () => {
   const { createBooking, isPending } = useCreateBooking();
   const { cabins = [], isLoading } = useCabins();
+  const { settings } = useSettings();
 
   const [form, setForm] = useState<BookingFormState>(INITIAL_FORM_STATE);
   const [error, setError] = useState("");
@@ -66,8 +68,9 @@ const BookingForm = () => {
     if (nights <= 0) return null;
 
     const base = cabin.price_per_night * nights;
+    const breakfastUnit = settings?.breakfast_price ?? 12;
     const breakfastPrice = form.has_breakfast
-      ? nights * 12
+      ? nights * breakfastUnit
       : 0;
     const discount = cabin.discount || 0;
     const discountAmount = (base * discount) / 100;
@@ -215,7 +218,7 @@ const BookingForm = () => {
         />
 
         <label className="text-sm font-medium">
-        Include Breakfast (+$12/night)
+        Include Breakfast (+${settings?.breakfast_price ?? 12}/night)
         </label>
         </div>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useUpdateGuest } from "../../authentication/useUpdateGuest";
 import type { Guest } from "../../types/guest";
 
@@ -11,23 +11,11 @@ export default function EditGuestModal({ guest, onClose }: Props) {
   const { updateGuest, isPending } = useUpdateGuest();
 
   const [form, setForm] = useState({
-    id: "",
-    full_name: "",
-    email: "",
-    phone: "",
+    id: guest.id,
+    full_name: guest.full_name,
+    email: guest.email,
+    phone: guest.phone,
   });
-
-  // preload data
-  useEffect(() => {
-    if (guest) {
-      setForm({
-        id: guest.id,
-        full_name: guest.full_name,
-        email: guest.email,
-        phone: guest.phone,
-      });
-    }
-  }, [guest]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({

@@ -13,6 +13,12 @@ const BookingRow = ({
   onEdit,
   onDetails,
 }: Props) => {
+  const statusLabel = booking.status === "checked-out"
+    ? "Checked out"
+    : booking.status === "checked-in"
+      ? "Checked in"
+      : "Booked";
+
   return (
     <tr className="hover:bg-gray-50">
       <td className="px-6 py-4">
@@ -36,7 +42,7 @@ const BookingRow = ({
       </td>
 
       <td className="px-6 py-4">
-        {booking.status}
+        {statusLabel}
       </td>
 
       <td className="px-6 py-4">

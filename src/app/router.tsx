@@ -6,7 +6,7 @@ import ProtectedRoute from "../layout/ProtectedRoute";
 import Login from "../pages/Login";
 import Home from "../pages/Home";
 import Booking from "../pages/Booking";
-import BookingForm from "../pages/BookingForm";
+import BookingForm from "../components/booking/BookingForm";
 import Cabins from "../pages/Cabins";
 import Guests from "../pages/Guests";
 import Profile from "../pages/Profile";

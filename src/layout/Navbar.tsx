@@ -15,8 +15,8 @@ return(
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
     
     <div>
-        <h1 className="text-2xl font-bold text-indigo-600">
-            Hotal Flow
+        <h1 className="text-3xl font-extrabold text-indigo-700 tracking-tight">
+            Hotel Flow
         </h1>
     </div>
 
@@ -29,12 +29,12 @@ return(
         👤
     </button>
 
-    <button
-          onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
-        >
-          Logout
-        </button>
+        <button
+                    onClick={handleLogout}
+                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md shadow-sm"
+                >
+                    Logout
+                </button>
 
         </div>
     </header>

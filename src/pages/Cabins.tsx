@@ -25,7 +25,7 @@ const Cabins = () => {
   const [showCreate, setShowCreate] = useState(false);
 
   const [editingCabin, setEditingCabin] = useState<CabinType | null>(null);
-  const [selectedCabin, setSelectedCabin] = useState<any | null>(null);
+  const [selectedCabin, setSelectedCabin] = useState<CabinType | null>(null);
 
   const filteredCabins = useFilteredCabins(
     cabins, 
