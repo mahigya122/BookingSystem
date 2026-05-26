@@ -8,9 +8,8 @@ import { router } from "./app/router";
 import { initializeData } from "./data/initData";
 import { Toaster } from "react-hot-toast";
 import "./index.css";
-
-// Initialize data on app startup
-initializeData();
+import { ThemeProvider } from "./Context/ThemeContext";
+import { AIChatProvider } from "./Context/AIChatContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,16 +23,26 @@ const queryClient = new QueryClient({
   },
 });
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-      <Toaster
-      position="top-right"
-      toastOptions={{
-        duration: 3000,
-      }}
-    />
-    </QueryClientProvider>
-  </React.StrictMode>
-);
+async function bootstrap() {
+  await initializeData();
+
+  ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      <ThemeProvider>
+        <AIChatProvider>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 3000,
+              }}
+            />
+          </QueryClientProvider>
+      </AIChatProvider>
+      </ThemeProvider>
+    </React.StrictMode>
+  );
+}
+
+void bootstrap();

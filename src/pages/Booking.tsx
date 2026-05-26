@@ -73,10 +73,13 @@ const BookingPage = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">
-        Bookings
-      </h1>
+    <div className="space-y-6 animate-slide-up">
+      <div className="flex flex-col">
+          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+            Bookings
+          </h1>
+          <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-2">Manage and view all reservation details</span>
+      </div>
 
       <BookingSubnav
         onFilterChange={setFilter}
@@ -85,7 +88,7 @@ const BookingPage = () => {
         currentSort={sort}
       />
 
-      <div className="bg-white rounded-xl shadow overflow-hidden">
+      <div className="card overflow-hidden">
         <BookingTable
           bookings={paginatedData}
           onDelete={handleDelete}
@@ -93,11 +96,13 @@ const BookingPage = () => {
           onDetails={setDetailBooking}
         />
 
-        <BookingPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          setCurrentPage={setCurrentPage}
-        />
+        <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+            <BookingPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              setCurrentPage={setCurrentPage}
+            />
+        </div>
       </div>
 
       {editingBooking && (

@@ -54,8 +54,13 @@ const Cabins = () => {
   }
 
 return (
-  <div className="space-y-6"> 
-  <h1 className= "text-3xl font-bold">Cabins</h1>
+  <div className="space-y-8 animate-slide-up"> 
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Units & Cabins</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your property inventory and pricing.</p>
+      </div>
+  </div>
 
   <CabinSubnav
   onFilterChange = {setFilter}
@@ -64,18 +69,22 @@ return (
   onAddCabin = {() => setShowCreate(true)}
   />
 
-  <CabinTable
-  cabins={paginatedData}
-  onDelete={handleDelete}
-  onEdit={setEditingCabin}
-  onView={setSelectedCabin}
-  />
+  <div className="card overflow-hidden">
+      <CabinTable
+      cabins={paginatedData}
+      onDelete={handleDelete}
+      onEdit={setEditingCabin}
+      onView={setSelectedCabin}
+      />
 
-  <CabinPagination
-  currentPage={currentPage}
-  totalPages={totalPages}
-  setCurrentPage={setCurrentPage}
-  />
+      <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+          <CabinPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          />
+      </div>
+  </div>
 
   {showCreate && (
     <CreateCabinModal

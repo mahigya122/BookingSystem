@@ -8,21 +8,16 @@ interface SidebarLinkProps {
 }
 
 const SidebarLink = ({ to, icon, label, end = false }: SidebarLinkProps) => {
-  const linkClass = "block py-3 px-4 rounded-xl transition-colors hover:bg-gray-100";
-
   return (
     <NavLink
       to={to}
       end={end}
       className={({ isActive }) =>
-        `${linkClass} ${
-          isActive
-            ? "bg-indigo-100 text-indigo-700"
-            : "hover:bg-gray-100"
-        }`
+        `sidebar-item ${isActive ? "sidebar-item-active" : ""}`
       }
     >
-      {icon} {label}
+      <span className="text-base">{icon}</span> 
+      <span>{label}</span>
     </NavLink>
   );
 };

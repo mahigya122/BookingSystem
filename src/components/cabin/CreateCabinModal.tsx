@@ -27,9 +27,9 @@ const CreateCabinModal = ({ onClose } : props) => {
     };
 
 return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+    <div className="modal-overlay">
 
-            <div className="bg-white rounded-2xl p-6 w-full max-w-2xl space-y-5">
+            <div className="modal-content w-full max-w-2xl space-y-5 p-6">
 
                 <div className="flex items-center justify-between">
                     <h2 className="text-2xl font-bold">
@@ -38,7 +38,7 @@ return (
 
                     <button
                         onClick={onClose}
-                        className="text-gray-500 hover:text-black"
+                        className="btn btn-ghost h-9 w-9 p-0"
                     >
                         ✕
                     </button>
@@ -124,7 +124,7 @@ return (
 
                 <button
                 onClick={onClose}
-                className="px-4 py-2 rounded-lg border"
+                className="btn btn-secondary px-4 py-2"
                 >
                         Cancel
                 </button>
@@ -132,7 +132,7 @@ return (
                 <button
                 onClick={handleSubmit}
                 disabled={isPending}
-                className="px-4 py-2 rounded-lg bg-indigo-600 text-white"
+                className="btn btn-primary px-4 py-2"
                 >
                         {isPending ? "Saving..." : "Save"}
                 </button>

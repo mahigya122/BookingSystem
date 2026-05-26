@@ -36,68 +36,50 @@ export default function GuestSubnav({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-[1.75rem] border border-white/60 bg-white/80 p-6 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.45)] backdrop-blur md:flex-row md:items-center md:justify-between">
-      <div>
-        <p className="text-sm font-medium uppercase tracking-[0.28em] text-indigo-500">
-          Overview
-        </p>
-        <h1 className="mt-1 text-3xl font-black tracking-tight text-slate-900 md:text-4xl">
-          Guests
-        </h1>
-        <p className="mt-2 max-w-xl text-sm text-slate-500">
-          Search, sort, and manage guest records.
-        </p>
+    <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+      <div className="flex items-center gap-1 p-1 surface-panel-strong rounded-2xl shadow-sm">
+        <button
+          className="px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider text-white shadow-sm"
+          style={{ background: "linear-gradient(135deg, var(--app-primary), var(--app-secondary))" }}
+        >
+            All Guest Records
+        </button>
       </div>
 
-      <div className="flex flex-col gap-3 md:flex-row md:items-center">
-        <input
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            onSearchChange(e.target.value);
-          }}
-          placeholder="Search guests..."
-          className="w-full rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 md:w-64"
-        />
+      <div className="flex items-center gap-3 w-full md:w-auto">
+        <div className="relative flex-1 md:w-64">
+          <input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              onSearchChange(e.target.value);
+            }}
+            placeholder="Search directory..."
+            className="w-full pl-9 pr-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium"
+          />
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></span>
+        </div>
 
         <div className="relative">
           <button
             onClick={() => setOpen((p) => !p)}
-            className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+            className="btn btn-secondary flex items-center gap-2 px-4 py-2 rounded-2xl text-sm shadow-sm transition-all active:scale-95"
           >
-            {sortLabel(currentSort)}
-            <span className="text-xs text-gray-500">▾</span>
+            <span className="text-xs">{sortLabel(currentSort)}</span>
+            <span className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
           </button>
 
           {open && (
-            <div className="absolute right-0 z-10 mt-2 w-44 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg">
-              <button
-                onClick={() => handleSort("recent")}
-                className="block w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100"
-              >
-                Recent
-              </button>
-
-              <button
-                onClick={() => handleSort("earlier")}
-                className="block w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100"
-              >
-                Earlier
-              </button>
-
-              <button
-                onClick={() => handleSort("name-az")}
-                className="block w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100"
-              >
-                Name A-Z
-              </button>
-
-              <button
-                onClick={() => handleSort("name-za")}
-                className="block w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100"
-              >
-                Name Z-A
-              </button>
+            <div className="absolute right-0 z-50 mt-2 w-48 overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700 bg-[color-mix(in_srgb,var(--app-surface-elevated)_95%,black)] shadow-xl animate-in fade-in zoom-in-95 duration-150">
+              {["recent", "earlier", "name-az", "name-za"].map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleSort(s as GuestSortType)}
+                  className="w-full px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-primary-600 dark:hover:text-primary-400 border-b last:border-0 border-slate-100 dark:border-slate-800/50"
+                >
+                  {sortLabel(s as GuestSortType)}
+                </button>
+              ))}
             </div>
           )}
         </div>

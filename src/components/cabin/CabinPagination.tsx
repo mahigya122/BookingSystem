@@ -1,7 +1,7 @@
 interface Props {
   currentPage: number;
   totalPages: number;
-  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  setCurrentPage: (page: number) => void;
 }
 
 const CabinPagination = ({
@@ -10,44 +10,27 @@ const CabinPagination = ({
   setCurrentPage,
 }: Props) => {
   return (
-    <div className="flex items-center justify-between p-4 border-t bg-white">
-      
-      {/* LEFT INFO */}
-      <p className="text-sm text-gray-500">
-        Page {currentPage} of {totalPages}
+    <div className="flex items-center justify-between">
+      <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+        Showing Page {currentPage} <span className="mx-1 text-slate-300 dark:text-slate-700">/</span> {totalPages}
       </p>
 
-      {/* RIGHT BUTTONS */}
-      <div className="flex items-center gap-2">
-        
+      <div className="flex items-center gap-1">
         <button
-          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
-          className={`px-3 py-1 rounded-lg text-sm transition
-            ${
-              currentPage === 1
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-            }`}
+          className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed"
         >
           Previous
         </button>
 
         <button
-          onClick={() =>
-            setCurrentPage((p) => Math.min(totalPages, p + 1))
-          }
+          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
-          className={`px-3 py-1 rounded-lg text-sm transition
-            ${
-              currentPage === totalPages
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-            }`}
+          className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed"
         >
           Next
         </button>
-
       </div>
     </div>
   );

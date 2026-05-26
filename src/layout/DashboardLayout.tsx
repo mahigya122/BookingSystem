@@ -1,24 +1,24 @@
 import { Outlet } from "react-router-dom";
-
 import Navbar from "../layout/Navbar";
 import Sidebar from "../layout/Sidebar";
+import AIChatDrawer from "../components/ai/AIChatDrawer";
 
 const DashboardLayout = () => {
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
-      {/* TOP NAVBAR */}
+    <div className="h-screen flex flex-col" style={{ background: "var(--app-bg)", color: "var(--app-text-main)" }}>
       <Navbar />
 
-      {/* BODY SECTION */}
       <div className="flex flex-1 overflow-hidden">
-        {/* LEFT SIDEBAR */}
         <Sidebar />
 
-        {/* RIGHT CONTENT */}
-        <main className="flex-1 overflow-y-auto p-6">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto p-6 lg:p-10">
+          <div className="max-w-7xl mx-auto">
+            <Outlet />
+          </div>
         </main>
       </div>
+
+      <AIChatDrawer />
     </div>
   );
 };

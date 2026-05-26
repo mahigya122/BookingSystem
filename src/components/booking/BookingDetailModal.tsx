@@ -16,8 +16,8 @@ const BookingDetailModal = ({
     );
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-        <div className="bg-white rounded-2xl p-6 w-full max-w-md space-y-6">
+    <div className="modal-overlay">
+      <div className="modal-content w-full max-w-md space-y-6 p-6">
 
         {/* HEADER */}
         <div className="flex items-center justify-between">
@@ -27,7 +27,7 @@ const BookingDetailModal = ({
 
         <button
           onClick={onClose}
-          className="text-gray-500 hover:text-gray-700"
+          className="btn btn-ghost h-9 w-9 p-0"
         >
           ✕
         </button>

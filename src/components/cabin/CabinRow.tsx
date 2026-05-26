@@ -15,44 +15,60 @@ const CabinRow = ({
 }: Props) => {
 
     return (
-        <tr className=" hover:bg-gray-50">
+        <tr className="group">
             <td className="px-6 py-4">
                 <img
-                src={cabin.image_url}
-                alt= {cabin.name}
-                className="w-16 h-16 rounded-lg object-cover"
+                    src={cabin.image_url}
+                    alt= {cabin.name}
+                    className="w-12 h-12 rounded-lg object-cover border border-slate-200 dark:border-slate-800 shadow-sm"
                 />
             </td>
 
-            <td className="px-6 py-4">{cabin.name}</td>
-            <td className= "px-6 py-4">{cabin.capacity}</td>
-            <td className= "px-6 py-4">${cabin.price_per_night}</td>
-            <td className="px-6 py-4">{cabin.discount}%</td>
+            <td className="px-6 py-4">
+                <span className="font-bold text-slate-900 dark:text-slate-100">{cabin.name}</span>
+            </td>
+
+            <td className= "px-6 py-4">
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                    {cabin.capacity} Guest{cabin.capacity > 1 ? 's' : ''}
+                </span>
+            </td>
+
+            <td className= "px-6 py-4 font-black text-slate-900 dark:text-white">
+                ${cabin.price_per_night.toLocaleString()}
+            </td>
+
+            <td className="px-6 py-4">
+                {cabin.discount > 0 ? (
+                    <span className="badge badge-success">-{cabin.discount}%</span>
+                ) : (
+                    <span className="text-xs font-bold text-slate-300">N/A</span>
+                )}
+            </td>
 
 
-            <td className="pl-6 pr-3 py-4">
-                <div className="flex gap-2">
+            <td className="px-6 py-4">
+                <div className="flex justify-end gap-2 opacity-100 transition-opacity">
+                    <button
+                        onClick={() => onView(cabin)}
+                        className="btn-action btn-action-secondary"
+                    >
+                       View
+                    </button>
 
                     <button
-                    onClick= {() => onEdit(cabin)}
-                    className= "px-3 py-1 bg-indigo-100 text-indigo-700 rounded-lg  hover:bg-gray-200"
+                        onClick= {() => onEdit(cabin)}
+                        className="btn-action btn-action-primary"
                     >
                         Edit
                     </button>
 
                     <button
-                    onClick={() => onDelete(cabin.id)}
-                    className="px-3 py-1 bg-red-100 text-red-700 rounded-lg  hover:bg-gray-200"
-                   >
+                        onClick={() => onDelete(cabin.id)}
+                        className="btn-action btn-action-danger"
+                    >
                         Delete
                     </button>
-
-                    <button
-                    onClick={() => onView(cabin)}
-                    className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-gray-200"
-                >
-                       Details
-                 </button>
                 </div>
             </td>
         </tr>

@@ -12,24 +12,24 @@ export default function GuestRow({
   onDelete,
 }: Props) {
   return (
-    <tr className="border-b">
+    <tr className="border-b border-slate-200/60 dark:border-slate-800/70">
 
-      <td className="px-4 py-4">{guest.full_name}</td>
-      <td className="px-6 py-4 text-sm text-gray-500">{guest.email}</td>
-      <td className="px-6 py-4 text-sm text-gray-500">{guest.phone}</td>
+      <td className="px-4 py-4 font-semibold text-slate-900 dark:text-white">{guest.full_name}</td>
+      <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-300">{guest.email}</td>
+      <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-300">{guest.phone}</td>
       <td className="px-6 py-4">
       <div className="flex gap-2">
 
           <button
             onClick={() => onEdit(guest)}
-            className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded"
+            className="btn-action btn-action-primary"
           >
             Edit
           </button>
 
           <button
             onClick={() => onDelete(guest.id)}
-            className="px-2 py-1 bg-red-100 text-red-700 rounded"
+            className="btn-action btn-action-danger"
           >
             Delete
           </button>

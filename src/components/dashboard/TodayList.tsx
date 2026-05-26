@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useUpdateBooking } from "../../authentication/useUpdateBooking";
+import { toLocalDateMs } from "../../utils/dates";
 import type { Booking } from "../../types/booking";
 
 interface Props {
@@ -23,8 +24,8 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 
 	const items = bookings
 		.filter((booking) => {
-			const startMs = new Date(booking.start_date).getTime();
-			const endMs = new Date(booking.end_date).getTime();
+			const startMs = toLocalDateMs(booking.start_date);
+			const endMs = toLocalDateMs(booking.end_date);
 
 			return (
 				(startMs >= windowStart && startMs <= windowEnd) ||
@@ -32,31 +33,28 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 			);
 		})
 		.sort(
-			(a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+			(a, b) => toLocalDateMs(b.start_date) - toLocalDateMs(a.start_date)
 		);
 
 	return (
-		<div className="rounded-[1.75rem] border border-white/60 bg-white/80 p-6 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.45)] backdrop-blur">
-			<div className="flex items-center justify-between">
-				<div>
-					<p className="text-sm font-medium uppercase tracking-[0.28em] text-indigo-500">
-						Overview
-					</p>
-					<h2 className="mt-1 text-2xl font-black tracking-tight text-slate-900">
-						Today
-					</h2>
-					<p className="mt-1 text-sm text-slate-500">
-						Arrivals and departures within the selected window.
-					</p>
-				</div>
+		<div className="card card-accent">
+			<div className="card-header">
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                    Recent Activity Log
+                </h2>
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                    Live Feed
+                </span>
 			</div>
 
-			<div className="mt-5 space-y-3">
+			<div className="divide-y divide-slate-100 dark:divide-slate-800">
 				{items.length === 0 ? (
-					<p className="text-sm text-slate-500">No activity in this window.</p>
+					<div className="p-12 text-center text-slate-400 font-bold text-sm">
+                        No activity recorded in this window
+                    </div>
 				) : (
 					items.map((booking) => {
-						const startMs = new Date(booking.start_date).getTime();
+						const startMs = toLocalDateMs(booking.start_date);
 						const isArrival = startMs >= windowStart && startMs <= windowEnd;
 						const mergedStatus = localStatus[booking.id] ?? booking.status;
 
@@ -76,31 +74,35 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 						return (
 							<div
 								key={booking.id}
-								className="flex items-center justify-between gap-4 rounded-2xl border border-slate-100 bg-white p-4"
+								className="flex items-center justify-between gap-4 p-5 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group"
 							>
-								<div className="flex items-start gap-3">
-									<span
-										className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
-											badge === "Departed"
-												? "bg-slate-100 text-slate-700"
-												: isArrival
-													? "bg-emerald-100 text-emerald-800"
-													: "bg-sky-100 text-sky-800"
-										}`}
-									>
-										{badge}
-									</span>
+								<div className="flex items-center gap-6">
+									<div style={{ minWidth: "100px" }}>
+                                        <span
+                                            className={`badge ${
+                                                badge === "Departed"
+                                                    ? "badge-info"
+                                                    : isArrival
+                                                        ? "badge-success"
+                                                        : "badge-warning"
+                                            }`}
+                                        >
+                                            {badge}
+                                        </span>
+                                    </div>
 
-									<div>
-										<div className="font-semibold text-slate-900">
+									<div className="flex flex-col">
+										<span className="font-bold text-slate-900 dark:text-slate-100">
 											{booking.guests?.full_name ?? "Unknown guest"}
-										</div>
-										<div className="text-sm text-slate-500">
-											{new Date(booking.start_date).toLocaleString()} → {new Date(booking.end_date).toLocaleString()}
-										</div>
-										<div className="text-xs text-slate-400">
-											{formatNights(booking.start_date, booking.end_date)}
-										</div>
+										</span>
+										<div className="flex items-center gap-2 mt-0.5">
+                                            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                                {new Date(booking.start_date).toLocaleDateString()} — {new Date(booking.end_date).toLocaleDateString()}
+                                            </span>
+                                            <span className="text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase">
+                                                • {formatNights(booking.start_date, booking.end_date)}
+                                            </span>
+                                        </div>
 									</div>
 								</div>
 
@@ -118,7 +120,7 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 													has_breakfast: booking.has_breakfast,
 												});
 											}}
-											className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm text-white shadow-sm transition hover:bg-indigo-700"
+											className="btn-action btn-action-primary h-8 px-3"
 										>
 											Check in
 										</button>
@@ -137,7 +139,7 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 													has_breakfast: booking.has_breakfast,
 												});
 											}}
-											className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm text-white shadow-sm transition hover:bg-indigo-700"
+											className="btn-action btn-action-primary h-8 px-3"
 										>
 											Check out
 										</button>

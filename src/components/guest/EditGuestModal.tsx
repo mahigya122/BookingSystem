@@ -43,12 +43,12 @@ export default function EditGuestModal({ guest, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-md p-6 rounded-2xl space-y-4">
+    <div className="modal-overlay">
+      <div className="modal-content w-full max-w-md p-6 space-y-4">
 
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">Edit Guest</h2>
-          <button onClick={onClose}>✕</button>
+          <button onClick={onClose} className="btn btn-ghost h-9 w-9 p-0">✕</button>
         </div>
 
         <input
@@ -73,14 +73,14 @@ export default function EditGuestModal({ guest, onClose }: Props) {
         />
 
         <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="px-3 py-2 border rounded">
+          <button onClick={onClose} className="btn btn-secondary px-3 py-2">
             Cancel
           </button>
 
           <button
             onClick={handleSave}
             disabled={isPending}
-            className="px-3 py-2 bg-indigo-600 text-white rounded"
+            className="btn btn-primary px-3 py-2"
           >
             {isPending ? "Saving..." : "Save"}
           </button>

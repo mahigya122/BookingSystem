@@ -13,7 +13,7 @@ export default function GuestTable({
   onDelete 
 }: Props) {
   return (
-    <table className="w-full bg-white">
+    <table className="w-full">
 
         <thead>
           <tr className="border-b">

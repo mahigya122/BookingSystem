@@ -13,53 +13,57 @@ const BookingRow = ({
   onEdit,
   onDetails,
 }: Props) => {
-  const statusLabel = booking.status === "checked-out"
-    ? "Checked out"
+  const badgeClass = booking.status === "checked-out"
+    ? "badge-info"
     : booking.status === "checked-in"
-      ? "Checked in"
-      : "Booked";
+      ? "badge-success"
+      : "badge-warning";
+
+  const statusLabel = booking.status.replace('-', ' ');
 
   return (
-    <tr className="hover:bg-gray-50">
+    <tr className="group">
       <td className="px-6 py-4">
-        {booking.guests?.full_name}
+        <span className="font-bold text-slate-900 dark:text-slate-100">{booking.guests?.full_name}</span>
       </td>
 
       <td className="px-6 py-4">
-        {booking.cabins?.name}
+        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+            {booking.cabins?.name}
+        </span>
+      </td>
+
+      <td className="px-6 py-4 text-sm font-medium">
+        {new Date(booking.start_date).toLocaleDateString()}
+      </td>
+
+      <td className="px-6 py-4 text-sm font-medium text-slate-500">
+        {new Date(booking.end_date).toLocaleDateString()}
       </td>
 
       <td className="px-6 py-4">
-        {new Date(
-          booking.start_date
-        ).toLocaleDateString()}
+        <span className={`badge ${badgeClass}`}>
+            {statusLabel}
+        </span>
+      </td>
+
+      <td className="px-6 py-4 font-black text-slate-900 dark:text-white">
+        ${booking.total_price.toLocaleString()}
       </td>
 
       <td className="px-6 py-4">
-        {new Date(
-          booking.end_date
-        ).toLocaleDateString()}
-      </td>
-
-      <td className="px-6 py-4">
-        {statusLabel}
-      </td>
-
-      <td className="px-6 py-4">
-        ${booking.total_price}
-      </td>
-
-      <td className="px-6 py-4">
-        <div className="flex gap-2">
-
+        <div className="flex justify-end gap-2 opacity-100 transition-opacity">
+          <button
+            onClick={() => onDetails(booking)}
+            className="btn-action btn-action-secondary"
+          >
+            Details
+          </button>
+          
           <button
             onClick={() => onEdit(booking)}
             disabled={booking.status === "checked-out"}
-            className={`px-3 py-1 rounded-lg ${
-              booking.status === "checked-out"
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-indigo-100 text-indigo-700 hover:bg-indigo-200"
-            }`}
+            className="btn-action btn-action-primary disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Edit
           </button>
@@ -67,22 +71,10 @@ const BookingRow = ({
           <button
             onClick={() => onDelete(booking.id)}
             disabled={booking.status === "checked-out"}
-            className={`px-3 py-1 rounded-lg ${
-              booking.status === "checked-out"
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-red-100 text-red-700 hover:bg-red-200"
-            }`}
+            className="btn-action btn-action-danger disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Delete
           </button>
-
-          <button
-            onClick={() => onDetails(booking)}
-            className="px-3 py-1 rounded-lg bg-yellow-100 text-yellow-600 hover:bg-yellow-200"
-          >
-            Details
-          </button>
-
         </div>
       </td>
     </tr>

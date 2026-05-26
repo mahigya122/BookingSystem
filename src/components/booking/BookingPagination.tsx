@@ -1,29 +1,29 @@
 interface Props {
   currentPage: number;
   totalPages: number;
-  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  setCurrentPage: (page: number) => void;
 }
 
 const BookingPagination = ({ currentPage, totalPages, setCurrentPage }: Props) => {
   return (
-    <div className="flex items-center justify-between p-4 border-t">
-      <p className="text-sm text-gray-500">
-        Page {currentPage} of {totalPages}
+    <div className="flex items-center justify-between">
+      <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+        Displaying Page {currentPage} <span className="mx-1 text-slate-300 dark:text-slate-700">/</span> {totalPages}
       </p>
 
-      <div className="flex gap-2">
+      <div className="flex gap-1">
         <button
           disabled={currentPage === 1}
-          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-          className="px-3 py-1 rounded-lg bg-gray-100 disabled:opacity-50"
+          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+          className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          Previous
+          Prev
         </button>
 
         <button
           disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-          className="px-3 py-1 rounded-lg bg-gray-100 disabled:opacity-50"
+          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+          className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed"
         >
           Next
         </button>

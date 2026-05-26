@@ -7,6 +7,10 @@ import {
 
 let hasSeed = false;
 
+const TARGET_GUESTS = 100;
+const TARGET_CABINS = 10;
+const TARGET_BOOKINGS = 100;
+
 export async function initializeData() {
   // Prevent multiple seed attempts
   if (hasSeed) return;
@@ -34,68 +38,60 @@ export async function initializeData() {
     if (bookingCountErr) throw bookingCountErr;
     if (cabinCountErr) throw cabinCountErr;
 
-    // All seeded already: do nothing on refresh
-    if (guestCount && guestCount > 0 && bookingCount && bookingCount > 0 && cabinCount && cabinCount > 0) {
-      console.log("Data already initialized. Skipping seed.");
-      return;
+    const guestsToAdd = Math.max(TARGET_GUESTS - (guestCount ?? 0), 0);
+    const cabinsToAdd = Math.max(TARGET_CABINS - (cabinCount ?? 0), 0);
+    const bookingsToAdd = Math.max(TARGET_BOOKINGS - (bookingCount ?? 0), 0);
+
+    let guestRows: Array<{ id: string }> = [];
+    let cabinRows: Array<{ id: string }> = [];
+
+    if (guestsToAdd > 0) {
+      const guests = generateGuests(guestsToAdd);
+      const { data: guestData, error: gErr } = await supabase
+        .from("guests")
+        .insert(guests)
+        .select("id");
+
+      if (gErr) throw gErr;
+      guestRows = guestData ?? [];
+      console.log(`Guests seeded: ${guestsToAdd}`);
     }
 
-    // If only cabins are missing, seed just cabins
-    if (guestCount && guestCount > 0 && bookingCount && bookingCount > 0 && (!cabinCount || cabinCount === 0)) {
-      console.log("Guests and bookings exist; seeding missing cabins...");
-      const cabins = generateCabins();
-      const { error: cErr } = await supabase.from("cabins").insert(cabins);
+    if (cabinsToAdd > 0) {
+      const cabins = generateCabins(cabinsToAdd);
+      const { data: cabinData, error: cErr } = await supabase
+        .from("cabins")
+        .insert(cabins)
+        .select("id");
+
       if (cErr) throw cErr;
-      console.log("Cabins seeded");
-      return;
+      cabinRows = cabinData ?? [];
+      console.log(`Cabins seeded: ${cabinsToAdd}`);
     }
 
-    // Otherwise, seed everything from scratch
-    // Clean tables if partially empty
-    const { error: deleteBookingsErr } = await supabase
-      .from("bookings")
-      .delete()
-      .not("id", "is", null);
-    if (deleteBookingsErr) throw deleteBookingsErr;
+    if (bookingsToAdd > 0) {
+      const { data: existingGuests, error: existingGuestErr } = await supabase
+        .from("guests")
+        .select("id");
+      if (existingGuestErr) throw existingGuestErr;
 
-    const { error: deleteGuestsErr } = await supabase
-      .from("guests")
-      .delete()
-      .not("id", "is", null);
-    if (deleteGuestsErr) throw deleteGuestsErr;
+      const { data: existingCabins, error: existingCabinErr } = await supabase
+        .from("cabins")
+        .select("id");
+      if (existingCabinErr) throw existingCabinErr;
 
-    // 1. INSERT GUESTS
-    const guests = generateGuests();
-    const { data: guestData, error: gErr } = await supabase
-      .from("guests")
-      .insert(guests)
-      .select();
+      const bookings = generateBookings(
+        existingGuests ?? guestRows,
+        existingCabins ?? cabinRows,
+        bookingsToAdd
+      );
 
-    if (gErr) throw gErr;
-    console.log("Guests seeded");
+      const { error: bErr } = await supabase.from("bookings").insert(bookings);
 
-    // 2. INSERT CABINS
-    // Ensure cabins table is clean before seeding
-    const { error: deleteCabinsErr } = await supabase
-      .from("cabins")
-      .delete()
-      .not("id", "is", null);
-    if (deleteCabinsErr) throw deleteCabinsErr;
-    const cabins = generateCabins();
-    const { data: cabinData, error: cErr } = await supabase
-      .from("cabins")
-      .insert(cabins)
-      .select();
+      if (bErr) throw bErr;
+      console.log(`Bookings seeded: ${bookingsToAdd}`);
+    }
 
-    if (cErr) throw cErr;
-    console.log("Cabins seeded");
-
-    // 3. INSERT BOOKINGS
-    const bookings = generateBookings(guestData!, cabinData!);
-    const { error: bErr } = await supabase.from("bookings").insert(bookings);
-
-    if (bErr) throw bErr;
-    console.log("Bookings seeded");
     console.log("Data initialization complete");
   } catch (err: unknown) {
     console.error(

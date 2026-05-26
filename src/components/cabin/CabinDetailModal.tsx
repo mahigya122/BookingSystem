@@ -7,8 +7,8 @@ interface Props {
 
 const CabinDetailModal = ({ cabin, onClose }: Props) => {
     return (
-        <div className= "flex flex-col items-center justify-center fixed inset-0 bg-black/40 z-50">
-            <div className="bg-white rounded-2xl p-6 w-full max-w-2xl space-y-5">
+      <div className="modal-overlay">
+        <div className="modal-content w-full max-w-2xl space-y-5 p-6">
 
                 <img 
                  src={cabin.image_url}
@@ -32,7 +32,7 @@ const CabinDetailModal = ({ cabin, onClose }: Props) => {
 
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-black text-xl"
+              className="btn btn-ghost h-9 w-9 p-0 text-xl"
             >
               ✕
             </button>
@@ -42,22 +42,22 @@ const CabinDetailModal = ({ cabin, onClose }: Props) => {
           {/* INFO */}
           <div className="grid grid-cols-2 gap-4">
 
-            <div className="bg-gray-100 rounded-xl p-4">
+            <div className="surface-panel rounded-xl p-4">
                 <p className="text-sm text-gray-500">
                     Price / Night
                 </p>
 
-                <p className="text-2xl font-bold text-indigo-300">
+                <p className="text-2xl font-bold">
                     ${cabin.price_per_night}
                 </p>
             </div>
 
-            <div className="bg-gray-100 rounded-xl p-4">
+            <div className="surface-panel rounded-xl p-4">
               <p className="text-sm text-gray-500">
                 Discount
               </p>
 
-              <p className="text-2xl font-bold text-green-600">
+              <p className="text-2xl font-bold">
                 {cabin.discount || 0}%
               </p>
             </div>

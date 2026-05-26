@@ -62,9 +62,9 @@ const Pricing = useMemo(() => {
 
   // UI
   return (
-     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+     <div className="modal-overlay">
 
-      <div className="bg-white rounded-2xl p-6 w-full max-w-lg space-y-5">
+      <div className="modal-content w-full max-w-lg space-y-5 p-6">
 
         {/* HEADER */}
         <div className="flex items-center justify-between">
@@ -74,7 +74,7 @@ const Pricing = useMemo(() => {
 
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-black"
+            className="btn btn-ghost h-9 w-9 p-0"
           >
             ✕
           </button>
@@ -169,7 +169,7 @@ const Pricing = useMemo(() => {
 
         {/* PRICING */}
         {Pricing && (
-          <div className="bg-gray-100 rounded-xl p-4 space-y-1">
+          <div className="surface-panel rounded-xl p-4 space-y-1">
 
             <p>
               Nights:{" "}
@@ -193,7 +193,7 @@ const Pricing = useMemo(() => {
 
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg border"
+            className="btn btn-secondary px-4 py-2"
           >
             Cancel
           </button>
@@ -201,7 +201,7 @@ const Pricing = useMemo(() => {
           <button
             disabled={isPending}
             onClick={handleSave}
-            className="px-4 py-2 rounded-lg bg-indigo-600 text-white"
+            className="btn btn-primary px-4 py-2"
           >
             {isPending ? "Saving..." : "Save"}
           </button>

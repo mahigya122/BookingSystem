@@ -6,36 +6,39 @@ interface Props {
 }
 
 const TodayActivity = ({
-  label = "Today",
+  label = "Today's Occupancy",
   arrivals,
     departures,
     checkIns,
 }: Props) => {
     return(
-        <div className="space-y-5 rounded-[1.75rem] border border-white/70 bg-white/85 p-6 shadow-[0_16px_45px_-26px_rgba(15,23,42,0.45)] backdrop-blur">
-            <div>
-              <h2 className="text-xl font-black tracking-tight text-slate-900">{label}</h2>
-              <p className="mt-1 text-sm text-slate-500">Live snapshot of arrivals, departures, and check-ins.</p>
+        <div className="card card-accent">
+            <div className="card-header">
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">{label}</h2>
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-[var(--app-primary)] animate-pulse shadow-[0_0_10px_rgba(229,9,20,0.45)]" />
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live Updates</span>
+                </div>
             </div>
 
-        <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-            <span className="text-sm font-medium text-slate-600">Arrivals</span>
-          <span className= "text-lg font-black text-slate-900">{arrivals}</span>
-        </div>
+            <div className="card-body">
+                <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800">
+                    <div className="py-4 sm:py-0 sm:px-6 flex flex-col items-center first:pl-0">
+                        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Incoming Arrivals</span>
+                        <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{arrivals}</span>
+                    </div>
 
-        <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-        <span className="text-sm font-medium text-slate-600">Departures</span>
-        <span className="text-lg font-black text-slate-900">
-          {departures}
-        </span>
-      </div>
+                    <div className="py-4 sm:py-0 sm:px-6 flex flex-col items-center">
+                        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Scheduled Departures</span>
+                        <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{departures}</span>
+                    </div>
 
-      <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
-        <span className="text-sm font-medium text-slate-600">Checked In</span>
-        <span className="text-lg font-black text-slate-900">
-          {checkIns}
-        </span>
-      </div>
+                    <div className="py-4 sm:py-0 sm:px-6 flex flex-col items-center last:pr-0">
+                        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total Checked-In</span>
+                        <span className="text-3xl font-black text-primary-600 dark:text-primary-400 tracking-tight">{checkIns}</span>
+                    </div>
+                </div>
+            </div>
     </div>
   );
 };

@@ -17,51 +17,33 @@ const BookingTable = ({
   onDetails,
 }: Props) => {
   return (
-    <table className="w-full">
-      <thead className="bg-gray-50 border-b">
-        <tr>
-          <th className="px-6 py-4 text-left">
-            Guest
-          </th>
+    <div className="overflow-x-auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Guest Name</th>
+            <th>Unit / Cabin</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Status</th>
+            <th>Revenue</th>
+            <th className="text-right">Manage</th>
+          </tr>
+        </thead>
 
-          <th className="px-6 py-4 text-left">
-            Cabin
-          </th>
-
-          <th className="px-6 py-4 text-left">
-            Start Date
-          </th>
-
-          <th className="px-6 py-4 text-left">
-            End Date
-          </th>
-
-          <th className="px-6 py-4 text-left">
-            Status
-          </th>
-
-          <th className="px-6 py-4 text-left">
-            Price
-          </th>
-
-          <th className="px-6 py-4 text-left">
-            Actions
-          </th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {bookings.map((booking) => (
-          <BookingRow
-            key={booking.id}
-            booking={booking}
-            onDelete={onDelete}
-            onEdit={onEdit}
-            onDetails={onDetails}
-          />
-        ))}
-      </tbody>
-    </table>
+        <tbody>
+          {bookings.map((booking) => (
+            <BookingRow
+              key={booking.id}
+              booking={booking}
+              onDelete={onDelete}
+              onEdit={onEdit}
+              onDetails={onDetails}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 

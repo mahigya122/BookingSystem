@@ -10,18 +10,19 @@ interface Props {
 const StatsCard = ({
     title,
     value,
-    color="bg-gray-100",
+    color="bg-primary-50 dark:bg-primary-950/50",
     icon,
 }: Props) => {
     return (
-        <div className="flex items-center gap-4 rounded-[1.75rem] border border-white/70 bg-white/85 p-5 shadow-[0_16px_45px_-26px_rgba(15,23,42,0.45)] backdrop-blur">
-            <div className={`flex h-20 w-20 shrink-0 items-center justify-center rounded-full ${color} text-slate-900`}>
-              {icon}
+                <div className="card card-accent p-6 flex items-start justify-between relative overflow-hidden">
+                        <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-(--app-primary) via-(--app-secondary) to-transparent opacity-70" />
+                        <div className="flex flex-col gap-1 relative z-10">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{title}</span>
+                            <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{value}</span>
             </div>
 
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">{title}</p>
-              <h2 className="mt-1 text-3xl font-medium tracking-tight text-slate-900">{value}</h2>
+                        <div className={`relative z-10 flex h-11 w-11 items-center justify-center rounded-2xl ${color} text-primary-600 dark:text-primary-400 border border-primary-100/50 dark:border-primary-800/50 shadow-sm`}>
+              {icon}
             </div>
         </div>
     );

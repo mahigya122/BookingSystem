@@ -29,53 +29,59 @@ const LoginForm = () => {
     return (
         <div className="w-full max-w-md">
             <div className="mb-10">
-                <h2 className="text-4xl font-bold text-gray-900">Welcome Back</h2>
-                <p className="text-gray-500 mt-3">Please login to your account</p>
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">System Login</h2>
+                <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Access your management dashboard</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
-                    <div className="bg-red-50 text-red-700 border border-red-200 px-4 py-3 rounded-xl">
+                    <div className="bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-900/50 px-4 py-3 rounded-lg text-xs font-bold animate-shake">
                         {error}
                     </div>
                 )}
 
-                <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Email
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500 ml-0.5">
+                        Email Address
                     </label>
 
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter email"
-                        className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="admin@hotel-flow.com"
+                        className="w-full"
                     />
                 </div>
 
-                <div>
-                    <label className="block mb-2 text-sm font-medium text-gray-700">
-                        Password
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500 ml-0.5">
+                        Security Password
                     </label>
 
                     <input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter password"
-                        className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="••••••••"
+                        className="w-full"
                     />
                 </div>
 
                 <button
                     type="submit"
                     disabled={isPending}
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition-colors text-white font-semibold py-3 rounded-xl"
+                    className="w-full btn btn-primary py-3 rounded-xl shadow-lg shadow-primary-500/20"
                 >
-                    {isPending ? "Logging in..." : "Login"}
+                    {isPending ? "Validating Credentials..." : "Access Dashboard"}
                 </button>
             </form>
+            
+            <div className="mt-12 pt-8 border-t border-slate-100 dark:border-slate-800 text-center">
+                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em]">
+                    Enterprise Edition • v2.4.0
+                </p>
+            </div>
         </div>
     );
 };

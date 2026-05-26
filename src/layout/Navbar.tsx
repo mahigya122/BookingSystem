@@ -1,43 +1,68 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../authentication/useUser";
 import { useLogout } from "../authentication/useLogout";
+import ThemeToggle from "../components/ui/ThemeToggle";
+import { Bot } from "lucide-react";
+import { useAIChat } from "../Context/AIChatContext";
 
 const Navbar = () => {
     const { user } = useUser();
     const { logout } = useLogout();
     const navigate = useNavigate();
+    const { setOpen } = useAIChat();
 
     const handleLogout = () => {
         logout();
     };
 
-return(
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
-    
-    <div>
-        <h1 className="text-3xl font-extrabold text-indigo-700 tracking-tight">
-            Hotel Flow
-        </h1>
-    </div>
+    return (
+        <header className="nav-panel sticky top-0 z-40 flex h-16 items-center justify-between px-6 backdrop-blur-xl lg:px-8">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/dashboard")}>
+                <div className="brand-chip flex h-9 w-9 items-center justify-center rounded-xl">
+                    <span className="text-sm font-black text-white">H</span>
+                </div>
+                <h1 className="text-xl font-black tracking-tight" style={{ color: "var(--app-text-main)" }}>
+                    Hotel<span style={{ color: "var(--app-primary)" }}>Flow</span>
+                </h1>
+            </div>
 
-    <div className="flex items-center gap-4">
-        <span className="text-gray-700">Welcome, {user?.email || "User"}</span>
-
-
-    <button onClick={() => navigate("/dashboard/profile")}
-    className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-lg hover:bg-indigo-200 transition" >
-        👤
-    </button>
-
-        <button
-                    onClick={handleLogout}
-                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md shadow-sm"
+            <div className="flex items-center gap-4">
+                <button
+                    onClick={() => setOpen(true)}
+                    className="btn-secondary flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-bold uppercase tracking-wider"
                 >
-                    Logout
+                    <Bot size={14} />
+                    AI SQL
                 </button>
 
-        </div>
-    </header>
-);
+                <div className="hidden h-8 w-px sm:block mx-2" style={{ background: "var(--app-border)" }} />
+
+                <div className="hidden sm:flex items-center gap-3">
+                    <div className="flex flex-col items-end">
+                        <span className="text-xs font-bold" style={{ color: "var(--app-text-main)" }}>{user?.email?.split('@')[0] || "Guest"}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--app-text-muted)" }}>{user?.role || "Administrator"}</span>
+                    </div>
+                    <button 
+                        onClick={() => navigate("/dashboard/profile")}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors btn-secondary"
+                    >
+                        👤
+                    </button>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <ThemeToggle />
+                    <button
+                        onClick={handleLogout}
+                        className="text-xs font-bold uppercase tracking-widest transition-colors hover:text-rose-500"
+                        style={{ color: "var(--app-text-muted)" }}
+                    >
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </header>
+    );
 };
+
 export default Navbar;
