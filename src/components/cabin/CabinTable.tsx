@@ -1,11 +1,13 @@
 import CabinRow from "./CabinRow";
-import type { Cabin } from "../../types/cabin";
+import type { Cabin } from "../../../shared/types/cabin";
+import type { Booking } from "../../../shared/types/booking";
 
 interface Props{
     cabins: Cabin[];
     onEdit: (cabin: Cabin) => void;
     onDelete: (id: string) => void;
      onView: (cabin: Cabin) => void;
+    activeBookingByCabinId: Record<string, Booking>;
 }
 
 const CabinTable = ({
@@ -13,6 +15,7 @@ const CabinTable = ({
     onEdit,
     onDelete,
     onView,
+    activeBookingByCabinId,
 }: Props) => {
 
 return(
@@ -25,7 +28,7 @@ return(
                     <th>Max Cap.</th>
                     <th>Base Price</th>
                     <th>Discount</th>
-                    <th className="text-right">Manage</th>
+                    <th className="text-left" style={{ width: "15rem" }}>Manage</th>
                 </tr>
             </thead>
 
@@ -37,6 +40,7 @@ return(
                     onEdit= {onEdit}
                     onDelete= {onDelete}
                     onView= {onView}
+                    activeBooking={activeBookingByCabinId[cabin.id] ?? null}
                     />
                 ))}
             </tbody>

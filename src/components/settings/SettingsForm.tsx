@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSettings } from "../../authentication/useSettings";
-import { useUpdateSettings } from "../../authentication/useUpdateSettings";
+import { useSettings, useUpdateSettings } from "../../../shared/auth_hooks";
 
 const SettingsForm = () => {
   const { settings, isLoading } = useSettings();

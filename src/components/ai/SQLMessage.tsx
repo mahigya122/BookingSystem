@@ -8,7 +8,7 @@ const SQLMessage = ({ role, content }: Props) => {
 
     return (
         <div
-            className={`max-w-[82%] rounded-4xl border px-4 py-3 whitespace-pre-wrap text-[15px] leading-relaxed shadow-sm ${
+            className={`max-w-[82%] rounded-3xl border px-4 py-3 whitespace-pre-wrap text-[15px] leading-relaxed shadow-sm ${
                 isUser
                     ? "ml-auto border-transparent text-white shadow-emerald-500/20"
                     : "shadow-black/10"

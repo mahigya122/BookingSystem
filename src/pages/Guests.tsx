@@ -1,16 +1,15 @@
 import { useState } from "react";
 
-import { useGuests } from "../authentication/useGuests";
-import { useDeleteGuest } from "../authentication/useDeleteGuest";
+import { useGuests, useDeleteGuest } from "../../shared/auth_hooks";
 
 import GuestSubnav from "../components/guest/GuestSubnav";
 import GuestTable from "../components/guest/GuestTable";
 import GuestPagination from "../components/guest/GuestPagination";
 import EditGuestModal from "../components/guest/EditGuestModal";
 
-import { useFilteredGuests } from "../hooks/useFilteredGuests";
-import { usePagination } from "../hooks/usePagination";
-import type { Guest, GuestSortType } from "../types/guest";
+import { useFilteredGuests } from "../../shared/hooks/useFilteredGuests";
+import { usePagination } from "../../shared/hooks/usePagination";
+import type { Guest, GuestSortType } from "../../shared/types/guest";
 
 const Guests = () => {
   const { guests = [], isLoading } = useGuests();

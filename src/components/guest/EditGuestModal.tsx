@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useUpdateGuest } from "../../authentication/useUpdateGuest";
-import type { Guest } from "../../types/guest";
+import { useUpdateGuest } from "../../../shared/auth_hooks";
+import type { Guest } from "../../../shared/types/guest";
 
 interface Props {
   guest: Guest;

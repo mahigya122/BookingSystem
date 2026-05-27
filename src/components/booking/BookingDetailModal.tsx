@@ -1,4 +1,4 @@
-import type { Booking } from "../../types/booking";
+import type { Booking } from "../../../shared/types/booking";
 
 interface Props {
   booking: Booking;

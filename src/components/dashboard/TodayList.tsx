@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useUpdateBooking } from "../../authentication/useUpdateBooking";
+import { useUpdateBooking } from "../../../shared/auth_hooks";
 import { toLocalDateMs } from "../../utils/dates";
-import type { Booking } from "../../types/booking";
+import type { Booking } from "../../../shared/types/booking";
 
 interface Props {
 	bookings: Booking[];

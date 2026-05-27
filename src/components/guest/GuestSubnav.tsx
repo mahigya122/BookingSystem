@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { GuestSortType } from "../../types/guest";
+import type { GuestSortType } from "../../../shared/types/guest";
 
 interface Props {
   onSearchChange: (val: string) => void;

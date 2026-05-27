@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import type { Booking } from "../../types/booking";
-import { useUpdateBooking } from "../../authentication/useUpdateBooking";
+import type { Booking } from "../../../shared/types/booking";
+import { useUpdateBooking } from "../../../shared/auth_hooks";
 
 interface Props {
   booking: Booking;

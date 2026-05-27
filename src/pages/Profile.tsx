@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useUser } from "../authentication/useUser";
+import { useUser } from "../../shared/auth_hooks";
 import { supabase } from "../services/supabase";
 
 const Profile = () => {

@@ -11,13 +11,13 @@ import StayDurationChart from "../components/dashboard/StayDurationChart";
 import TodayActivity from "../components/dashboard/TodayActivity";
 import TodayList from "../components/dashboard/TodayList";
 
-import { useBookings } from "../authentication/useBookings";
+import { useBookings } from "../../shared/auth_hooks";
 
-import { useDashboardRange } from "../authentication/useDashboardRange";
-import { useDashboardStats } from "../authentication/useDashboardStats";
-import { useSalesChart } from "../authentication/useSalesChart";
-import { useStayDuration } from "../authentication/useStayDuration";
-import { useTodayActivity } from "../authentication/useTodayActivity";
+import { useDashboardRange } from "../authentication/dashboard/useDashboardRange";
+import { useDashboardStats } from "../authentication/dashboard/useDashboardStats";
+import { useSalesChart } from "../authentication/dashboard/useSalesChart";
+import { useStayDuration } from "../authentication/dashboard/useStayDuration";
+import { useTodayActivity } from "../authentication/dashboard/useTodayActivity";
 
 const Dashboard = () => {
   const { bookings = [] } = useBookings();

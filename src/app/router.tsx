@@ -11,6 +11,8 @@ import Cabins from "../pages/Cabins";
 import Guests from "../pages/Guests";
 import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
+import ClientDashboard from "../client/pages/ClientDashboard";
+import ClientProfile from "../client/pages/ClientProfile";
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +32,8 @@ export const router = createBrowserRouter([
       { path: "bookings", element: <Booking /> },
       { path: "book", element: <BookingForm /> },
       { path: "cabins", element: <Cabins /> },
+    { path: "client", element: <ClientDashboard /> },
+    { path: "client/profile", element: <ClientProfile /> },
       { path: "profile", element: <Profile /> },
       { path: "guests", element: <Guests /> },
       { path: "user", element: <Navigate to="/dashboard/guests" replace /> },

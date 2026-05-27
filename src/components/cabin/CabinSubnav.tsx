@@ -50,9 +50,17 @@ const CabinSubnav = ({
             onClick={() => handleFilter(item.value)}
             className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all ${
               active === item.value
-                ? "bg-gradient-to-r from-[var(--app-primary)] to-[var(--app-secondary)] text-white shadow-sm"
+                ? "text-white shadow-sm"
                 : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-white/10 dark:hover:bg-white/5"
             }`}
+            style={
+              active === item.value
+                ? {
+                    backgroundImage:
+                      "linear-gradient(90deg, var(--app-primary), var(--app-secondary))",
+                  }
+                : undefined
+            }
           >
             {item.label}
           </button>
@@ -75,7 +83,7 @@ const CabinSubnav = ({
                     <button
                         key={key}
                         onClick={() => handleSort(key)}
-                        className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-white/10 dark:hover:bg-white/5 hover:text-[var(--app-text-main)] transition-colors border-b last:border-0 border-slate-100/80 dark:border-slate-800/50"
+                        className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-white/10 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-colors border-b last:border-0 border-slate-100/80 dark:border-slate-800/50"
                     >
                         {label}
                     </button>

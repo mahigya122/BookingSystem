@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import SQLInput from "./SQLInput";
 import SQLMessage from "./SQLMessage";
-import { askSqlCopilot, getLatestConversation, getSuggestions } from "../../ai/sqlAI";
+import { askSqlCopilot, getLatestConversation, getSuggestions } from "../../authentication/ai/sqlAI";
 
 interface Message {
   role: "user" | "assistant";
@@ -12,13 +12,19 @@ interface Props {
   isOpen: boolean;
 }
 
+const FALLBACK_SUGGESTIONS = [
+  "Show all cancelled bookings",
+  "Who is arriving today?",
+  "How many cabins are occupied?",
+];
+
 const SQLChat = ({ isOpen }: Props) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [pendingHistory, setPendingHistory] = useState<Message[] | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>(FALLBACK_SUGGESTIONS);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
@@ -38,7 +44,7 @@ const SQLChat = ({ isOpen }: Props) => {
     setLoading(false);
     setMessages([]);
     setConversationId(null);
-    setSuggestions([]);
+    setSuggestions(FALLBACK_SUGGESTIONS);
 
     const loadConversation = async () => {
       try {
@@ -87,12 +93,16 @@ const SQLChat = ({ isOpen }: Props) => {
         const data = await getSuggestions();
 
         if (!cancelled) {
-          setSuggestions(Array.isArray(data?.suggestions) ? data.suggestions : []);
+          const nextSuggestions = Array.isArray(data?.suggestions) && data.suggestions.length > 0
+            ? data.suggestions
+            : FALLBACK_SUGGESTIONS;
+
+          setSuggestions(nextSuggestions);
         }
       } catch (error) {
         if (!cancelled) {
           console.error(error);
-          setSuggestions([]);
+          setSuggestions(FALLBACK_SUGGESTIONS);
         }
       }
     }
@@ -172,26 +182,16 @@ const SQLChat = ({ isOpen }: Props) => {
   }, [messages, loading]);
 
   return (
-    <div className="flex h-150 flex-col overflow-hidden rounded-[28px] border p-4 shadow-[0_28px_80px_-38px_rgba(15,23,42,0.35)]" style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--app-surface-elevated) 94%, transparent) 0%, color-mix(in srgb, var(--app-surface) 92%, transparent) 100%)", borderColor: "var(--app-border)" }}>
-      <div className="flex-1 space-y-3 overflow-y-auto rounded-3xl border p-4 shadow-inner" style={{ borderColor: "var(--app-border)", background: "color-mix(in srgb, var(--app-surface-elevated) 78%, transparent)" }}>
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border shadow-[0_18px_48px_-30px_rgba(15,23,42,0.28)]" style={{ background: "linear-gradient(180deg, color-mix(in srgb, var(--app-surface-elevated) 96%, transparent) 0%, color-mix(in srgb, var(--app-surface) 94%, transparent) 100%)", borderColor: "var(--app-border)" }}>
+      <div className="flex-1 space-y-3 overflow-y-auto p-3" style={{ background: "color-mix(in srgb, var(--app-surface-elevated) 68%, transparent)" }}>
         {messages.length === 0 && !loading && input.trim().length === 0 && (
-          <div className="space-y-4 rounded-3xl border border-dashed p-8" style={{ borderColor: "var(--app-border)", color: "var(--app-text-muted)" }}>
-
-            {suggestions.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-2">
-                {suggestions.map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    onClick={() => setInput(suggestion)}
-                    className="btn btn-secondary rounded-full px-3 py-1.5 text-[11px] font-semibold normal-case tracking-normal"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="rounded-2xl border border-dashed px-4 py-3 text-sm font-medium" style={{ borderColor: "var(--app-border)", color: "var(--app-text-muted)" }}>
+            
           </div>
+        )}
+
+        {messages.length === 0 && !loading && input.trim().length === 0 && (
+          <div className="hidden" />
         )}
 
         {messages.map((msg, i) => (
@@ -199,7 +199,7 @@ const SQLChat = ({ isOpen }: Props) => {
         ))}
 
         {loading && (
-          <div className="inline-flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium" style={{ borderColor: "var(--app-border)", color: "var(--app-text-muted)", background: "color-mix(in srgb, var(--app-surface-elevated) 88%, transparent)" }}>
+          <div className="inline-flex items-center gap-3 rounded-xl border px-3 py-2 text-sm font-medium" style={{ borderColor: "var(--app-border)", color: "var(--app-text-muted)", background: "color-mix(in srgb, var(--app-surface-elevated) 88%, transparent)" }}>
             <span className="h-2 w-2 animate-pulse rounded-full" style={{ background: "var(--app-primary)" }} />
             Generating SQL and saving chat...
           </div>
@@ -208,7 +208,28 @@ const SQLChat = ({ isOpen }: Props) => {
         <div ref={endRef} />
       </div>
 
-      <div className="mt-4">
+      <div className="space-y-3 border-t px-3 py-3" style={{ borderColor: "var(--app-border)", background: "color-mix(in srgb, var(--app-surface-elevated) 86%, transparent)" }}>
+        {messages.length === 0 && !loading && input.trim().length === 0 && (
+          <div className="space-y-2">
+            <div className="text-[12px] font-semibold uppercase tracking-[0.28em]" style={{ color: "var(--app-text-muted)" }}>
+              Where should we begin?
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onClick={() => setInput(suggestion)}
+                  className="btn btn-secondary rounded-full px-3 py-1.5 text-[11px] font-semibold normal-case tracking-normal shadow-sm"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <SQLInput value={input} onChange={setInput} onSend={handleSend} disabled={loading} />
       </div>
     </div>

@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../authentication/useUser";
-import { useLogout } from "../authentication/useLogout";
+import { useUser, useLogout } from "../../shared/auth_hooks";
 import ThemeToggle from "../components/ui/ThemeToggle";
 import { Bot } from "lucide-react";
 import { useAIChat } from "../Context/AIChatContext";
@@ -32,7 +31,7 @@ const Navbar = () => {
                     className="btn-secondary flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-bold uppercase tracking-wider"
                 >
                     <Bot size={14} />
-                    AI SQL
+                    AI
                 </button>
 
                 <div className="hidden h-8 w-px sm:block mx-2" style={{ background: "var(--app-border)" }} />

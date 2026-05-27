@@ -1,5 +1,5 @@
 import {useState} from "react";
-import { useCreateCabin } from "../../authentication/useCreateCabin";
+import { useCreateCabin } from "../../../shared/auth_hooks";
 import type { CabinData } from "../../services/apiCabins";
 
 interface props {

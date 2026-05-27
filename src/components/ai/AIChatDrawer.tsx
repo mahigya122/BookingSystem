@@ -20,7 +20,7 @@ const AIChatDrawer = () => {
 
       {/* DRAWER */}
       <div
-        className={`fixed right-0 top-0 z-50 h-screen w-[440px] transform border-l shadow-2xl transition-transform duration-300 ${
+        className={`fixed right-0 top-0 z-50 h-screen w-110 transform border-l shadow-2xl transition-transform duration-300 ${
           open
             ? "translate-x-0"
             : "translate-x-full"
@@ -32,15 +32,11 @@ const AIChatDrawer = () => {
         }}
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between border-b p-4" style={{ borderColor: "var(--app-border)" }}>
+        <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--app-border)" }}>
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.3em]" style={{ borderColor: "var(--app-border)", color: "var(--app-primary)", background: "color-mix(in srgb, var(--app-primary) 8%, transparent)" }}>
-              AI SQL Assistant
+            <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.35em]" style={{ borderColor: "var(--app-border)", color: "var(--app-primary)", background: "color-mix(in srgb, var(--app-primary) 8%, transparent)" }}>
+              FlowAI
             </div>
-
-            <p className="text-sm font-medium" style={{ color: "var(--app-text-muted)" }}>
-              Generate, refine, and save SQL in one place.
-            </p>
           </div>
 
           <button
@@ -52,7 +48,7 @@ const AIChatDrawer = () => {
         </div>
 
         {/* CHAT */}
-        <div className="h-[calc(100vh-88px)] p-4">
+        <div className="h-[calc(100vh-64px)] p-3">
           <SQLChat isOpen={open} />
         </div>
       </div>

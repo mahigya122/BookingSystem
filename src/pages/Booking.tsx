@@ -6,17 +6,16 @@ import BookingPagination from "../components/booking/BookingPagination";
 import EditBookingModal from "../components/booking/EditBookingModal";
 import BookingDetailModal from "../components/booking/BookingDetailModal";
 
-import { useBookings } from "../authentication/useBookings";
-import { useDeleteBooking } from "../authentication/useDeleteBooking";
+import { useBookings, useDeleteBooking } from "../../shared/auth_hooks";
 
-import { useFilteredBookings } from "../hooks/useFilteredBookings";
-import { usePagination } from "../hooks/usePagination";
+import { useFilteredBookings } from "../../shared/hooks/useFilteredBookings";
+import { usePagination } from "../../shared/hooks/usePagination";
 
 import type {
   Booking,
   BookingStatus,
   SortType,
-} from "../types/booking";
+} from "../../shared/types/booking";
 
 const BookingPage = () => {
   const { bookings = [], isLoading } =

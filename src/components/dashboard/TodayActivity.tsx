@@ -16,7 +16,7 @@ const TodayActivity = ({
             <div className="card-header">
                 <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">{label}</h2>
                 <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[var(--app-primary)] animate-pulse shadow-[0_0_10px_rgba(229,9,20,0.45)]" />
+                    <div className="w-2 h-2 rounded-full animate-pulse shadow-[0_0_10px_rgba(229,9,20,0.45)]" style={{ backgroundColor: "var(--app-primary)" }} />
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live Updates</span>
                 </div>
             </div>

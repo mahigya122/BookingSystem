@@ -1,7 +1,7 @@
 import { useState } from "react";
+import { useMemo } from "react";
 
-import { useCabins } from "../authentication/useCabins";
-import { useDeleteCabin } from "../authentication/useDeleteCabin";
+import { useCabins, useBookings, useDeleteCabin } from "../../shared/auth_hooks";
 
 import CabinSubnav from "../components/cabin/CabinSubnav";
 import CabinTable from "../components/cabin/CabinTable";
@@ -10,12 +10,14 @@ import CreateCabinModal from "../components/cabin/CreateCabinModal";
 import EditCabinModal from "../components/cabin/EditCabinModal";
 import CabinDetailModal from "../components/cabin/CabinDetailModal";
 
-import { useFilteredCabins } from "../hooks/useFilteredCabins";
-import { usePagination } from "../hooks/usePagination";
-import type { Cabin as CabinType } from "../types/cabin";
+import { useFilteredCabins } from "../../shared/hooks/useFilteredCabins";
+import { usePagination } from "../../shared/hooks/usePagination";
+import type { Cabin as CabinType } from "../../shared/types/cabin";
+import type { Booking } from "../../shared/types/booking";
 
 const Cabins = () => {
   const { cabins = [], isLoading } = useCabins();
+  const { bookings = [], isLoading: isBookingsLoading } = useBookings();
 
   const { removeCabin } = useDeleteCabin();
 
@@ -33,6 +35,30 @@ const Cabins = () => {
     sort
   );
 
+  const activeBookingByCabinId = useMemo(() => {
+    const active = bookings.filter(
+      (booking) => booking.status === "booked" || booking.status === "checked-in"
+    );
+
+    return active.reduce<Record<string, Booking>>((acc, booking) => {
+      const existing = acc[booking.cabin_id];
+
+      if (!existing) {
+        acc[booking.cabin_id] = booking;
+        return acc;
+      }
+
+      const existingTime = new Date(existing.created_at ?? existing.start_date).getTime();
+      const currentTime = new Date(booking.created_at ?? booking.start_date).getTime();
+
+      if (currentTime > existingTime) {
+        acc[booking.cabin_id] = booking;
+      }
+
+      return acc;
+    }, {});
+  }, [bookings]);
+
   const {
     currentPage,
     setCurrentPage,
@@ -49,7 +75,7 @@ const Cabins = () => {
   removeCabin(id);  
   };
 
-  if (isLoading) {
+  if (isLoading || isBookingsLoading) {
     return <p>Loading Cabins.....</p>
   }
 
@@ -75,6 +101,7 @@ return (
       onDelete={handleDelete}
       onEdit={setEditingCabin}
       onView={setSelectedCabin}
+      activeBookingByCabinId={activeBookingByCabinId}
       />
 
       <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
@@ -100,6 +127,7 @@ return (
   {selectedCabin && (
   <CabinDetailModal
     cabin={selectedCabin}
+    activeBooking={activeBookingByCabinId[selectedCabin.id] ?? null}
     onClose={() => setSelectedCabin(null)}
   />
 )}

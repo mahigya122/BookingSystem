@@ -1,10 +1,12 @@
-import type { Cabin } from "../../types/cabin";
+import type { Cabin } from "../../../shared/types/cabin";
+import type { Booking } from "../../../shared/types/booking";
 
 interface Props {
     cabin: Cabin;
     onEdit: (cabin: Cabin) => void;
     onDelete: (id: string) => void;
     onView: (cabin: Cabin) => void;
+    activeBooking: Booking | null;
 }
 
 const CabinRow = ({
@@ -12,7 +14,9 @@ const CabinRow = ({
     onEdit,
     onDelete,
     onView,
+    activeBooking,
 }: Props) => {
+    const isBooked = Boolean(activeBooking);
 
     return (
         <tr className="group">
@@ -40,7 +44,7 @@ const CabinRow = ({
 
             <td className="px-6 py-4">
                 {cabin.discount > 0 ? (
-                    <span className="badge badge-success">-{cabin.discount}%</span>
+                    <span className="badge badge-success">{cabin.discount}%</span>
                 ) : (
                     <span className="text-xs font-bold text-slate-300">N/A</span>
                 )}
@@ -48,24 +52,28 @@ const CabinRow = ({
 
 
             <td className="px-6 py-4">
-                <div className="flex justify-end gap-2 opacity-100 transition-opacity">
+                <div className="flex justify-start gap-2 opacity-100 transition-opacity">
                     <button
                         onClick={() => onView(cabin)}
-                        className="btn-action btn-action-secondary"
+                        className="btn-action btn-action-secondary whitespace-nowrap"
                     >
                        View
                     </button>
 
                     <button
                         onClick= {() => onEdit(cabin)}
-                        className="btn-action btn-action-primary"
+                        disabled={isBooked}
+                        title={isBooked ? "Booked cabins cannot be edited" : undefined}
+                        className="btn-action btn-action-primary whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         Edit
                     </button>
 
                     <button
                         onClick={() => onDelete(cabin.id)}
-                        className="btn-action btn-action-danger"
+                        disabled={isBooked}
+                        title={isBooked ? "Booked cabins cannot be deleted" : undefined}
+                        className="btn-action btn-action-danger whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         Delete
                     </button>
