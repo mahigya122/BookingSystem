@@ -5,7 +5,8 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
     try{
-        const suggestions = getRandomSuggestions();
+        const { role = "admin" } = req.query;
+        const suggestions = getRandomSuggestions(role);
 
         return res.json({
             suggestions,

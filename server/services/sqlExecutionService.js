@@ -1,6 +1,7 @@
-import { Client } from "pg";
+import pkg from "pg";
+const { Pool } = pkg;
 
-let client;
+let pool;
 
 function normalizeQuery(sql) {
   return String(sql || "").trim().replace(/;\s*$/u, "");
@@ -36,8 +37,8 @@ function getConnectionString() {
   return null;
 }
 
-async function getClient() {
-  if (!client) {
+function getPool() {
+  if (!pool) {
     const connectionString = getConnectionString();
 
     if (!connectionString) {
@@ -52,18 +53,23 @@ async function getClient() {
       );
     }
 
-    client = new Client({
+    pool = new Pool({
       connectionString,
       ssl:
         process.env.DATABASE_SSL === "false"
           ? false
           : { rejectUnauthorized: false },
+      max: 10,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
     });
 
-    await client.connect();
+    pool.on('error', (err) => {
+      console.error('Unexpected error on idle client', err);
+    });
   }
 
-  return client;
+  return pool;
 }
 
 function isSafeSelect(sql) {
@@ -80,7 +86,7 @@ export async function executeSQL(sql) {
     throw new Error("Only safe SELECT queries are allowed.");
   }
 
-  const db = await getClient();
+  const db = getPool();
   const result = await db.query(query);
 
   return {
