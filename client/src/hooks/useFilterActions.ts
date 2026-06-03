@@ -1,4 +1,4 @@
-import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
+import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
 import type { CabinFilters } from "../store/useCabinFilters";
 
 export const useFilterActions = () => {

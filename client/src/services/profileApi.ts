@@ -6,5 +6,5 @@ export const fetchProfile = async (userId: string): Promise<Profile> => {
 };
 
 export const updateProfile = async (profile: Profile): Promise<void> => {
-  return await sharedSaveProfile(profile);
+  await sharedSaveProfile(profile);
 };

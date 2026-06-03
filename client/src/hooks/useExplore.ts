@@ -1,38 +1,46 @@
 import { useMemo } from "react";
-import { useCabinsData } from "./useCabinsData";
-import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
+import { useCabinsData } from "../domains/cabins/hooks/useCabinsData";
+import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
+import { isCabinBookedInRange } from "@shared/utils/bookingUtils";
 
 export const useExplore = () => {
   const { cabins = [], isLoading } = useCabinsData();
   const { filters } = useCabinFiltersContext();
 
   const filteredCabins = useMemo(() => {
-    return cabins.filter((cabin) => {
-      // Price filter
-      const withinPrice =
-        cabin.price_per_night >= filters.price[0] &&
-        cabin.price_per_night <= filters.price[1];
+    return cabins
+      .map((cabin) => {
+        const isBooked =
+          filters.dateRange.startDate &&
+          filters.dateRange.endDate &&
+          isCabinBookedInRange(
+            cabin.id,
+            cabin.bookings || [],
+            new Date(filters.dateRange.startDate),
+            new Date(filters.dateRange.endDate)
+          );
 
-      // Capacity filter
-      const withinCapacity = filters.capacity
-        ? cabin.capacity >= filters.capacity
-        : true;
+        return {
+          ...cabin,
+          isBooked: !!isBooked,
+        };
+      })
+      .filter((cabin) => {
+        const withinPrice =
+          cabin.price_per_night >= filters.price[0] &&
+          cabin.price_per_night <= filters.price[1];
 
-      const withinDate =
-        !filters.dateRange.startDate || !filters.dateRange.endDate
-          ? true
-          : true;
+        const withinCapacity =
+          filters.capacity ? cabin.capacity === filters.capacity : true;
 
-      return withinPrice && withinCapacity && withinDate;
-    });
+        return withinPrice && withinCapacity;
+      });
   }, [cabins, filters]);
-
-  // Sort logic could also be moved here
 
   return {
     cabins: filteredCabins,
     isLoading,
     totalCount: cabins.length,
-    filteredCount: filteredCabins.length
+    filteredCount: filteredCabins.length,
   };
 };

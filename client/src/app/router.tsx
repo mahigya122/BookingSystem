@@ -1,68 +1,58 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import ProtectedRoute from "../layout/ProtectedRoute";
-import ClientDashboardLayout from "../layout/ClientDashboardLayout";
-import ClientDashboard from "../pages/ClientDashboard";
-import ClientProfile from "../pages/ClientProfile";
+import ProtectedRoute from "@shared/components/layout/ProtectedRoute";
+import ClientDashboardLayout from "../layouts/ClientDashboardLayout";
+import ClientDashboard from "../domains/cabins/pages/ClientDashboard";
+import ClientProfile from "../domains/guests/pages/ClientProfile";
 import Login from "./LoginWrapper";
-
-// Admin Layout & Pages
-import DashboardLayout from "../../../Admin/src/layout/DashboardLayout";
-import Home from "../../../Admin/src/pages/Home";
-import Booking from "../../../Admin/src/pages/Booking";
-import BookingForm from "../../../Admin/src/components/booking/BookingForm";
-import Cabins from "../../../Admin/src/pages/Cabins";
-import Guests from "../../../Admin/src/pages/Guests";
-import Profile from "../../../Admin/src/pages/Profile";
-import Settings from "../../../Admin/src/pages/Settings";
+import CabinDetails from "../domains/cabins/pages/CabinDetails";
+import ClientFullPageLayout from "../layouts/ClientFullPageLayout";
+import MyBookings from "../domains/bookings/pages/MyBookings";
+import { adminRoutes } from "../domains/admin/routes/adminRoutes";
 
 export const router = createBrowserRouter([
+  ...adminRoutes,
   {
     path: "/user/login",
     element: <Login />,
   },
   {
-    path: "/admin/login",
-    element: <Login />,
-  },
-  {
     path: "/user",
-    element: (
-      <ProtectedRoute requiredRole="guest">
-        <ClientDashboardLayout />
-      </ProtectedRoute>
-    ),
+    element: <ClientDashboardLayout />,
     children: [
       { index: true, element: <Navigate to="/user/explore" replace /> },
       { path: "explore", element: <ClientDashboard /> },
-      { path: "profile", element: <ClientProfile /> },
-      { path: "bookings", element: <div>My Bookings Page (Coming Soon)</div> },
+      {
+        path: "profile",
+        element: (
+          <ProtectedRoute requiredRole="guest">
+            <ClientProfile />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "bookings",
+        element: (
+          <ProtectedRoute requiredRole="guest">
+            <MyBookings />
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
+
+  // 👇 FULL PAGE LAYOUT (NO SIDEBAR)
   {
-    path: "/admin",
-    element: (
-      <ProtectedRoute requiredRole="admin">
-        <DashboardLayout />
-      </ProtectedRoute>
-    ),
+    element: <ClientFullPageLayout />,
     children: [
-      { index: true, element: <Navigate to="/admin/dashboard" replace /> },
-      { path: "dashboard", element: <Home /> },
-      { path: "bookings", element: <Booking /> },
-      { path: "book", element: <BookingForm /> },
-      { path: "cabins", element: <Cabins /> },
-      { path: "profile", element: <Profile /> },
-      { path: "guests", element: <Guests /> },
-      { path: "user", element: <Navigate to="/admin/guests" replace /> },
-      { path: "settings", element: <Settings /> },
+      { path: "/user/cabin/:id", element: <CabinDetails /> },
     ],
   },
   {
     path: "/",
-    element: <Navigate to="/user/login" replace />,
+    element: <Navigate to="/user/explore" replace />,
   },
   {
     path: "*",
-    element: <Navigate to="/user/login" replace />,
+    element: <Navigate to="/user/explore" replace />,
   },
 ]);
