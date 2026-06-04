@@ -7,7 +7,8 @@ export function useLogout() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
-  const loginPath = location.pathname.startsWith("/admin") ? "/admin/login" : "/user/login";
+  const isAdminApp = window.location.pathname.startsWith("/admin");
+  const loginPath = isAdminApp ? "/login" : "/login";
 
   const { mutate: logout, isPending } = useMutation({
     mutationFn: logoutApi,

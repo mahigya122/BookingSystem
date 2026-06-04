@@ -92,7 +92,7 @@ const MyBookings = () => {
           </p>
           {filters.bookingStatus === "all" && (
             <Link
-              to="/user/explore"
+              to="/"
               className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 font-bold text-white hover:bg-emerald-700 transition shadow-lg shadow-emerald-600/10 active:scale-95"
             >
               Explore Cabins <ArrowRight className="h-4.5 w-4.5" />
@@ -196,7 +196,7 @@ const MyBookings = () => {
                     </div>
 
                     <Link
-                      to={`/user/cabin/${booking.cabin_id}`}
+                      to={`/cabin/${booking.cabin_id}`}
                       className="inline-flex items-center gap-2 rounded-xl bg-slate-50 hover:bg-emerald-600 text-slate-700 hover:text-white dark:bg-slate-800 dark:hover:bg-emerald-600 dark:text-slate-200 px-4.5 py-2.5 text-sm font-black transition duration-300 active:scale-95 border border-slate-150 dark:border-slate-700/60 hover:border-emerald-600 dark:hover:border-emerald-600 cursor-pointer"
                     >
                       <span>View Cabin Details</span>

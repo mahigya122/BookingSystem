@@ -15,8 +15,8 @@ const Navbar = () => {
     };
 
     return (
-        <header className="nav-panel sticky top-0 z-40 flex h-16 items-center justify-between px-6 backdrop-blur-xl lg:px-8">
-            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/admin/dashboard")}>
+        <header className="nav-panel sticky top-0 z-40 flex h-16 items-center justify-between px-4 backdrop-blur-xl">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/dashboard")}>
                 <div className="brand-chip flex h-9 w-9 items-center justify-center rounded-xl">
                     <span className="text-sm font-black text-white">H</span>
                 </div>
@@ -42,7 +42,7 @@ const Navbar = () => {
                         <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "var(--app-text-muted)" }}>{user?.role || "Administrator"}</span>
                     </div>
                     <button
-                        onClick={() => navigate("/admin/profile")}
+                        onClick={() => navigate("/profile")}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-sm transition-colors btn-secondary"
                     >
                         👤

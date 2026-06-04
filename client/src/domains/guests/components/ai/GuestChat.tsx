@@ -25,6 +25,7 @@ const GuestChat = ({ isOpen }: Props) => {
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [suggestions, setSuggestions] = useState(FALLBACK_SUGGESTIONS);
+    const [conversationId, setConversationId] = useState<string | null>(null);
 
     const endRef = useRef<HTMLDivElement | null>(null);
 
@@ -36,18 +37,64 @@ const GuestChat = ({ isOpen }: Props) => {
     };
 
     useEffect(() => {
+        // Cleanup: Clear messages for public users when closing the drawer
+        if (!isOpen && !user?.id) {
+            setMessages([]);
+            setConversationId(null);
+        }
+    }, [isOpen, user?.id]);
+
+    useEffect(() => {
         if (!isOpen) return;
 
-        setMessages([
-            {
-                role: "assistant",
-                content:
-                    "Welcome to HotelFlow ✨ How may I help you find your perfect stay today?",
-            },
-        ]);
+        async function initChat() {
+            // If already have messages and not logged in, don't re-initialize
+            if (messages.length > 0 && !user?.id) return;
 
-        loadSuggestions();
-    }, [isOpen]);
+            setLoading(true);
+            
+            try {
+                if (user?.id) {
+                    const res = await fetch(`/api/ai/guest/conversation/latest?userId=${user.id}`);
+                    const data = await res.json();
+                    
+                    if (data.conversationId) {
+                        setConversationId(data.conversationId);
+                        if (Array.isArray(data.history) && data.history.length > 0) {
+                            setMessages(data.history);
+                        } else {
+                            addWelcomeMessage();
+                        }
+                    } else {
+                        addWelcomeMessage();
+                    }
+                } else {
+                    // Public user: only add welcome if empty
+                    if (messages.length === 0) {
+                        addWelcomeMessage();
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to load conversation history:", err);
+                if (messages.length === 0) addWelcomeMessage();
+            } finally {
+                setLoading(false);
+                loadSuggestions();
+            }
+        }
+
+        function addWelcomeMessage() {
+            setMessages([
+                {
+                    role: "assistant",
+                    content:
+                        "Welcome to HotelFlow ✨ How may I help you find your perfect stay today?",
+                },
+            ]);
+        }
+
+        initChat();
+    }, [isOpen, user?.id]);
 
     async function loadSuggestions() {
         try {
@@ -73,7 +120,10 @@ const GuestChat = ({ isOpen }: Props) => {
             content: input,
         };
 
-        setMessages((prev) => [...prev, userMessage]);
+        // Use functional update to ensure we have latest state, 
+        // but for sending we need the snapshot
+        const updatedMessages = [...messages, userMessage];
+        setMessages(updatedMessages);
 
         const currentInput = input;
 
@@ -90,6 +140,9 @@ const GuestChat = ({ isOpen }: Props) => {
                     },
                     body: JSON.stringify({
                         message: currentInput,
+                        userId: user?.id,
+                        conversationId: conversationId,
+                        history: user?.id ? undefined : updatedMessages // Send history for public users
                     }),
                 }
             );
@@ -100,15 +153,23 @@ const GuestChat = ({ isOpen }: Props) => {
                 throw new Error(data.error || "Failed to contact AI assistant");
             }
 
-            setMessages((prev) => [
-                ...prev,
-                {
-                    role: "assistant",
-                    content:
-                        data.reply ||
-                        "Sorry, I couldn't generate a response.",
-                },
-            ]);
+            if (data.conversationId) {
+                setConversationId(data.conversationId);
+            }
+
+            if (Array.isArray(data.history)) {
+                setMessages(data.history);
+            } else {
+                setMessages((prev) => [
+                    ...prev,
+                    {
+                        role: "assistant",
+                        content:
+                            data.reply ||
+                            "Sorry, I couldn't generate a response.",
+                    },
+                ]);
+            }
         } catch (err: any) {
             console.error("AI Chat Error:", err);
             setMessages((prev) => [

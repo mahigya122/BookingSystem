@@ -4,7 +4,7 @@ import type { Cabin } from "@shared/types/cabin";
 const CabinCard = ({ cabin }: { cabin: Cabin }) => {
   return (
     <Link
-      to={`/user/cabin/${cabin.id}`}
+      to={`/cabin/${cabin.id}`}
       className="group block relative rounded-[2rem] overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 ease-out"
     >
       {/* CARD IMAGE WRAPPER */}

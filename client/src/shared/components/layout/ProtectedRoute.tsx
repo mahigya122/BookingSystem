@@ -13,9 +13,8 @@ const ProtectedRoute = ({
   const location = useLocation();
 
 
-  const loginPath = location.pathname.startsWith("/admin")
-    ? "/admin/login"
-    : "/user/login";
+  const isAdminApp = window.location.pathname.startsWith("/admin");
+  const loginPath = isAdminApp ? "/login" : "/login";
 
   // 1. still loading auth session
   if (isLoading) {

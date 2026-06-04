@@ -5,12 +5,16 @@ import toast from "react-hot-toast";
 import { supabase } from "../../services/supabase";
 import FlippingBook from "./FlippingBook";
 
-const LoginWrapper = () => {
+type Props = {
+  forcedRole?: "admin" | "user";
+};
+
+const LoginWrapper = ({ forcedRole }: Props) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const isUserPath = location.pathname.includes("/user");
-  const role = isUserPath ? "user" : "admin";
+  const isAdminApp = window.location.pathname.startsWith("/admin");
+  const role = forcedRole || (isAdminApp ? "admin" : "user");
 
   useEffect(() => {
     const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "";
@@ -40,23 +44,29 @@ const LoginWrapper = () => {
         return;
       }
 
-      navigate('/user/explore', { replace: true });
+      // If we're in the admin app (basename /admin), we should stay there
+      if (isAdminApp) {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     };
 
     void restoreSession();
-  }, [navigate]);
+  }, [navigate, isAdminApp]);
 
   const handleLoginSuccess = (result: any) => {
     const resolvedRole = result?.user?.role;
 
     if (resolvedRole === 'guest') {
-      const from = (location.state as any)?.from || '/user/explore';
+      const from = (location.state as any)?.from || '/';
       navigate(from, { replace: true });
       return;
     }
 
     if (resolvedRole === 'admin') {
-      navigate('/admin/dashboard', { replace: true });
+      // If we're already in the admin app (basename /admin), use root /dashboard
+      navigate(isAdminApp ? '/dashboard' : '/admin/dashboard', { replace: true });
       return;
     }
 
@@ -64,14 +74,23 @@ const LoginWrapper = () => {
   };
 
   const handleRoleChange = (nextRole: 'admin' | 'user') => {
+    if (forcedRole) return;
     if (nextRole === 'user') {
-      navigate('/user/login');
+      if (isAdminApp) {
+        window.location.href = "/login";
+      } else {
+        navigate('/login');
+      }
     } else {
-      navigate('/admin/login');
+      if (!isAdminApp) {
+        navigate('/admin/login'); // This will hit the loader in router.tsx
+      } else {
+        navigate('/login'); // Within admin app basename
+      }
     }
   };
 
-  return <FlippingBook role={role} onRoleChange={handleRoleChange} onLoginSuccess={handleLoginSuccess} />;
+  return <FlippingBook role={role} onRoleChange={handleRoleChange} onLoginSuccess={handleLoginSuccess} hideToggle={!!forcedRole} />;
 };
 
 export default LoginWrapper;

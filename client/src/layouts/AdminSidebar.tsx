@@ -7,14 +7,14 @@ const Sidebar = () => {
       <div className="flex-1 overflow-y-auto py-6 px-4">
         <nav className="space-y-1">
           <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: "var(--app-text-muted)" }}>Management</div>
-          <SidebarLink to="/admin/dashboard" icon="🏠" label="Overview" end />
-          <SidebarLink to="/admin/bookings" icon="📅" label="Bookings" />
-          <SidebarLink to="/admin/book" icon="✏️" label="New Booking" />
-          <SidebarLink to="/admin/cabins" icon="🏨" label="Cabins" />
-          <SidebarLink to="/admin/guests" icon="👤" label="Guests" />
+          <SidebarLink to="/dashboard" icon="🏠" label="Overview" end />
+          <SidebarLink to="/bookings" icon="📅" label="Bookings" />
+          <SidebarLink to="/book" icon="✏️" label="New Booking" />
+          <SidebarLink to="/cabins" icon="🏨" label="Cabins" />
+          <SidebarLink to="/guests" icon="👤" label="Guests" />
           
           <div className="pt-6 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: "var(--app-text-muted)" }}>Settings</div>
-          <SidebarLink to="/admin/settings" icon="⚙️" label="System Settings" />
+          <SidebarLink to="/settings" icon="⚙️" label="System Settings" />
         </nav>
       </div>
       

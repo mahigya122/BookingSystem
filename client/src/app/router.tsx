@@ -7,20 +7,17 @@ import Login from "./LoginWrapper";
 import CabinDetails from "../domains/cabins/pages/CabinDetails";
 import ClientFullPageLayout from "../layouts/ClientFullPageLayout";
 import MyBookings from "../domains/bookings/pages/MyBookings";
-import { adminRoutes } from "../domains/admin/routes/adminRoutes";
 
 export const router = createBrowserRouter([
-  ...adminRoutes,
   {
-    path: "/user/login",
+    path: "/login",
     element: <Login />,
   },
   {
-    path: "/user",
+    path: "/",
     element: <ClientDashboardLayout />,
     children: [
-      { index: true, element: <Navigate to="/user/explore" replace /> },
-      { path: "explore", element: <ClientDashboard /> },
+      { index: true, element: <ClientDashboard /> },
       {
         path: "profile",
         element: (
@@ -44,15 +41,23 @@ export const router = createBrowserRouter([
   {
     element: <ClientFullPageLayout />,
     children: [
-      { path: "/user/cabin/:id", element: <CabinDetails /> },
+      { path: "/cabin/:id", element: <CabinDetails /> },
     ],
   },
   {
-    path: "/",
-    element: <Navigate to="/user/explore" replace />,
+    path: "/user/*",
+    element: <Navigate to="/" replace />,
+  },
+  {
+    path: "/admin/*",
+    loader: () => {
+      window.location.href = "/admin/";
+      return null;
+    },
+    element: null,
   },
   {
     path: "*",
-    element: <Navigate to="/user/explore" replace />,
+    element: <Navigate to="/" replace />,
   },
 ]);

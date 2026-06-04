@@ -146,7 +146,7 @@ const CabinDetails = () => {
         <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Cabin Not Found</h2>
         <p className="mt-2 text-slate-500 dark:text-slate-400">The stay you are looking for does not exist or has been removed.</p>
         <button
-          onClick={() => navigate("/user/explore")}
+          onClick={() => navigate("/")}
           className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 font-bold text-white hover:bg-emerald-700 transition"
         >
           <ArrowLeft className="h-4 w-4" /> Go Back to Dashboard
@@ -264,7 +264,7 @@ const CabinDetails = () => {
   const handleOpenBookingModal = () => {
     if (!user) {
       toast.error("Please sign in to book a cabin.");
-      navigate("/user/login", { state: { from: `/user/cabin/${cabin.id}` } });
+      navigate("/login", { state: { from: `/cabin/${cabin.id}` } });
       return;
     }
     if (!startDate || !endDate) {
@@ -315,7 +315,7 @@ const CabinDetails = () => {
 
           // Redirect to explore page
           setTimeout(() => {
-            navigate("/user/explore");
+            navigate("/");
           }, 1500);
         },
         onError: (err: any) => {
@@ -338,7 +338,7 @@ const CabinDetails = () => {
       {/* HEADER BARS */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <button
-          onClick={() => navigate("/user/explore")}
+          onClick={() => navigate("/")}
           className="inline-flex items-center gap-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800/80 px-5 py-2.5 text-sm font-black text-slate-700 dark:text-slate-200 shadow-sm hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-800/50 transition duration-300 active:scale-95 cursor-pointer"
         >
           <ArrowLeft className="h-4.5 w-4.5 text-emerald-600 stroke-[2.5]" />
@@ -886,7 +886,7 @@ const CabinDetails = () => {
             {recentlyViewed.map((recentCabin) => (
               <div
                 key={recentCabin.id}
-                onClick={() => navigate(`/user/cabin/${recentCabin.id}`)}
+                onClick={() => navigate(`/cabin/${recentCabin.id}`)}
                 className="group cursor-pointer space-y-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 p-3.5 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300"
               >
                 <div className="aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800">

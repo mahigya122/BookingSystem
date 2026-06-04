@@ -9,6 +9,7 @@ type Props = {
   role: Role;
   onRoleChange: (role: Role) => void;
   onLoginSuccess: (user: any) => void;
+  hideToggle?: boolean;
 };
 
 const toggleButtonClass = (active: boolean) =>
@@ -17,7 +18,7 @@ const toggleButtonClass = (active: boolean) =>
     : "text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
   }`;
 
-const FlippingBook = ({ role, onRoleChange, onLoginSuccess }: Props) => {
+const FlippingBook = ({ role, onRoleChange, onLoginSuccess, hideToggle }: Props) => {
   const isUser = role === "user";
 
   const title = useMemo(
@@ -86,26 +87,28 @@ const FlippingBook = ({ role, onRoleChange, onLoginSuccess }: Props) => {
               </div>
             </div>
 
-            <div className="absolute left-1/2 top-6 z-30 -translate-x-1/2">
-              <div className="rounded-full border border-slate-200/80 bg-white/90 p-1 shadow-lg shadow-slate-900/5 backdrop-blur dark:border-slate-700 dark:bg-slate-950/90">
-                <button
-                  type="button"
-                  onClick={() => onRoleChange("user")}
-                  aria-pressed={isUser}
-                  className={toggleButtonClass(isUser)}
-                >
-                  User
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onRoleChange("admin")}
-                  aria-pressed={!isUser}
-                  className={toggleButtonClass(!isUser)}
-                >
-                  Admin
-                </button>
+            {!hideToggle && (
+              <div className="absolute left-1/2 top-6 z-30 -translate-x-1/2">
+                <div className="rounded-full border border-slate-200/80 bg-white/90 p-1 shadow-lg shadow-slate-900/5 backdrop-blur dark:border-slate-700 dark:bg-slate-950/90">
+                  <button
+                    type="button"
+                    onClick={() => onRoleChange("user")}
+                    aria-pressed={isUser}
+                    className={toggleButtonClass(isUser)}
+                  >
+                    User
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onRoleChange("admin")}
+                    aria-pressed={!isUser}
+                    className={toggleButtonClass(!isUser)}
+                  >
+                    Admin
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -123,14 +126,16 @@ const FlippingBook = ({ role, onRoleChange, onLoginSuccess }: Props) => {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 border-b border-slate-200/70 px-5 py-4 dark:border-slate-800">
-              <button type="button" onClick={() => onRoleChange("user")} className={toggleButtonClass(isUser)}>
-                User
-              </button>
-              <button type="button" onClick={() => onRoleChange("admin")} className={toggleButtonClass(!isUser)}>
-                Admin
-              </button>
-            </div>
+            {!hideToggle && (
+              <div className="flex flex-wrap gap-2 border-b border-slate-200/70 px-5 py-4 dark:border-slate-800">
+                <button type="button" onClick={() => onRoleChange("user")} className={toggleButtonClass(isUser)}>
+                  User
+                </button>
+                <button type="button" onClick={() => onRoleChange("admin")} className={toggleButtonClass(!isUser)}>
+                  Admin
+                </button>
+              </div>
+            )}
 
             <div className="grid gap-0 lg:hidden">
               {isUser ? (

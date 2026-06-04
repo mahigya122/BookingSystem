@@ -1,20 +1,17 @@
 import { createContext, useContext } from "react";
 import type { ReactNode } from "react";
-import { useCabinFilters, type CabinFilters } from "../../../store/useCabinFilters";
+import { useCabinFilters } from "../../../store/useCabinFilters";
 
-interface CabinFiltersContextType {
-    filters: CabinFilters;
-    setFilters: (filters: CabinFilters) => void;
-    clearFilters: () => void;
-}
+// Use ReturnType to ensure the context is always in sync with the hook
+type CabinFiltersContextType = ReturnType<typeof useCabinFilters>;
 
 const CabinFiltersContext = createContext<CabinFiltersContextType | undefined>(undefined);
 
 export const CabinFiltersProvider = ({ children }: { children: ReactNode }) => {
-    const filterState = useCabinFilters();
+    const value = useCabinFilters();
 
     return (
-        <CabinFiltersContext.Provider value={filterState}>
+        <CabinFiltersContext.Provider value={value}>
             {children}
         </CabinFiltersContext.Provider>
     );
@@ -22,8 +19,10 @@ export const CabinFiltersProvider = ({ children }: { children: ReactNode }) => {
 
 export const useCabinFiltersContext = () => {
     const context = useContext(CabinFiltersContext);
+
     if (!context) {
         throw new Error("useCabinFiltersContext must be used within a CabinFiltersProvider");
     }
+
     return context;
 };

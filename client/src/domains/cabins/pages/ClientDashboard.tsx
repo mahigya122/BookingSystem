@@ -27,23 +27,14 @@ const ClientDashboard = () => {
               Showing {filteredCount} available cabins.
             </p>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-slate-500">Sort by:</span>
-            <select className="rounded-xl border-slate-200 bg-white px-4 py-2 text-sm font-bold dark:border-slate-800 dark:bg-slate-900">
-              <option>Default</option>
-              <option>Price: Low to High</option>
-              <option>Price: High to Low</option>
-              <option>Capacity: Large to Small</option>
-            </select>
-          </div>
+
         </div>
       </header>
 
       <section className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {cabins.map((cabin) => (
-          <CabinCard 
-            key={cabin.id} 
+          <CabinCard
+            key={cabin.id}
             cabin={cabin}
           />
         ))}

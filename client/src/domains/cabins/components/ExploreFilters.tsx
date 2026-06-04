@@ -94,23 +94,8 @@ const ExploreFilters = () => {
                 </div>
             </div>
 
-            {/* CALENDAR */}
-            <div className="rounded-3xl border bg-white dark:bg-slate-900 p-5 shadow-lg overflow-hidden">
-                <h3 className="font-bold mb-4">Stay Dates</h3>
-
-                <div className="flex justify-center">
-                    <DateRange
-                        editableDateInputs
-                        moveRangeOnFirstSelection={false}
-                        ranges={dateRangeForPicker}
-                        onChange={(item: any) => handleDateChange(item.selection)}
-                        rangeColors={["#059669"]}
-                    />
-                </div>
-            </div>
-
             <button
-                className="w-full rounded-2xl bg-emerald-600 py-4 text-white font-bold hover:bg-emerald-700 shadow-xl shadow-emerald-900/10 transition-all active:scale-[0.98]"
+                className="w-full rounded-2xl bg-emerald-600 py-2 text-white font-bold hover:bg-emerald-700 shadow-xl shadow-emerald-900/10 transition-all active:scale-[0.98]"
             >
                 Apply Filters
             </button>
