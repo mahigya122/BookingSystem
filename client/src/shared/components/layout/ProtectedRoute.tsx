@@ -1,4 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useUser } from "@shared/hooks/auth/useAuthUser";
 import type { AuthRole } from "../../types/auth";
 
@@ -10,7 +10,6 @@ const ProtectedRoute = ({
   requiredRole?: AuthRole;
 }) => {
   const { isLoading, isAuthenticated, user } = useUser();
-  const location = useLocation();
 
 
   const isAdminApp = window.location.pathname.startsWith("/admin");

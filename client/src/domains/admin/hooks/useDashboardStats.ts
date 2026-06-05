@@ -23,12 +23,17 @@ export function useDashboardStats({
         });
     }, [bookings, startMs, endMs]);
 
-    const totalBookings = filteredBookings.length;
+    const totalBookings = filteredBookings.filter(
+        (booking) => booking.status !== "cancelled"
+    ).length;
 
-    const totalSales = filteredBookings.reduce(
-        (sum, booking) => sum + booking.total_price,
-        0
-    );
+    const cancelledBookings = filteredBookings.filter(
+        (booking) => booking.status === "cancelled"
+    ).length;
+
+    const totalSales = filteredBookings
+        .filter((booking) => booking.status !== "cancelled")
+        .reduce((sum, booking) => sum + booking.total_price, 0);
 
     const checkedIn = filteredBookings.filter(
         (booking) => booking.status === "checked-in"
@@ -40,6 +45,7 @@ export function useDashboardStats({
     return {
         filteredBookings,
         totalBookings,
+        cancelledBookings,
         totalSales,
         checkedIn,
         occupancyRate,

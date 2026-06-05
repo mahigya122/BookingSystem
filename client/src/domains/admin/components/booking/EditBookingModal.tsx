@@ -14,6 +14,8 @@ const EditBookingModal = ({ booking, onClose} : Props) => {
   const [endDate, setEndDate] = useState(booking.end_date);
   const [status, setStatus] = useState<Booking["status"]>(booking.status);
   const [hasBreakfast, setHasBreakfast] = useState(booking.has_breakfast);
+  const [paymentStatus, setPaymentStatus] = useState(booking.payment_status || "pending");
+  const [paymentMethod, setPaymentMethod] = useState(booking.payment_method || "arrival");
 
 // PRICE CALCULATION
 const Pricing = useMemo(() => {
@@ -51,6 +53,8 @@ const Pricing = useMemo(() => {
         total_price: Pricing.total,
         has_breakfast: hasBreakfast,
         status,
+        payment_status: paymentStatus as any,
+        payment_method: paymentMethod,
       },
       {
         onSuccess: () => {
@@ -150,6 +154,10 @@ const Pricing = useMemo(() => {
             <option value="checked-out">
               checked-out
             </option>
+
+            <option value="cancelled">
+              cancelled
+            </option>
           </select>
         </div>
 
@@ -166,6 +174,48 @@ const Pricing = useMemo(() => {
           Include Breakfast
        </label>
        </div>
+
+        {/* PAYMENT STATUS */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm text-gray-600">
+              Payment Status
+            </label>
+
+            <select
+              value={paymentStatus}
+              onChange={(e) =>
+                setPaymentStatus(e.target.value as any)
+              }
+              className="w-full border rounded-lg p-2 mt-1"
+            >
+              <option value="pending">pending</option>
+              <option value="paid">paid</option>
+              <option value="refunded">refunded</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-600">
+              Payment Method
+            </label>
+
+            <select
+              value={paymentMethod}
+              onChange={(e) =>
+                setPaymentMethod(e.target.value as any)
+              }
+              className="w-full border rounded-lg p-2 mt-1"
+            >
+              <option value="arrival">arrival</option>
+              <option value="cash">cash</option>
+              <option value="visa">visa</option>
+              <option value="mastercard">mastercard</option>
+              <option value="fonepay">fonepay</option>
+              <option value="esewa">esewa</option>
+            </select>
+          </div>
+        </div>
 
         {/* PRICING */}
         {Pricing && (

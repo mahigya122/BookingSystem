@@ -1,6 +1,6 @@
 import BookingRow from "./BookingRow";
-
 import type { Booking } from "@shared/types/booking";
+
 
 interface Props {
   bookings: Booking[];
@@ -27,6 +27,7 @@ const BookingTable = ({
             <th>Check-out</th>
             <th>Status</th>
             <th>Revenue</th>
+            <th>Payment</th>
             <th className="text-right">Manage</th>
           </tr>
         </thead>

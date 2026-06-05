@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useUser } from "@shared/auth_hooks";
-import { supabase } from "../services/supabase";
+import { supabase } from "@shared/services/supabase";
 import toast from "react-hot-toast";
 
 const Profile = () => {

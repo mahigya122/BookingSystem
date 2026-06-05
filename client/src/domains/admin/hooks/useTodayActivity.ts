@@ -14,6 +14,7 @@ export function useTodayActivity({
 }: Props) {
   const arrivals = useMemo(() => {
     return bookings.filter((booking) => {
+      if (booking.status === "cancelled") return false;
       const start = toLocalDateMs(booking.start_date);
 
       return (
@@ -25,6 +26,7 @@ export function useTodayActivity({
 
   const departures = useMemo(() => {
     return bookings.filter((booking) => {
+      if (booking.status === "cancelled") return false;
       const end = toLocalDateMs(booking.end_date);
 
       return (

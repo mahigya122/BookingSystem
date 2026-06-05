@@ -2,13 +2,19 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useUser } from "@shared/auth_hooks";
 import { fetchProfile, updateProfile } from "../services/profileApi";
+import { updatePassword } from "@shared/services/apiAuth";
 
 export const useProfile = () => {
   const { user } = useUser();
+  const [profile, setProfile] = useState<any>(null);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [updatingPassword, setUpdatingPassword] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -18,11 +24,12 @@ export const useProfile = () => {
     const loadProfile = async () => {
       try {
         setLoading(true);
-        const profile = await fetchProfile(user.id);
+        const data = await fetchProfile(user.id);
 
         if (!cancelled) {
-          setFullName(profile.full_name || "");
-          setPhone(profile.phone || "");
+          setProfile(data);
+          setFullName(data.full_name || "");
+          setPhone(data.phone || "");
         }
       } catch {
         if (!cancelled) {
@@ -58,6 +65,13 @@ export const useProfile = () => {
         role: user.role ?? "guest",
       });
       toast.success("Profile saved successfully.");
+      
+      // Update local profile state
+      setProfile((prev: any) => ({
+         ...prev,
+         full_name: fullName.trim(),
+         phone: phone.trim()
+      }));
     } catch (saveError) {
       toast.error(saveError instanceof Error ? saveError.message : "Failed to save profile.");
     } finally {
@@ -65,14 +79,50 @@ export const useProfile = () => {
     }
   };
 
+  const updatePass = async () => {
+    if (!password) {
+      toast.error("Please enter a new password.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
+
+    try {
+      setUpdatingPassword(true);
+      await updatePassword(password);
+      toast.success("Password updated successfully.");
+      setPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to update password.");
+    } finally {
+      setUpdatingPassword(false);
+    }
+  };
+
   return {
     user,
+    profile,
     fullName,
     setFullName,
     phone,
     setPhone,
+    password,
+    setPassword,
+    confirmPassword,
+    setConfirmPassword,
     loading,
     saving,
-    save
+    updatingPassword,
+    save,
+    updatePass
   };
 };

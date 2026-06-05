@@ -2,12 +2,13 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "@shared/auth_hooks";
 import { useCreateBooking } from "@shared/comp_hooks";
+import { useProfile } from "../../../hooks/useProfile";
 import { useCabin } from "../hooks/useCabin";
 import { useCabinAvailability } from "../hooks/useCabinAvailability";
 import { useCabins } from "@shared/hooks/cabin";
 import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
-import { fetchProfile } from "../../../services/profileApi";
 import toast from "react-hot-toast";
+import PaymentSelector from "../../payments/components/PaymentSelector";
 import {
   Wifi,
   Tv,
@@ -22,9 +23,10 @@ import {
   ArrowLeft,
   Shield,
   Loader2,
-  Phone,
   User,
-  Utensils
+  Utensils,
+  ArrowRight,
+  AlertCircle
 } from "lucide-react";
 
 // Format date to YYYY-MM-DD string in local timezone
@@ -58,46 +60,35 @@ const CabinDetails = () => {
   const { cabins = [], isLoading: loadingAllCabins } = useCabins();
 
   const { user } = useUser();
+  const { fullName, phone, loading: loadingProfile } = useProfile();
   const { filters, setFilters } = useCabinFiltersContext();
   const { createBooking, isPending: isBookingPending } = useCreateBooking();
 
-  // Profile data for logged-in user
-  const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
+  // Check if current user already has an active reservation for this cabin
+  const hasUserReservation = useMemo(() => {
+    if (!user || !availability?.bookings) return false;
+    return availability.bookings.some(
+      (booking) => booking.guest_id === user.id && booking.status !== "cancelled"
+    );
+  }, [user, availability]);
 
   // States
-  const [activePhoto, setActivePhoto] = useState("");
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const activePhoto = selectedPhoto || cabin?.image_url || "";
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [breakfast, setBreakfast] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<"summary" | "payment">("summary");
+  const [paymentMethod, setPaymentMethod] = useState<string>("arrival");
 
   // Calendar states (internal control initialized from context filters)
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-
-  // Sync initial calendar range from filters context
-  useEffect(() => {
-    if (filters.dateRange.startDate) {
-      setStartDate(new Date(filters.dateRange.startDate));
-    }
-    if (filters.dateRange.endDate) {
-      setEndDate(new Date(filters.dateRange.endDate));
-    }
-  }, [filters.dateRange.startDate, filters.dateRange.endDate]);
-
-  // Load user profile details for prefilling booking info
-  useEffect(() => {
-    if (!user?.id) return;
-    fetchProfile(user.id)
-      .then((profile) => {
-        if (profile.full_name) setFullName(profile.full_name);
-        if (profile.phone) setPhone(profile.phone);
-      })
-      .catch(() => {
-        // Silent catch: Fall back to empty inputs
-      });
-  }, [user?.id]);
+  const [startDate, setStartDate] = useState<Date | null>(() =>
+    filters.dateRange.startDate ? new Date(filters.dateRange.startDate) : null
+  );
+  const [endDate, setEndDate] = useState<Date | null>(() =>
+    filters.dateRange.endDate ? new Date(filters.dateRange.endDate) : null
+  );
 
   // Track recently viewed cabins in localStorage
   useEffect(() => {
@@ -114,12 +105,7 @@ const CabinDetails = () => {
     localStorage.setItem("recently-viewed-cabins", JSON.stringify(list));
   }, [id, cabin]);
 
-  // Initialize main photo when cabin loads
-  useEffect(() => {
-    if (cabin?.image_url) {
-      setActivePhoto(cabin.image_url);
-    }
-  }, [cabin]);
+
 
   // Retrieve details for recently viewed cabins (excluding current)
   const recentlyViewed = useMemo(() => {
@@ -129,7 +115,7 @@ const CabinDetails = () => {
     return cabins.filter((c) => list.includes(c.id) && c.id !== id);
   }, [cabins, id]);
 
-  const isLoading = loadingCabin || loadingAvailability || loadingAllCabins;
+  const isLoading = loadingCabin || loadingAvailability || loadingAllCabins || loadingProfile;
 
   if (isLoading) {
     return (
@@ -163,7 +149,7 @@ const CabinDetails = () => {
   const myBookedDatesSet = new Set<string>();
   if (availability?.bookings) {
     availability.bookings.forEach((booking) => {
-      if (booking.guest_id === user?.id) {
+      if (booking.guest_id === user?.id && booking.status !== "cancelled") {
         const start = parseDateString(booking.start_date);
         const end = parseDateString(booking.end_date);
         const temp = new Date(start);
@@ -174,6 +160,8 @@ const CabinDetails = () => {
       }
     });
   }
+
+
 
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
@@ -267,38 +255,55 @@ const CabinDetails = () => {
       navigate("/login", { state: { from: `/cabin/${cabin.id}` } });
       return;
     }
+
+    // REQUIREMENT 3 & 4: Verify full_name and phone exist
+    if (!fullName || !phone) {
+      toast.error("Please complete your profile (Name and Phone) before booking.", {
+        icon: <AlertCircle className="text-amber-500" />,
+        duration: 4000
+      });
+      navigate("/profile");
+      return;
+    }
+
     if (!startDate || !endDate) {
       toast.error("Please select check-in and check-out dates on the calendar first.");
       return;
     }
+
+    setCheckoutStep("summary");
     setIsConfirmModalOpen(true);
   };
 
   const handleConfirmBooking = () => {
-    if (!fullName.trim()) {
-      toast.error("Please enter your full name.");
-      return;
-    }
-    if (!phone.trim()) {
-      toast.error("Please enter your phone number.");
-      return;
-    }
-    if (!startDate || !endDate) return;
+    if (!startDate || !endDate || !user) return;
+
+    const isPayNow = paymentMethod !== "arrival";
 
     createBooking(
       {
-        guest_full_name: fullName.trim(),
-        guest_email: user?.email ?? "guest@hotelflow.com",
-        guest_phone: phone.trim(),
+        guest_id: user.id,
         cabin_id: cabin.id,
         start_date: formatDateString(startDate),
         end_date: formatDateString(endDate),
         total_price: totalPrice,
         has_breakfast: breakfast,
+        payment_status: isPayNow ? "paid" : "pending",
+        payment_method: paymentMethod,
+        // Requirement 7: For Pay Now, add paid_at and transaction_id
+        ...(isPayNow && {
+          paid_at: new Date().toISOString(),
+          transaction_id: `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+        })
       },
       {
         onSuccess: () => {
           setIsConfirmModalOpen(false);
+          
+          if (isPayNow) {
+            toast.success("Payment Successful! Your stay is confirmed.");
+          }
+
           toast.custom((t) => (
             <div className={`${t.visible ? "animate-enter" : "animate-leave"} max-w-md w-full bg-white dark:bg-slate-900 shadow-2xl rounded-3xl pointer-events-auto flex border border-slate-100 dark:border-slate-800 p-5`}>
               <div className="flex-1 flex items-start gap-4">
@@ -318,7 +323,7 @@ const CabinDetails = () => {
             navigate("/");
           }, 1500);
         },
-        onError: (err: any) => {
+        onError: (err: Error) => {
           toast.error(err.message || "Failed to create booking.");
         },
       }
@@ -390,7 +395,7 @@ const CabinDetails = () => {
                 ? "border-emerald-600 dark:border-emerald-500 shadow-lg scale-[0.98]"
                 : "border-transparent hover:border-emerald-600/50"
                 }`}
-              onClick={() => setActivePhoto(photo)}
+              onClick={() => setSelectedPhoto(photo)}
             >
               <img
                 src={photo}
@@ -552,10 +557,9 @@ const CabinDetails = () => {
                   } else if (isMine) {
                     cellClass +=
                       "bg-emerald-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.9)] ring-2 ring-emerald-300 animate-pulse scale-[0.97] cursor-not-allowed ";
-                  }
-                  else if (isBooked) {
+                  } else if (isBooked) {
                     cellClass +=
-                      "text-rose-400 dark:text-rose-500/80 cursor-not-allowed bg-rose-50/40 dark:bg-rose-950/20 line-through decoration-rose-400/50 ";
+                      "bg-rose-600 text-white shadow-[0_0_20px_rgba(239,68,68,0.9)] ring-2 ring-rose-300 animate-pulse scale-[0.97] cursor-not-allowed ";
                   } else {
                     cellClass += "cursor-pointer ";
 
@@ -573,7 +577,7 @@ const CabinDetails = () => {
                   return (
                     <button
                       key={`day-${dateStr}`}
-                      disabled={isPast || isBooked}
+                      disabled={isPast || isBooked || isMine}
                       onClick={() => handleDayClick(date)}
                       className={cellClass}
                       title={
@@ -600,8 +604,12 @@ const CabinDetails = () => {
                   <span>Selected</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="h-4.5 w-4.5 rounded-lg bg-rose-50 border border-rose-200 dark:bg-rose-950/20 dark:border-rose-900/50 line-through text-rose-400" />
-                  <span>Booked (No double-booking)</span>
+                  <div className="h-4.5 w-4.5 rounded-lg bg-emerald-600 shadow-[0_0_10px_rgba(16,185,129,0.5)] ring-1 ring-emerald-300" />
+                  <span>Booked by you</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="h-4.5 w-4.5 rounded-lg bg-rose-600 shadow-[0_0_10px_rgba(239,68,68,0.5)] ring-1 ring-rose-300" />
+                  <span>Booked by others</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="h-4.5 w-4.5 rounded-lg border-2 border-emerald-500 dark:border-emerald-400 bg-white dark:bg-slate-900" />
@@ -766,112 +774,135 @@ const CabinDetails = () => {
 
         {/* RIGHT COLUMN: AIRBNB STICKY PRICE & CHECKOUT CARD */}
         <div className="lg:col-span-1 lg:sticky lg:top-24 space-y-6">
-          <div className="rounded-[2.5rem] border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-6.5 shadow-xl hover:shadow-2xl transition duration-500 space-y-6">
-            {/* Price tag header */}
-            <div className="flex items-baseline justify-between">
-              <div>
-                <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-                  ${cabin.price_per_night}
-                </span>
-                <span className="text-slate-400 text-sm font-bold ml-1">/ night</span>
+          {hasUserReservation ? (
+            <div className="rounded-[2.5rem] border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/20 dark:bg-emerald-950/10 p-8 shadow-xl text-center space-y-6 animate-fade-in ring-2 ring-emerald-500/10 backdrop-blur-sm">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-pulse">
+                <Check className="h-7 w-7 stroke-[3]" />
               </div>
-
-              {cabin.discount > 0 && (
-                <span className="text-xs font-extrabold bg-rose-500 text-white px-3 py-1 rounded-full uppercase tracking-wider">
-                  Save ${cabin.discount}
-                </span>
-              )}
-            </div>
-
-            {/* Check-in / Out Summary */}
-            <div className="rounded-2xl border border-slate-150 dark:border-slate-800 overflow-hidden divide-y divide-slate-150 dark:divide-slate-800">
-              <div className="grid grid-cols-2 divide-x divide-slate-150 dark:divide-slate-800 text-xs font-black">
-                <div className="p-3.5 space-y-1">
-                  <span className="text-slate-400 uppercase tracking-wider block">Check-in</span>
-                  <span className="text-slate-900 dark:text-white text-sm">
-                    {startDate ? startDate.toLocaleDateString() : "Select Date"}
-                  </span>
-                </div>
-                <div className="p-3.5 space-y-1">
-                  <span className="text-slate-400 uppercase tracking-wider block">Check-out</span>
-                  <span className="text-slate-900 dark:text-white text-sm">
-                    {endDate ? endDate.toLocaleDateString() : "Select Date"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-3.5 space-y-1">
-                <span className="text-slate-400 text-xs font-black uppercase tracking-wider block">Guests</span>
-                <span className="text-slate-900 dark:text-white text-sm font-extrabold">
-                  {filters.capacity || 1} guest{(filters.capacity || 1) > 1 ? "s" : ""}
-                </span>
+              <div className="space-y-3">
+                <p className="text-base font-extrabold text-slate-900 dark:text-white leading-snug">
+                  You already have a reservation for this cabin.
+                </p>
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                  Manage it from{" "}
+                  <button
+                    onClick={() => navigate("/bookings")}
+                    className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-extrabold underline transition cursor-pointer"
+                  >
+                    My Bookings
+                  </button>
+                  .
+                </p>
               </div>
             </div>
-
-            {/* Optional Premium Breakfast */}
-            <label className="flex items-center gap-3.5 p-4 rounded-2xl bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 cursor-pointer group hover:bg-emerald-500/10 transition">
-              <input
-                type="checkbox"
-                checked={breakfast}
-                onChange={(e) => setBreakfast(e.target.checked)}
-                className="h-5 w-5 rounded-md text-emerald-600 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-emerald-500"
-              />
-              <div className="space-y-0.5">
-                <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200 block group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition">
-                  Premium Breakfast (+ $15/night)
-                </span>
-                <span className="text-xs font-bold text-slate-500">Fresh organic locally sourced ingredients</span>
-              </div>
-            </label>
-
-            {/* Breakdown calculations */}
-            {totalNights > 0 && (
-              <div className="space-y-3.5 border-t border-slate-100 dark:border-slate-800/80 pt-4 text-sm font-bold text-slate-600 dark:text-slate-400">
-                <div className="flex justify-between">
-                  <span className="underline decoration-slate-300 dark:decoration-slate-700 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer">
-                    ${cabin.price_per_night} x {totalNights} nights
+          ) : (
+            <div className="rounded-[2.5rem] border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-6.5 shadow-xl hover:shadow-2xl transition duration-500 space-y-6">
+              {/* Price tag header */}
+              <div className="flex items-baseline justify-between">
+                <div>
+                  <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                    ${cabin.price_per_night}
                   </span>
-                  <span className="text-slate-900 dark:text-white font-extrabold">${baseAccommodationPrice}</span>
+                  <span className="text-slate-400 text-sm font-bold ml-1">/ night</span>
                 </div>
 
-                {breakfast && (
+                {cabin.discount > 0 && (
+                  <span className="text-xs font-extrabold bg-rose-500 text-white px-3 py-1 rounded-full uppercase tracking-wider">
+                    Save ${cabin.discount}
+                  </span>
+                )}
+              </div>
+
+              {/* Check-in / Out Summary */}
+              <div className="rounded-2xl border border-slate-150 dark:border-slate-800 overflow-hidden divide-y divide-slate-150 dark:divide-slate-800">
+                <div className="grid grid-cols-2 divide-x divide-slate-150 dark:divide-slate-800 text-xs font-black">
+                  <div className="p-3.5 space-y-1">
+                    <span className="text-slate-400 uppercase tracking-wider block">Check-in</span>
+                    <span className="text-slate-900 dark:text-white text-sm">
+                      {startDate ? startDate.toLocaleDateString() : "Select Date"}
+                    </span>
+                  </div>
+                  <div className="p-3.5 space-y-1">
+                    <span className="text-slate-400 uppercase tracking-wider block">Check-out</span>
+                    <span className="text-slate-900 dark:text-white text-sm">
+                      {endDate ? endDate.toLocaleDateString() : "Select Date"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 space-y-1">
+                  <span className="text-slate-400 text-xs font-black uppercase tracking-wider block">Guests</span>
+                  <span className="text-slate-900 dark:text-white text-sm font-extrabold">
+                    {filters.capacity || 1} guest{(filters.capacity || 1) > 1 ? "s" : ""}
+                  </span>
+                </div>
+              </div>
+
+              {/* Optional Premium Breakfast */}
+              <label className="flex items-center gap-3.5 p-4 rounded-2xl bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/20 cursor-pointer group hover:bg-emerald-500/10 transition">
+                <input
+                  type="checkbox"
+                  checked={breakfast}
+                  onChange={(e) => setBreakfast(e.target.checked)}
+                  className="h-5 w-5 rounded-md text-emerald-600 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-emerald-500"
+                />
+                <div className="space-y-0.5">
+                  <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200 block group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition">
+                    Premium Breakfast (+ $15/night)
+                  </span>
+                  <span className="text-xs font-bold text-slate-500">Fresh organic locally sourced ingredients</span>
+                </div>
+              </label>
+
+              {/* Breakdown calculations */}
+              {totalNights > 0 && (
+                <div className="space-y-3.5 border-t border-slate-100 dark:border-slate-800/80 pt-4 text-sm font-bold text-slate-600 dark:text-slate-400">
                   <div className="flex justify-between">
                     <span className="underline decoration-slate-300 dark:decoration-slate-700 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer">
-                      Breakfast fee
+                      ${cabin.price_per_night} x {totalNights} nights
                     </span>
-                    <span className="text-slate-900 dark:text-white font-extrabold">${breakfastTotal}</span>
+                    <span className="text-slate-900 dark:text-white font-extrabold">${baseAccommodationPrice}</span>
                   </div>
-                )}
 
-                <div className="flex justify-between">
-                  <span>Cleaning fee</span>
-                  <span className="text-slate-900 dark:text-white font-extrabold">${cleaningFee}</span>
+                  {breakfast && (
+                    <div className="flex justify-between">
+                      <span className="underline decoration-slate-300 dark:decoration-slate-700 hover:text-slate-800 dark:hover:text-slate-200 cursor-pointer">
+                        Breakfast fee
+                      </span>
+                      <span className="text-slate-900 dark:text-white font-extrabold">${breakfastTotal}</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between">
+                    <span>Cleaning fee</span>
+                    <span className="text-slate-900 dark:text-white font-extrabold">${cleaningFee}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span>Local service tax</span>
+                    <span className="text-slate-900 dark:text-white font-extrabold">${serviceTax}</span>
+                  </div>
+
+                  <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/80 pt-4 text-base font-black text-slate-900 dark:text-white">
+                    <span>Total price</span>
+                    <span>${totalPrice}</span>
+                  </div>
                 </div>
+              )}
 
-                <div className="flex justify-between">
-                  <span>Local service tax</span>
-                  <span className="text-slate-900 dark:text-white font-extrabold">${serviceTax}</span>
-                </div>
+              {/* Checkout CTA */}
+              <button
+                onClick={handleOpenBookingModal}
+                className="w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4.5 font-black hover:from-emerald-700 hover:to-teal-700 shadow-xl shadow-emerald-900/10 hover:shadow-emerald-950/20 transition-all active:scale-[0.98] cursor-pointer"
+              >
+                BOOK NOW (NEW)
+              </button>
 
-                <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/80 pt-4 text-base font-black text-slate-900 dark:text-white">
-                  <span>Total price</span>
-                  <span>${totalPrice}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Checkout CTA */}
-            <button
-              onClick={handleOpenBookingModal}
-              className="w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4.5 font-black hover:from-emerald-700 hover:to-teal-700 shadow-xl shadow-emerald-900/10 hover:shadow-emerald-950/20 transition-all active:scale-[0.98] cursor-pointer"
-            >
-              BOOK NOW (NEW)
-            </button>
-
-            <p className="text-center text-xs font-semibold text-slate-400">
-              You won't be charged yet. The double-booking algorithm secures your dates instantly.
-            </p>
-          </div>
+              <p className="text-center text-xs font-semibold text-slate-400">
+                You won't be charged yet. The double-booking algorithm secures your dates instantly.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -927,7 +958,7 @@ const CabinDetails = () => {
         </div>
       )}
 
-      {/* SECURE BOOKING FORM MODAL */}
+      {/* SECURE CHECKOUT MODAL */}
       {isConfirmModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
@@ -939,9 +970,14 @@ const CabinDetails = () => {
           {/* Modal Card */}
           <div className="relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 w-full max-w-lg shadow-2xl border border-slate-100 dark:border-slate-800/80 animate-zoom-in space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-                Review & Confirm Stay
-              </h3>
+              <div>
+                <h3 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                  {checkoutStep === "summary" ? "Checkout Summary" : "Payment Method"}
+                </h3>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">
+                  Step {checkoutStep === "summary" ? "1" : "2"} of 2
+                </p>
+              </div>
               <button
                 onClick={() => setIsConfirmModalOpen(false)}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold text-xl cursor-pointer"
@@ -950,70 +986,105 @@ const CabinDetails = () => {
               </button>
             </div>
 
-            {/* Quick summary check */}
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 space-y-2 text-sm font-semibold text-slate-600 dark:text-slate-400">
-              <p className="font-extrabold text-base text-slate-900 dark:text-white">{cabin.name}</p>
-              <div className="flex justify-between border-t border-slate-100 dark:border-slate-850 pt-2 text-xs">
-                <span>Check-in: {startDate?.toLocaleDateString()}</span>
-                <span>Check-out: {endDate?.toLocaleDateString()}</span>
-              </div>
-              <div className="flex justify-between text-xs font-black text-slate-900 dark:text-white">
-                <span>Stay Price ({totalNights} nights)</span>
-                <span>${totalPrice}</span>
-              </div>
-            </div>
+            {checkoutStep === "summary" ? (
+              <div className="space-y-6">
+                {/* Stay Info */}
+                <div className="p-5 rounded-3xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-850 space-y-4">
+                  <div className="flex gap-4">
+                    <div className="h-16 w-16 rounded-2xl overflow-hidden shrink-0">
+                      <img src={cabin.image_url} alt="" className="h-full w-full object-cover" />
+                    </div>
+                    <div>
+                      <p className="font-black text-slate-900 dark:text-white">{cabin.name}</p>
+                      <p className="text-xs font-bold text-slate-500">{totalNights} Nights • {filters.capacity || 1} Guests</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200/50 dark:border-slate-800/50">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Check-in</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">{startDate?.toLocaleDateString()}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Check-out</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">{endDate?.toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                </div>
 
-            {/* Form Inputs */}
-            <div className="space-y-4 font-bold text-sm">
-              <div className="space-y-2">
-                <label className="text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-                  <User className="h-4 w-4 text-emerald-600" /> Full Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter your full name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
-                />
-              </div>
+                {/* Authenticated Guest Info */}
+                <div className="p-5 rounded-3xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/30 dark:bg-emerald-900/10 space-y-3">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Guest Information</h4>
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                      <User size={18} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-slate-900 dark:text-white leading-tight">{fullName}</p>
+                      <p className="text-xs font-medium text-slate-500">{phone}</p>
+                    </div>
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-                  <Phone className="h-4 w-4 text-emerald-600" /> Phone Number
-                </label>
-                <input
-                  type="tel"
-                  placeholder="Enter your mobile phone number"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-3 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition"
-                />
-              </div>
-            </div>
+                {/* Price Breakdown */}
+                <div className="space-y-2 px-2">
+                  <div className="flex justify-between text-sm font-bold text-slate-600 dark:text-slate-400">
+                    <span>Accommodation</span>
+                    <span>${baseAccommodationPrice}</span>
+                  </div>
+                  {breakfast && (
+                    <div className="flex justify-between text-sm font-bold text-slate-600 dark:text-slate-400">
+                      <span>Breakfast Fee</span>
+                      <span>${breakfastTotal}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-lg font-black text-slate-900 dark:text-white pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                    <span>Total</span>
+                    <span className="text-emerald-600">${totalPrice}</span>
+                  </div>
+                </div>
 
-            {/* Buttons */}
-            <div className="flex gap-4 pt-2">
-              <button
-                onClick={() => setIsConfirmModalOpen(false)}
-                className="flex-1 rounded-2xl border border-slate-250 dark:border-slate-800 py-3.5 font-bold hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-700 dark:text-slate-350 cursor-pointer text-center"
-              >
-                Cancel
-              </button>
-              <button
-                disabled={isBookingPending}
-                onClick={handleConfirmBooking}
-                className="flex-1 rounded-2xl bg-emerald-600 py-3.5 font-black text-white hover:bg-emerald-700 shadow-lg shadow-emerald-900/10 cursor-pointer flex justify-center items-center gap-2"
-              >
-                {isBookingPending ? (
-                  <>
-                    <Loader2 className="h-4.5 w-4.5 animate-spin" /> Reserving...
-                  </>
-                ) : (
-                  "Confirm Stay"
-                )}
-              </button>
-            </div>
+                <button
+                  onClick={() => setCheckoutStep("payment")}
+                  className="w-full rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-4 font-black hover:opacity-90 transition flex items-center justify-center gap-2"
+                >
+                  Continue to Payment <ArrowRight size={18} />
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6 animate-slide-up">
+                <PaymentSelector onSelect={(method) => setPaymentMethod(method)} />
+
+                <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/50 flex items-start gap-3">
+                   <Shield className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                   <p className="text-xs font-bold text-amber-700 dark:text-amber-400 leading-relaxed">
+                      All transactions are secured and encrypted. Payment info is never stored on our servers.
+                   </p>
+                </div>
+
+                <div className="flex gap-4 pt-2">
+                  <button
+                    onClick={() => setCheckoutStep("summary")}
+                    className="flex-1 rounded-2xl border border-slate-200 dark:border-slate-800 py-3.5 font-bold hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-600 dark:text-slate-400"
+                  >
+                    Back
+                  </button>
+                  <button
+                    disabled={isBookingPending}
+                    onClick={handleConfirmBooking}
+                    className="flex-[2] rounded-2xl bg-emerald-600 py-3.5 font-black text-white hover:bg-emerald-700 shadow-lg shadow-emerald-900/10 flex justify-center items-center gap-2"
+                  >
+                    {isBookingPending ? (
+                      <>
+                        <Loader2 className="h-4.5 w-4.5 animate-spin" /> Confirming...
+                      </>
+                    ) : (
+                      <>Confirm & Reserve Stay</>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

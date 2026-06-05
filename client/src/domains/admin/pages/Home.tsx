@@ -1,7 +1,7 @@
 import {
   Banknote,
   BedDouble,
-  CalendarCheck2,
+  XCircle,
 } from "lucide-react";
 
 import DashboardHeader from "../components/dashboard/DashboardHeader";
@@ -30,8 +30,8 @@ const Dashboard = () => {
   const {
     filteredBookings,
     totalBookings,
+    cancelledBookings,
     totalSales,
-    checkedIn,
     occupancyRate,
   } = useDashboardStats({
     bookings,
@@ -77,10 +77,10 @@ const Dashboard = () => {
         />
 
         <StatsCard
-          title="Check-ins"
-          value={checkedIn}
-          icon={<CalendarCheck2 size={20} />}
-          color="bg-indigo-50 dark:bg-indigo-900/20"
+          title="Cancelled"
+          value={cancelledBookings}
+          icon={<XCircle size={20} />}
+          color="bg-rose-50 dark:bg-rose-900/20"
         />
         <StatsCard
           title="Occupancy Rate"

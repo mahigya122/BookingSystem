@@ -12,7 +12,7 @@ export const useFilterActions = () => {
     setFilters({ ...filters, capacity: filters.capacity === guest ? null : guest });
   };
 
-  const handleDateChange = (item: any) => {
+  const handleDateChange = (item: { startDate: Date | null; endDate: Date | null }) => {
     setFilters({
       ...filters,
       dateRange: {

@@ -7,6 +7,7 @@ export { useCreateBooking } from "../hooks/booking/useCreateBooking";
 export { useDeleteBooking } from "../hooks/booking/useDeleteBooking";
 export { useFilteredBookings } from "../hooks/booking/useFilteredBookings";
 export { useUpdateBooking } from "../hooks/booking/useUpdateBooking";
+export { useCancelBooking } from "../hooks/booking/useCancelBooking";
 
 export { useCabins } from "../hooks/cabin/useCabins";
 export { useCreateCabin } from "../hooks/cabin/useCreateCabin";

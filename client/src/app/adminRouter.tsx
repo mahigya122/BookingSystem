@@ -9,6 +9,7 @@ import Profile from "../domains/admin/pages/Profile";
 import Settings from "../domains/admin/pages/Settings";
 import Book from "../domains/admin/pages/Book";
 import Login from "../domains/admin/pages/Login";
+import Payments from "../domains/admin/pages/Payments";
 
 export const adminRouter = createBrowserRouter([
   {
@@ -27,9 +28,11 @@ export const adminRouter = createBrowserRouter([
       { path: "dashboard", element: <Home /> },
       { path: "bookings", element: <Booking /> },
       { path: "book", element: <Book /> },
+      { path: "payments", element: <Payments /> },
       { path: "cabins", element: <Cabins /> },
       { path: "profile", element: <Profile /> },
       { path: "guests", element: <Guests /> },
+      { path: "user", element: <Navigate to="/guests" replace /> },
       { path: "settings", element: <Settings /> },
     ],
   },

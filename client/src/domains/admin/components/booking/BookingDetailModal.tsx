@@ -96,7 +96,24 @@ const BookingDetailModal = ({
             {booking.has_breakfast ? "Included" : "Not Included"}
          </p>
 
-        <p className="font-semibold text-indigo-600">
+         <div className="mt-4 border-t pt-4 space-y-1">
+            <h3 className="font-semibold text-lg">
+                Payment Info
+            </h3>
+            <p className={`font-bold ${booking.payment_status === 'paid' ? 'text-emerald-600' : 'text-amber-600'}`}>
+                Status: {booking.payment_status?.toUpperCase() || 'PENDING'}
+            </p>
+            <p>
+                Method: {booking.payment_method?.toUpperCase() || 'N/A'}
+            </p>
+            {booking.paid_at && (
+                <p className="text-xs text-slate-500">
+                    Paid at: {new Date(booking.paid_at).toLocaleString()}
+                </p>
+            )}
+         </div>
+
+        <p className="font-semibold text-indigo-600 mt-4 text-xl">
             Total Price: ${booking.total_price}
           </p>
         </div>

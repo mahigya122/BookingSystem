@@ -58,15 +58,17 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 						const isArrival = startMs >= windowStart && startMs <= windowEnd;
 						const mergedStatus = localStatus[booking.id] ?? booking.status;
 
-						const badge = mergedStatus === "checked-out"
-							? "Departed"
-							: mergedStatus === "checked-in"
-								? isArrival
-									? "Arrived"
-									: "Departing"
-								: isArrival
-									? "Arriving"
-									: "Departing";
+						const badge = mergedStatus === "cancelled"
+							? "Cancelled"
+							: mergedStatus === "checked-out"
+								? "Departed"
+								: mergedStatus === "checked-in"
+									? isArrival
+										? "Arrived"
+										: "Departing"
+									: isArrival
+										? "Arriving"
+										: "Departing";
 
 						const showCheckIn = isArrival && mergedStatus === "booked";
 						const showCheckOut = !isArrival && mergedStatus === "checked-in";
@@ -80,11 +82,13 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 									<div style={{ minWidth: "100px" }}>
                                         <span
                                             className={`badge ${
-                                                badge === "Departed"
-                                                    ? "badge-info"
-                                                    : isArrival
-                                                        ? "badge-success"
-                                                        : "badge-warning"
+                                                mergedStatus === "cancelled"
+                                                    ? "badge-danger"
+                                                    : badge === "Departed"
+                                                        ? "badge-info"
+                                                        : isArrival
+                                                            ? "badge-success"
+                                                            : "badge-warning"
                                             }`}
                                         >
                                             {badge}

@@ -48,6 +48,18 @@ async function getUserProfileRole(user: AuthUser): Promise<AuthRole> {
   );
 }
 
+export const updatePassword = async (password: string) => {
+  const { data, error } = await supabase.auth.updateUser({
+    password: password,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};
+
 export const login = async (credentials: {
   email: string;
   password: string;

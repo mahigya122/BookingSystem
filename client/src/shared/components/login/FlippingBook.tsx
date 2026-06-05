@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import type { AuthUser } from "../../types/auth";
 
 import LoginForm from "./LoginForm";
 import LoginHero from "./LoginHero";
@@ -8,7 +9,7 @@ type Role = "admin" | "user";
 type Props = {
   role: Role;
   onRoleChange: (role: Role) => void;
-  onLoginSuccess: (user: any) => void;
+  onLoginSuccess: (user: AuthUser) => void;
   hideToggle?: boolean;
 };
 

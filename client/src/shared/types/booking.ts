@@ -1,3 +1,5 @@
+import type { PaymentMethod, PaymentStatus } from "../../domains/payments/types/payment.types";
+
 export type BookingStatus =
   | "all"
   | "checked-in"
@@ -21,6 +23,10 @@ export interface Booking {
   total_price: number;
   status: BookingStatus;   //string
   has_breakfast: boolean;
+  payment_status: PaymentStatus;
+  payment_method: PaymentMethod;
+  transaction_id?: string;
+  paid_at?: string;
 
   guests?: {
     id?: string;

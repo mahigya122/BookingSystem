@@ -12,6 +12,7 @@ export function useSalesChart(
         > = {};
 
     bookings.forEach((booking) => {
+        if (booking.status === "cancelled") return;
         const date = new Date(toLocalDateMs(booking.start_date)).toLocaleDateString();
         
     if(!grouped[date]){

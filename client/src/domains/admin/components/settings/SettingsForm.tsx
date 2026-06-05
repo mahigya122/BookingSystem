@@ -1,23 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSettings, useUpdateSettings } from "@shared/auth_hooks";
+import type { Settings } from "@shared/types/settings";
 
 const SettingsForm = () => {
   const { settings, isLoading } = useSettings();
+
+  if (isLoading) {
+    return <p className="text-sm text-slate-500">Loading system settings...</p>;
+  }
+
+  if (!settings) return null;
+
+  return <SettingsFormInner settings={settings} />;
+};
+
+const SettingsFormInner = ({ settings }: { settings: Settings }) => {
   const { editSettings, isPending } = useUpdateSettings();
 
-  const [minBooking, setMinBooking] = useState(1);
-  const [maxBooking, setMaxBooking] = useState(30);
-  const [maxGuests, setMaxGuests] = useState(8);
-  const [breakfastPrice, setBreakfastPrice] = useState(12);
-
-  useEffect(() => {
-    if (settings) {
-      setMinBooking(settings.min_booking_length);
-      setMaxBooking(settings.max_booking_length);
-      setMaxGuests(settings.max_guests_per_booking);
-      setBreakfastPrice(settings.breakfast_price);
-    }
-  }, [settings]);
+  const [minBooking, setMinBooking] = useState(settings.min_booking_length);
+  const [maxBooking, setMaxBooking] = useState(settings.max_booking_length);
+  const [maxGuests, setMaxGuests] = useState(settings.max_guests_per_booking);
+  const [breakfastPrice, setBreakfastPrice] = useState(settings.breakfast_price);
 
   const handleSave = () => {
     editSettings({
@@ -27,10 +30,6 @@ const SettingsForm = () => {
         breakfast_price: breakfastPrice,
     });
   };
-
-  if (isLoading) {
-    return <p className="text-sm text-slate-500">Loading system settings...</p>;
-  }
 
   return (
     <div className="max-w-4xl">

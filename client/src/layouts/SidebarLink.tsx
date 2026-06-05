@@ -5,19 +5,24 @@ interface SidebarLinkProps {
   icon: string;
   label: string;
   end?: boolean;
+  open: boolean;
 }
 
-const SidebarLink = ({ to, icon, label, end = false }: SidebarLinkProps) => {
+const SidebarLink = ({ to, icon, label, end = false, open }: SidebarLinkProps) => {
   return (
     <NavLink
       to={to}
       end={end}
+
       className={({ isActive }) =>
-        `sidebar-item ${isActive ? "sidebar-item-active" : ""}`
+        `sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg transition ${isActive ? "sidebar-item-active" : ""
+        }`
       }
     >
-      <span className="text-base">{icon}</span> 
-      <span>{label}</span>
+      <span className="text-base">{icon}</span>
+      {/* LABEL ONLY WHEN OPEN */}
+      {open && <span>{label}</span>}
+
     </NavLink>
   );
 };

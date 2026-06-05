@@ -1,4 +1,3 @@
-import { DateRange } from "react-date-range";
 import { Range } from "react-range";
 import { useFilterActions } from "../../../hooks/useFilterActions";
 
@@ -10,17 +9,8 @@ const ExploreFilters = () => {
         filters,
         handlePriceChange,
         handleCapacityChange,
-        handleDateChange,
         clearFilters
     } = useFilterActions();
-
-    const dateRangeForPicker = [
-        {
-            startDate: filters.dateRange.startDate || new Date(),
-            endDate: filters.dateRange.endDate || new Date(),
-            key: "selection",
-        },
-    ];
 
     return (
         <div className="space-y-8">
@@ -50,6 +40,7 @@ const ExploreFilters = () => {
                     values={filters.price}
                     onChange={handlePriceChange}
                     renderTrack={({ props, children }) => {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const { key, ...trackProps } = props as any;
                         return (
                             <div key={key}
@@ -62,6 +53,7 @@ const ExploreFilters = () => {
                     }}
 
                     renderThumb={({ props }) => {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         const { key, ...thumbProps } = props as any;
                         return (
                             <div key={key}

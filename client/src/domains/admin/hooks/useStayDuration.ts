@@ -12,6 +12,7 @@ export function useStayDuration(bookings: Booking[]) {
         };
 
         bookings.forEach((booking) => {
+            if (booking.status === "cancelled") return;
             const nights = Math.ceil(
                 (toLocalDateMs(booking.end_date) -
                     toLocalDateMs(booking.start_date)) /

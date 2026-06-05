@@ -170,16 +170,17 @@ const GuestChat = ({ isOpen }: Props) => {
                     },
                 ]);
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("AI Chat Error:", err);
+            const errorMessage = err instanceof Error ? err.message : "Something went wrong";
             setMessages((prev) => [
                 ...prev,
                 {
                     role: "assistant",
                     content:
-                        err.message === "Failed to fetch" 
+                        errorMessage === "Failed to fetch" 
                             ? "Connection to AI server refused. Please ensure the backend is running."
-                            : `Error: ${err.message || "Something went wrong while contacting the AI assistant."}`,
+                            : `Error: ${errorMessage || "Something went wrong while contacting the AI assistant."}`,
                 },
             ]);
         } finally {

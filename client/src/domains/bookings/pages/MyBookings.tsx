@@ -1,8 +1,8 @@
-import { useBookings, useUser } from "@shared/auth_hooks";
+import { useBookings, useUser, useCancelBooking } from "@shared/auth_hooks";
 import { useCabinsData } from "../../cabins/hooks/useCabinsData";
 import { useCabinFiltersContext } from "../../cabins/contexts/CabinFiltersContext";
 import { Link } from "react-router-dom";
-import { Calendar, Utensils, CheckCircle2, Clock, Compass, ArrowRight, ShieldCheck, Loader2 } from "lucide-react";
+import { Calendar, Utensils, CheckCircle2, Clock, Compass, ArrowRight, ShieldCheck, Loader2, XCircle } from "lucide-react";
 
 // Format YYYY-MM-DD to a more readable date (e.g., "Jun 2, 2026")
 const formatDate = (dateStr: string) => {
@@ -34,6 +34,7 @@ const MyBookings = () => {
   const { cabins = [], isLoading: loadingCabins } = useCabinsData();
   const { user } = useUser();
   const { filters } = useCabinFiltersContext();
+  const { cancel, isCancelling } = useCancelBooking();
 
   const isLoading = loadingBookings || loadingCabins;
 
@@ -195,13 +196,26 @@ const MyBookings = () => {
                       </span>
                     </div>
 
-                    <Link
-                      to={`/cabin/${booking.cabin_id}`}
-                      className="inline-flex items-center gap-2 rounded-xl bg-slate-50 hover:bg-emerald-600 text-slate-700 hover:text-white dark:bg-slate-800 dark:hover:bg-emerald-600 dark:text-slate-200 px-4.5 py-2.5 text-sm font-black transition duration-300 active:scale-95 border border-slate-150 dark:border-slate-700/60 hover:border-emerald-600 dark:hover:border-emerald-600 cursor-pointer"
-                    >
-                      <span>View Cabin Details</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {booking.status === "booked" && (
+                        <button
+                          onClick={() => cancel(booking.id)}
+                          disabled={isCancelling}
+                          className="inline-flex items-center gap-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white dark:bg-rose-950/30 dark:hover:bg-rose-600 dark:text-rose-400 px-4.5 py-2.5 text-sm font-black transition duration-300 active:scale-95 border border-rose-100 dark:border-rose-900/50 hover:border-rose-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          <XCircle className="h-4 w-4" />
+                          <span>Cancel Booking</span>
+                        </button>
+                      )}
+
+                      <Link
+                        to={`/cabin/${booking.cabin_id}`}
+                        className="inline-flex items-center gap-2 rounded-xl bg-slate-50 hover:bg-emerald-600 text-slate-700 hover:text-white dark:bg-slate-800 dark:hover:bg-emerald-600 dark:text-slate-200 px-4.5 py-2.5 text-sm font-black transition duration-300 active:scale-95 border border-slate-150 dark:border-slate-700/60 hover:border-emerald-600 dark:hover:border-emerald-600 cursor-pointer"
+                      >
+                        <span>View Cabin Details</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>

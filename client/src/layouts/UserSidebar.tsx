@@ -15,8 +15,7 @@ const UserSidebar = () => {
     const {
         sidebarOpen,
         setSidebarOpen,
-        activeFilterCount,
-        toggleSidebar
+        activeFilterCount
     } = useCabinFiltersContext();
 
     // COLLAPSED STATE
