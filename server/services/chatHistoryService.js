@@ -1,26 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
-
-let supabase;
-
-function getSupabase() {
-  if (!supabase) {
-    const url = process.env.SUPABASE_URL;
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!url || !key) {
-      throw new Error("Missing Supabase URL or service role key.");
-    }
-
-    supabase = createClient(url, key);
-  }
-
-  return supabase;
-}
+import { supabase } from "../lib/supabase.js";
 
 export async function getLatestConversation(userId) {
-  const client = getSupabase();
-
-  const { data, error } = await client
+  const { data, error } = await supabase
     .from("conversations")
     .select("*")
     .eq("user_id", userId)
@@ -36,8 +17,7 @@ export async function getOrCreateConversation(userId) {
   const existing = await getLatestConversation(userId);
   if (existing) return existing;
 
-  const client = getSupabase();
-  const { data, error } = await client
+  const { data, error } = await supabase
     .from("conversations")
     .insert({ user_id: userId, title: "New Chat" })
     .select("*")
@@ -48,8 +28,7 @@ export async function getOrCreateConversation(userId) {
 }
 
 export async function saveMessage(conversationId, role, content) {
-  const client = getSupabase();
-  const { error } = await client.from("messages").insert({
+  const { error } = await supabase.from("messages").insert({
     conversation_id: conversationId,
     role,
     content,
@@ -59,8 +38,7 @@ export async function saveMessage(conversationId, role, content) {
 }
 
 export async function getMessages(conversationId) {
-  const client = getSupabase();
-  const { data, error } = await client
+  const { data, error } = await supabase
     .from("messages")
     .select("role, content, created_at")
     .eq("conversation_id", conversationId)
@@ -69,3 +47,4 @@ export async function getMessages(conversationId) {
   if (error) throw error;
   return data || [];
 }
+

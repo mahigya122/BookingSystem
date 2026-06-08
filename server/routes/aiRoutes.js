@@ -1,5 +1,5 @@
 import express from "express";
-import { generateSQL, generateAnswer } from "../services/openaiService.js";
+import { generateSQL, generateAnswer } from "../services/aiService.js";
 import { validateSQL } from "../validators/validateSQL.js";
 import { executeSQL } from "../services/sqlExecutionService.js";
 

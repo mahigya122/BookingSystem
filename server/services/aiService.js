@@ -31,6 +31,10 @@ TABLE bookings
 - total_price
 - created_at
 - has_breakfast
+- payment_status
+- payment_method
+- transaction_id
+- paid_at
 
 TABLE guests
 - id
@@ -306,3 +310,20 @@ export async function generateAnswer({ question, sql, rows } = {}) {
 
     return { answer: result.value, source: result.source, model: result.model, error: result.error || null };
 }
+
+export async function generateChatReply({ messages, systemPrompt, temperature = 0.7 }) {
+    const chatMessages = [
+        { role: "system", content: systemPrompt },
+        ...messages
+    ];
+
+    const result = await generateFromGroq({
+        messages: chatMessages,
+        temperature,
+        fallbackValue: () => "I am currently unable to process your request. Please try again later.",
+        sourceOnFallback: "fallback-chat",
+    });
+
+    return { reply: result.value, source: result.source, model: result.model };
+}
+
