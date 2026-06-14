@@ -1,12 +1,23 @@
 import { useMemo, useState } from "react";
-import { BedDouble, CalendarDays, CheckCircle2, ChevronRight, Sparkles, UserRound, Users, CreditCard } from "lucide-react";
+import { BedDouble, CalendarDays, CheckCircle2, ChevronRight, Sparkles, UserRound, Users, CreditCard, Loader2 } from "lucide-react";
 import { useCreateBooking } from "@shared/hooks/booking/useCreateBooking";
 import { useCabins } from "@shared/hooks/cabin/useCabins";
 import { useGuests } from "../../../guests/hooks/useGuests";
 import { useSettings } from "@shared/hooks/setting/useSettings";
+import { useCabinAvailability } from "../../../cabins/hooks/useCabinAvailability";
+import CabinCalendar from "../../../../shared/components/ui/CabinCalendar";
 import type { Cabin } from "@shared/types/cabin";
+import type { Guest } from "@shared/types/guest";
 import toast from "react-hot-toast";
 import PaymentSelector from "../../../payments/components/PaymentSelector";
+
+// Format date to YYYY-MM-DD string in local timezone
+const formatDateString = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 interface BookingFormState {
   guest_id: string;
@@ -38,11 +49,54 @@ const BookingForm = () => {
 
   const [form, setForm] = useState<BookingFormState>(INITIAL_FORM_STATE);
   const [error, setError] = useState("");
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const { availability, isLoading: loadingAvailability } = useCabinAvailability(form.cabin_id);
 
   const selectedCabin = useMemo(
     () => cabins.find((cabin: Cabin) => cabin.id === form.cabin_id) ?? null,
     [cabins, form.cabin_id]
   );
+
+  const bookedDatesSet = useMemo(() => new Set<string>(availability?.booked_dates || []), [availability]);
+
+  const handleDayClick = (date: Date) => {
+    const dateStr = formatDateString(date);
+    const todayStr = formatDateString(new Date());
+
+    if (bookedDatesSet.has(dateStr) || dateStr < todayStr) return;
+
+    if (!form.start_date || (form.start_date && form.end_date)) {
+      setForm(prev => ({ ...prev, start_date: dateStr, end_date: "" }));
+    } else {
+      const startDate = new Date(form.start_date);
+      if (date < startDate) {
+        setForm(prev => ({ ...prev, start_date: dateStr, end_date: "" }));
+      } else {
+        // Check for overlaps
+        let hasBookedInRange = false;
+        const temp = new Date(startDate);
+        while (temp < date) {
+          if (bookedDatesSet.has(formatDateString(temp))) {
+            hasBookedInRange = true;
+            break;
+          }
+          temp.setDate(temp.getDate() + 1);
+        }
+
+        if (hasBookedInRange) {
+          toast.error("Selection overlaps with already booked dates.");
+          setForm(prev => ({ ...prev, start_date: "", end_date: "" }));
+        } else {
+          setForm(prev => ({ ...prev, end_date: dateStr }));
+        }
+      }
+    }
+  };
+
+  const handleResetDates = () => {
+    setForm(prev => ({ ...prev, start_date: "", end_date: "" }));
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -51,9 +105,9 @@ const BookingForm = () => {
     setForm((prev) => ({
       ...prev,
       [name]:
-      type === "checkbox"
-        ? (e.target as HTMLInputElement).checked
-        : value,
+        type === "checkbox"
+          ? (e.target as HTMLInputElement).checked
+          : value,
     }));
   };
 
@@ -72,7 +126,7 @@ const BookingForm = () => {
     const nights = Math.ceil(
       (new Date(form.end_date).getTime() -
         new Date(form.start_date).getTime()) /
-        (1000 * 60 * 60 * 24)
+      (1000 * 60 * 60 * 24)
     );
 
     if (nights <= 0) return null;
@@ -114,9 +168,14 @@ const BookingForm = () => {
       return;
     }
 
+    const selectedGuest = guests.find((g: Guest) => g.id === form.guest_id);
+
     createBooking(
       {
         guest_id: form.guest_id,
+        guest_full_name: selectedGuest?.full_name,
+        guest_email: selectedGuest?.email,
+        guest_phone: selectedGuest?.phone,
         cabin_id: form.cabin_id,
         start_date: form.start_date,
         end_date: form.end_date,
@@ -124,6 +183,7 @@ const BookingForm = () => {
         has_breakfast: form.has_breakfast,
         payment_status: form.payment_status,
         payment_method: form.payment_method,
+        is_admin_booking: true, // Flag as admin booking
       },
       {
         onSuccess: () => {
@@ -209,7 +269,7 @@ const BookingForm = () => {
                 {isLoadingGuests ? (
                   <option disabled>Loading guests...</option>
                 ) : (
-                  guests.map((guest: any) => (
+                  guests.map((guest: Guest) => (
                     <option key={guest.id} value={guest.id}>
                       {guest.full_name} ({guest.email})
                     </option>
@@ -264,25 +324,27 @@ const BookingForm = () => {
               </div>
             </div>
 
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <input
-                type="date"
-                name="start_date"
-                value={form.start_date}
-                onChange={handleChange}
-                className={inputClass}
-                style={{ background: "color-mix(in srgb, var(--app-surface) 92%, white 8%)", borderColor: "var(--app-border)", color: "var(--app-text-main)" }}
-              />
-
-              <input
-                type="date"
-                name="end_date"
-                value={form.end_date}
-                onChange={handleChange}
-                className={inputClass}
-                style={{ background: "color-mix(in srgb, var(--app-surface) 92%, white 8%)", borderColor: "var(--app-border)", color: "var(--app-text-main)" }}
-              />
-            </div>
+            {form.cabin_id && (
+              <div className="mt-6 border-t pt-6">
+                {loadingAvailability ? (
+                  <div className="flex h-48 items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-sky-500" />
+                  </div>
+                ) : (
+                  <CabinCalendar
+                    startDate={form.start_date ? new Date(form.start_date) : null}
+                    endDate={form.end_date ? new Date(form.end_date) : null}
+                    currentMonth={currentMonth}
+                    bookedDatesSet={bookedDatesSet}
+                    userBookingsByDate={new Map()}
+                    onDayClick={handleDayClick}
+                    onPrevMonth={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
+                    onNextMonth={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
+                    onResetDates={handleResetDates}
+                  />
+                )}
+              </div>
+            )}
           </section>
 
           <section className={sectionCardClass}>
@@ -297,24 +359,24 @@ const BookingForm = () => {
             </div>
 
             <div className="space-y-4">
-               <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setForm(f => ({ ...f, payment_status: "pending" }))}
-                    className={`flex-1 px-4 py-2.5 rounded-xl border font-bold text-xs transition-all ${form.payment_status === "pending" ? "bg-amber-50 border-amber-600 text-white" : "border-slate-200 text-slate-500"}`}
-                  >
-                    Pending
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setForm(f => ({ ...f, payment_status: "paid" }))}
-                    className={`flex-1 px-4 py-2.5 rounded-xl border font-bold text-xs transition-all ${form.payment_status === "paid" ? "bg-emerald-600 border-emerald-700 text-white" : "border-slate-200 text-slate-500"}`}
-                  >
-                    Paid
-                  </button>
-               </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, payment_status: "pending" }))}
+                  className={`flex-1 px-4 py-2.5 rounded-xl border font-bold text-xs transition-all ${form.payment_status === "pending" ? "bg-amber-50 border-amber-600 text-white" : "border-slate-200 text-slate-500"}`}
+                >
+                  Pending
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, payment_status: "paid" }))}
+                  className={`flex-1 px-4 py-2.5 rounded-xl border font-bold text-xs transition-all ${form.payment_status === "paid" ? "bg-emerald-600 border-emerald-700 text-white" : "border-slate-200 text-slate-500"}`}
+                >
+                  Paid
+                </button>
+              </div>
 
-               <PaymentSelector onSelect={(method) => setForm(f => ({ ...f, payment_method: method }))} />
+              <PaymentSelector onSelect={(method) => setForm(f => ({ ...f, payment_method: method }))} />
             </div>
           </section>
 
@@ -373,9 +435,9 @@ const BookingForm = () => {
                     </div>
 
                     <div className="mt-4 rounded-2xl bg-[color-mix(in_srgb,var(--app-primary)_8%,transparent)] p-3 text-center">
-                       <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--app-primary)" }}>
-                          Selected Method: {form.payment_method.toUpperCase()}
-                       </p>
+                      <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--app-primary)" }}>
+                        Selected Method: {form.payment_method.toUpperCase()}
+                      </p>
                     </div>
                   </div>
                 )}

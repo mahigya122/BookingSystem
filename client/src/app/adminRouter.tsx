@@ -10,6 +10,10 @@ import Settings from "../domains/admin/pages/Settings";
 import Book from "../domains/admin/pages/Book";
 import Login from "../domains/admin/pages/Login";
 import Payments from "../domains/admin/pages/Payments";
+import Locations from "../domains/admin/pages/Locations";
+import Offers from "../domains/admin/pages/Offers";
+import Activities from "../domains/admin/pages/Activities";
+import Reviews from "../domains/admin/pages/Reviews";
 
 export const adminRouter = createBrowserRouter([
   {
@@ -30,6 +34,10 @@ export const adminRouter = createBrowserRouter([
       { path: "book", element: <Book /> },
       { path: "payments", element: <Payments /> },
       { path: "cabins", element: <Cabins /> },
+      { path: "locations", element: <Locations /> },
+      { path: "offers", element: <Offers /> },
+      { path: "activities", element: <Activities /> },
+      { path: "reviews", element: <Reviews /> },
       { path: "profile", element: <Profile /> },
       { path: "guests", element: <Guests /> },
       { path: "user", element: <Navigate to="/guests" replace /> },

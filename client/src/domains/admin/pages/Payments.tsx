@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useBookings } from "@shared/hooks/booking/useBookings";
-import { CreditCard } from "lucide-react";
+import { CreditCard, Search } from "lucide-react";
 import PaymentStatusBadge from "../../payments/components/PaymentStatusBadge";
 import AdminPaymentActions from "../../payments/components/AdminPaymentActions";
 
@@ -31,21 +31,22 @@ const PaymentsPage = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Search guest or ID..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none w-64"
+              className="pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all w-64 text-sm"
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold text-sm outline-none"
+            className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="paid">Paid</option>
@@ -95,6 +96,7 @@ const PaymentsPage = () => {
                     <AdminPaymentActions
                       bookingId={booking.id}
                       currentStatus={booking.payment_status || 'pending'}
+                      bookingStatus={booking.status}
                       amount={booking.total_price}
                     />
                   </td>

@@ -2,28 +2,28 @@ import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersC
 import type { CabinFilters } from "../store/useCabinFilters";
 
 export const useFilterActions = () => {
-  const { filters, setFilters, clearFilters } = useCabinFiltersContext();
+  const { filters, setFilters, clearFilters, applyFilters } = useCabinFiltersContext();
 
   const handlePriceChange = (values: number[]) => {
-    setFilters({ ...filters, price: [values[0], values[1]] });
+    setFilters({ ...(filters || {}), price: [values[0], values[1]] } as any);
   };
 
   const handleCapacityChange = (guest: number) => {
-    setFilters({ ...filters, capacity: filters.capacity === guest ? null : guest });
+    setFilters({ ...(filters || {}), capacity: filters?.capacity === guest ? null : guest } as any);
   };
 
   const handleDateChange = (item: { startDate: Date | null; endDate: Date | null }) => {
     setFilters({
-      ...filters,
+      ...(filters || {}),
       dateRange: {
         startDate: item.startDate,
         endDate: item.endDate,
       }
-    });
+    } as any);
   };
 
   const handleStatusChange = (status: CabinFilters["bookingStatus"]) => {
-    setFilters({ ...filters, bookingStatus: status });
+    setFilters({ ...(filters || {}), bookingStatus: status } as any);
   };
 
   return {
@@ -32,6 +32,7 @@ export const useFilterActions = () => {
     handleCapacityChange,
     handleDateChange,
     handleStatusChange,
-    clearFilters
+    clearFilters,
+    applyFilters
   };
 };

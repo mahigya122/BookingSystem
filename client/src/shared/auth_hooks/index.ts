@@ -1,6 +1,7 @@
 export { useUser } from "../hooks/auth/useAuthUser";
 export { useLogin } from "../hooks/auth/useLogin";
 export { useLogout } from "../hooks/auth/useLogout";
+export { useGoogleLogin } from "../hooks/auth/useGoogleLogin";
 
 export { useBookings } from "../hooks/booking/useBookings";
 export { useCreateBooking } from "../hooks/booking/useCreateBooking";

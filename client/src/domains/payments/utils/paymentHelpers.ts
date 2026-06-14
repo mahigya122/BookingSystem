@@ -25,18 +25,6 @@ export const paymentMethodLabel = (
         case "arrival":
             return "Pay On Arrival";
 
-        case "cash":
-            return "Cash";
-
-        case "visa":
-            return "Visa";
-
-        case "mastercard":
-            return "Mastercard";
-
-        case "fonepay":
-            return "Fonepay";
-
         case "esewa":
             return "eSewa";
 

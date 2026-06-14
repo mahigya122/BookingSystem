@@ -27,6 +27,15 @@ export function useDashboardStats({
         (booking) => booking.status !== "cancelled"
     ).length;
 
+    const allTimeBookings = bookings.filter(
+        (booking) => booking.status !== "cancelled"
+    ).length;
+
+    const totalUniqueGuests = useMemo(() => {
+        const guestIds = new Set(bookings.map(b => b.guest_id).filter(Boolean));
+        return guestIds.size;
+    }, [bookings]);
+
     const cancelledBookings = filteredBookings.filter(
         (booking) => booking.status === "cancelled"
     ).length;
@@ -45,6 +54,8 @@ export function useDashboardStats({
     return {
         filteredBookings,
         totalBookings,
+        allTimeBookings,
+        totalUniqueGuests,
         cancelledBookings,
         totalSales,
         checkedIn,

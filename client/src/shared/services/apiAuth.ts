@@ -118,3 +118,18 @@ export const getCurrentUser = async (): Promise<AuthUser | null> => {
     role,
   } satisfies AuthUser;
 };
+
+export const signInWithGoogle = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/login`,
+    },
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+};

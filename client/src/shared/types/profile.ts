@@ -3,7 +3,7 @@ import type { AuthRole } from "./auth";
 export interface UserProfile {
   id: string;
   full_name: string;
-  phone: string;
+  phone_no: string;
   updated_at?: string;
 }
 

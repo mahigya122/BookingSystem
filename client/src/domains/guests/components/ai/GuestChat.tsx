@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuthUser } from "@shared/hooks/auth/useAuthUser";
 
 import GuestInput from "./GuestInput";
@@ -36,13 +36,31 @@ const GuestChat = ({ isOpen }: Props) => {
         });
     };
 
-    useEffect(() => {
+    const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+    if (isOpen !== prevIsOpen) {
+        setPrevIsOpen(isOpen);
         // Cleanup: Clear messages for public users when closing the drawer
         if (!isOpen && !user?.id) {
             setMessages([]);
             setConversationId(null);
         }
-    }, [isOpen, user?.id]);
+    }
+
+    const loadSuggestions = useCallback(async () => {
+        try {
+            const userIdParam = user?.id ? `&userId=${user.id}` : "";
+            const res = await fetch(`/api/suggestions?role=guest${userIdParam}`);
+
+            const data = await res.json();
+
+            if (Array.isArray(data?.suggestions)) {
+                setSuggestions(data.suggestions);
+            }
+        } catch (err) {
+            console.error("Failed to load suggestions:", err);
+            setSuggestions(FALLBACK_SUGGESTIONS);
+        }
+    }, [user]);
 
     useEffect(() => {
         if (!isOpen) return;
@@ -94,23 +112,7 @@ const GuestChat = ({ isOpen }: Props) => {
         }
 
         initChat();
-    }, [isOpen, user?.id]);
-
-    async function loadSuggestions() {
-        try {
-            const userIdParam = user?.id ? `&userId=${user.id}` : "";
-            const res = await fetch(`/api/suggestions?role=guest${userIdParam}`);
-
-            const data = await res.json();
-
-            if (Array.isArray(data?.suggestions)) {
-                setSuggestions(data.suggestions);
-            }
-        } catch (err) {
-            console.error("Failed to load suggestions:", err);
-            setSuggestions(FALLBACK_SUGGESTIONS);
-        }
-    }
+    }, [isOpen, user?.id, loadSuggestions, messages.length]);
 
     const handleSend = async () => {
         if (!input.trim() || loading) return;

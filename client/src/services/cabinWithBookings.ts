@@ -1,20 +1,22 @@
-import { supabase } from "@shared/services/supabase";
-import type { Cabin } from "@shared/types/cabin";
-import type { Booking } from "@shared/types/booking";
+import type { Activity, Cabin, Location, Offer, Review, Booking } from "@shared/types";
+import { fetchJson } from "@shared/services/http";
 
 export type CabinWithBookings = Cabin & {
-    bookings: Booking[];
+  bookings: Booking[];
+  location?: Location;
+  offers?: Offer[];
+  activities?: Activity[];
+  reviews?: Review[];
 };
 
 export const getCabinsWithBookings = async (): Promise<CabinWithBookings[]> => {
-    const { data, error } = await supabase
-        .from("cabins")
-        .select(`
-      *,
-      bookings (*)
-    `);
+  const [cabins, bookings] = await Promise.all([
+    fetchJson<Cabin[]>("/cabins"),
+    fetchJson<Booking[]>("/bookings"),
+  ]);
 
-    if (error) throw new Error("Failed to load cabins with bookings");
-
-    return data as CabinWithBookings[];
+  return cabins.map((cabin) => ({
+    ...cabin,
+    bookings: bookings.filter((booking) => booking.cabin_id === cabin.id),
+  }));
 };

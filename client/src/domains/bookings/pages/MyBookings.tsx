@@ -2,6 +2,7 @@ import { useBookings, useUser, useCancelBooking } from "@shared/auth_hooks";
 import { useCabinsData } from "../../cabins/hooks/useCabinsData";
 import { useCabinFiltersContext } from "../../cabins/contexts/CabinFiltersContext";
 import { Link } from "react-router-dom";
+import { getBookingRealStatus } from "@shared/utils/bookingUtils";
 import { Calendar, Utensils, CheckCircle2, Clock, Compass, ArrowRight, ShieldCheck, Loader2, XCircle } from "lucide-react";
 
 // Format YYYY-MM-DD to a more readable date (e.g., "Jun 2, 2026")
@@ -43,15 +44,16 @@ const MyBookings = () => {
 
   // Apply booking status filters
   const filteredBookings = userBookings.filter((b) => {
+    const realStatus = getBookingRealStatus(b);
     if (filters.bookingStatus === "all") return true;
     if (filters.bookingStatus === "upcoming") {
-      return b.status === "booked" || b.status === "checked-in";
+      return realStatus === "booked" || realStatus === "checked-in";
     }
     if (filters.bookingStatus === "completed") {
-      return b.status === "checked-out";
+      return realStatus === "checked-out";
     }
     if (filters.bookingStatus === "cancelled") {
-      return b.status === "cancelled";
+      return realStatus === "cancelled";
     }
     return true;
   });
@@ -63,8 +65,8 @@ const MyBookings = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-emerald-600" />
+      <div className="flex h-96 items-center justify-center bg-slate-50/10 dark:bg-slate-950/10">
+        <Loader2 className="h-10 w-10 animate-spin text-sky-500" />
       </div>
     );
   }
@@ -73,10 +75,13 @@ const MyBookings = () => {
     <div className="space-y-10 pb-12">
       <header className="space-y-4">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+          <p className="text-sky-400 text-xl font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>
+            Your Departures & Journeys
+          </p>
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white mt-1">
             My Reservations
           </h1>
-          <p className="mt-2 text-lg text-slate-600 dark:text-slate-400">
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 font-medium">
             Welcome back. You have {userBookings.length} total stays booked under {user?.email}.
           </p>
         </div>
@@ -94,7 +99,7 @@ const MyBookings = () => {
           {filters.bookingStatus === "all" && (
             <Link
               to="/"
-              className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 font-bold text-white hover:bg-emerald-700 transition shadow-lg shadow-emerald-600/10 active:scale-95"
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 font-bold text-white hover:bg-sky-650 transition shadow-lg shadow-sky-200/50 dark:shadow-none hover:-translate-y-0.5 active:translate-y-0 active:scale-95 cursor-pointer"
             >
               Explore Cabins <ArrowRight className="h-4.5 w-4.5" />
             </Link>
@@ -106,21 +111,23 @@ const MyBookings = () => {
             // Find corresponding cabin to resolve thumbnail
             const cabinInfo = cabins.find((c) => c.id === booking.cabin_id);
             const duration = getDaysDiff(booking.start_date, booking.end_date);
+            const realStatus = getBookingRealStatus(booking);
 
             // Set up status badge colors
             let statusLabel = "Reserved";
             let statusColorClass = "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-900/50";
             let StatusIcon = Clock;
 
-            if (booking.status === "checked-in") {
+            if (realStatus === "checked-in") {
               statusLabel = "Checked In";
               statusColorClass = "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/50";
               StatusIcon = ShieldCheck;
-            } else if (booking.status === "checked-out") {
+            } else if (realStatus === "checked-out") {
               statusLabel = "Completed";
-              statusColorClass = "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50";
+              statusColorClass = "bg-sky-50 text-sky-700 border-sky-100 dark:bg-sky-950/30 dark:text-sky-400 dark:border-sky-900/50";
               StatusIcon = CheckCircle2;
-            } else if (booking.status === "cancelled") {
+              statusColorClass = "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50";
+            } else if (realStatus === "cancelled") {
               statusLabel = "Cancelled";
               statusColorClass = "bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-900/50";
               StatusIcon = Compass;
@@ -145,7 +152,7 @@ const MyBookings = () => {
                 <div className="flex-1 p-6 md:p-8 flex flex-col justify-between gap-6">
                   <div className="space-y-4">
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition">
+                      <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight group-hover:text-sky-650 dark:group-hover:text-sky-400 transition">
                         {booking.cabins?.name || "Premium Cabin"}
                       </h3>
 
@@ -156,9 +163,9 @@ const MyBookings = () => {
                     </div>
 
                     {/* Stay Dates & Duration */}
-                    <div className="flex flex-wrap items-center gap-4 text-sm font-semibold text-slate-600 dark:text-slate-400">
+                    <div className="flex flex-wrap items-center gap-4 text-sm font-semibold text-slate-650 dark:text-slate-400">
                       <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <Calendar className="h-4 w-4 text-emerald-600" />
+                        <Calendar className="h-4 w-4 text-sky-500" />
                         <span>
                           {formatDate(booking.start_date)} — {formatDate(booking.end_date)}
                         </span>
@@ -171,7 +178,7 @@ const MyBookings = () => {
                     {/* Inclusions */}
                     <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-500">
                       {booking.has_breakfast ? (
-                        <div className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 px-2.5 py-1 rounded-lg border border-emerald-100 dark:border-emerald-900/30">
+                        <div className="flex items-center gap-1.5 text-sky-650 bg-sky-50 dark:bg-sky-950/20 px-2.5 py-1 rounded-lg border border-sky-100 dark:border-sky-900/30">
                           <Utensils className="h-3.5 w-3.5" />
                           <span>Includes Premium Breakfast</span>
                         </div>
@@ -182,7 +189,7 @@ const MyBookings = () => {
                         </div>
                       )}
 
-                      <span className="text-slate-300 dark:text-slate-700">|</span>
+                      <span className="text-slate-350 dark:text-slate-700">|</span>
                       <span>Reservation ID: {booking.id.slice(0, 8)}...</span>
                     </div>
                   </div>
@@ -191,17 +198,17 @@ const MyBookings = () => {
                   <div className="flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 dark:border-slate-800/60 pt-6">
                     <div>
                       <span className="text-xs font-black uppercase text-slate-400 tracking-wider block">Total Paid</span>
-                      <span className="text-2xl font-black text-slate-950 dark:text-emerald-400">
+                      <span className="text-2xl font-black text-slate-950 dark:text-sky-400">
                         ${booking.total_price}
                       </span>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3">
-                      {booking.status === "booked" && (
+                      {realStatus === "booked" && (
                         <button
                           onClick={() => cancel(booking.id)}
                           disabled={isCancelling}
-                          className="inline-flex items-center gap-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white dark:bg-rose-950/30 dark:hover:bg-rose-600 dark:text-rose-400 px-4.5 py-2.5 text-sm font-black transition duration-300 active:scale-95 border border-rose-100 dark:border-rose-900/50 hover:border-rose-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                          className="inline-flex items-center gap-2 rounded-full bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white dark:bg-rose-950/30 dark:hover:bg-rose-600 dark:text-rose-400 px-4.5 py-2.5 text-sm font-black transition duration-300 active:scale-95 border border-rose-100 dark:border-rose-900/50 hover:border-rose-600 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                           <XCircle className="h-4 w-4" />
                           <span>Cancel Booking</span>
@@ -209,8 +216,8 @@ const MyBookings = () => {
                       )}
 
                       <Link
-                        to={`/cabin/${booking.cabin_id}`}
-                        className="inline-flex items-center gap-2 rounded-xl bg-slate-50 hover:bg-emerald-600 text-slate-700 hover:text-white dark:bg-slate-800 dark:hover:bg-emerald-600 dark:text-slate-200 px-4.5 py-2.5 text-sm font-black transition duration-300 active:scale-95 border border-slate-150 dark:border-slate-700/60 hover:border-emerald-600 dark:hover:border-emerald-600 cursor-pointer"
+                        to={`/cabin/${booking.cabin_id}?bookingId=${booking.id}`}
+                        className="inline-flex items-center gap-2 rounded-full bg-slate-50 hover:bg-sky-500 text-slate-700 hover:text-white dark:bg-slate-800 dark:hover:bg-sky-500 dark:text-slate-200 px-4.5 py-2.5 text-sm font-black transition duration-300 active:scale-95 border border-slate-150 dark:border-slate-700/60 hover:border-sky-500 dark:hover:border-sky-500 cursor-pointer"
                       >
                         <span>View Cabin Details</span>
                         <ArrowRight className="h-4 w-4" />

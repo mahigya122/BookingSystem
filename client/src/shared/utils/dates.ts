@@ -1,4 +1,6 @@
-export function toLocalDateMs(dateValue: string) {
+export function toLocalDateMs(dateValue: string | null | undefined) {
+  if (!dateValue) return 0;
+
   if (dateValue.includes("T")) {
     return new Date(dateValue).getTime();
   }

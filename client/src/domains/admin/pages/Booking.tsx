@@ -52,7 +52,7 @@ const BookingPage = () => {
     setCurrentPage,
     totalPages,
     paginatedData,
-  } = usePagination(filteredBookings);
+  } = usePagination(filteredBookings, 15);
 
   useEffect(() => {
     setCurrentPage(1);

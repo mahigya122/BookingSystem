@@ -6,3 +6,7 @@ export * from './settings';
 export * from './sql';
 export * from './auth';
 export * from './profile';
+export * from './location';
+export * from './offer';
+export * from './activity';
+export * from './review';

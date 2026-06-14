@@ -1,6 +1,6 @@
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import type { Booking } from "@shared/types/booking";
 import PaymentStatusBadge from "../../../payments/components/PaymentStatusBadge";
-import AdminPaymentActions from "../../../payments/components/AdminPaymentActions";
 
 interface Props {
   booking: Booking;
@@ -27,77 +27,73 @@ const BookingRow = ({
   const statusLabel = booking.status.replace("-", " ");
 
   return (
-    <tr className="group">
+    <tr className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
       {/* Guest */}
-      <td className="px-6 py-4">
+      <td className="px-6 py-3">
         <span className="font-bold text-slate-900 dark:text-slate-100">
           {booking.guests?.full_name}
         </span>
       </td>
 
       {/* Cabin */}
-      <td className="px-6 py-4">
+      <td className="px-6 py-3">
         <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
           {booking.cabins?.name}
         </span>
       </td>
 
       {/* Start Date */}
-      <td className="px-6 py-4 text-sm font-medium">
+      <td className="px-6 py-3 text-sm font-medium">
         {new Date(booking.start_date).toLocaleDateString()}
       </td>
 
       {/* End Date */}
-      <td className="px-6 py-4 text-sm font-medium text-slate-500">
+      <td className="px-6 py-3 text-sm font-medium text-slate-500">
         {new Date(booking.end_date).toLocaleDateString()}
       </td>
 
       {/* Booking Status */}
-      <td className="px-6 py-4">
+      <td className="px-6 py-3">
         <span className={`badge ${badgeClass}`}>{statusLabel}</span>
       </td>
 
       {/* PRICE */}
-      <td className="px-6 py-4 font-black text-slate-900 dark:text-white">
+      <td className="px-6 py-3 font-black text-slate-900 dark:text-white">
         ${booking.total_price.toLocaleString()}
       </td>
 
       {/* PAYMENT */}
-      <td className="px-6 py-4">
-        <div className="flex flex-col gap-1.5">
-          <PaymentStatusBadge status={booking.payment_status || 'pending'} />
-          <AdminPaymentActions
-            bookingId={booking.id}
-            currentStatus={booking.payment_status || 'pending'}
-            amount={booking.total_price}
-          />
-        </div>
+      <td className="px-6 py-3">
+        <PaymentStatusBadge status={booking.payment_status || 'pending'} />
       </td>
 
       {/* ACTIONS */}
-      <td className="px-6 py-4">
-        <div className="flex justify-end gap-2 opacity-100 transition-opacity">
+      <td className="px-6 py-3">
+        <div className="flex items-center justify-end gap-2 transition-all duration-300">
           <button
             onClick={() => onDetails(booking)}
-            className="btn-action btn-action-secondary"
+            className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 dark:hover:border-sky-900 shadow-sm transition-all"
+            title="View Details"
           >
-            Details
+            <Eye size={18} />
           </button>
 
           <button
             onClick={() => onEdit(booking)}
             disabled={booking.status === "checked-out"}
-            className="btn-action btn-action-primary disabled:opacity-40 disabled:cursor-not-allowed"
+            className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-200 dark:hover:border-amber-900 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Edit Booking"
           >
-            Edit
+            <Pencil size={18} />
           </button>
 
           <button
             onClick={() => onDelete(booking.id)}
             disabled={booking.status === "checked-out"}
-            className="btn-action btn-action-danger disabled:opacity-40 disabled:cursor-not-allowed"
+            className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-500 hover:border-rose-200 dark:hover:border-rose-900 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            title="Delete Booking"
           >
-            Delete
+            <Trash2 size={18} />
           </button>
         </div>
       </td>

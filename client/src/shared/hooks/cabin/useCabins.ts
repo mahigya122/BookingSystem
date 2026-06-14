@@ -1,24 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "../../services/supabase";
 import type { Cabin } from "../../types/cabin";
+import { fetchJson } from "../../services/http";
 
 export function useCabins() {
-  const { data: cabins, isLoading } = useQuery({
+  const { data: cabins, isLoading, error } = useQuery({
     queryKey: ["cabins"],
-
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cabins")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error){
-        throw new Error(error.message);
-      }
-      
-      return data as Cabin[];
-    },
+    queryFn: () => fetchJson<Cabin[]>("/cabins"),
   });
 
-  return { cabins, isLoading};
+  return { cabins: cabins || [], isLoading, error };
 }

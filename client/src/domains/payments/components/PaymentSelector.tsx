@@ -8,9 +8,6 @@ interface Props {
 
 const Methods: PaymentMethod[] = [
     "arrival",
-    "visa",
-    "mastercard",
-    "fonepay",
     "esewa",
 ];
 

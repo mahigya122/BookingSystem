@@ -10,6 +10,7 @@ import CabinPagination from "../components/cabin/CabinPagination";
 import CreateCabinModal from "../components/cabin/CreateCabinModal";
 import EditCabinModal from "../components/cabin/EditCabinModal";
 import CabinDetailModal from "../components/cabin/CabinDetailModal";
+import type { CabinDetailSection } from "../components/cabin/CabinRow";
 
 import { useFilteredCabins } from "@shared/hooks/cabin/useFilteredCabins";
 import { usePagination } from "@shared/hooks/usePagination";
@@ -29,6 +30,7 @@ const Cabins = () => {
 
   const [editingCabin, setEditingCabin] = useState<CabinType | null>(null);
   const [selectedCabin, setSelectedCabin] = useState<CabinType | null>(null);
+  const [selectedSection, setSelectedSection] = useState<CabinDetailSection>("overview");
 
   const filteredCabins = useFilteredCabins(
     cabins,
@@ -101,7 +103,10 @@ const Cabins = () => {
           cabins={paginatedData}
           onDelete={handleDelete}
           onEdit={setEditingCabin}
-          onView={setSelectedCabin}
+          onView={(cabin, section = "overview") => {
+            setSelectedCabin(cabin);
+            setSelectedSection(section);
+          }}
           activeBookingByCabinId={activeBookingByCabinId}
         />
 
@@ -129,7 +134,11 @@ const Cabins = () => {
         <CabinDetailModal
           cabin={selectedCabin}
           activeBooking={activeBookingByCabinId[selectedCabin.id] ?? null}
-          onClose={() => setSelectedCabin(null)}
+          initialSection={selectedSection}
+          onClose={() => {
+            setSelectedCabin(null);
+            setSelectedSection("overview");
+          }}
         />
       )}
     </div>

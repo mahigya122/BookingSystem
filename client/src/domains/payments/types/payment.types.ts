@@ -5,10 +5,6 @@ export type PaymentStatus =
 
 export type PaymentMethod =
     | "arrival"
-    | "cash"
-    | "visa"
-    | "mastercard"
-    | "fonepay"
     | "esewa";
 
 export interface PaymentUpdatePayload {

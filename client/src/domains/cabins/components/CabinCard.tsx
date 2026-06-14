@@ -1,12 +1,45 @@
 import { Link } from "react-router-dom";
+import { MapPin } from "lucide-react";
+import { useUser } from "@shared/auth_hooks";
 import type { Cabin } from "@shared/types/cabin";
 
-const CabinCard = ({ cabin }: { cabin: Cabin }) => {
+interface CabinCardProps {
+  cabin: Cabin & {
+    isBookedByUser?: boolean;
+    isBookedByOthers?: boolean;
+    isBooked?: boolean;
+  };
+}
+
+const CabinCard = ({ cabin }: CabinCardProps) => {
+  const { user } = useUser();
+  const { isBookedByUser, isBookedByOthers } = cabin;
+
+  let glowClass = "";
+  let badge = null;
+
+  if (isBookedByUser) {
+    glowClass = "ring-4 ring-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.5)]";
+    badge = (
+      <div className="absolute top-4 left-4 z-10 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
+        Your Booking
+      </div>
+    );
+  } else if (isBookedByOthers) {
+    glowClass = "ring-4 ring-rose-500 shadow-[0_0_25px_rgba(244,63,94,0.5)]";
+    badge = (
+      <div className="absolute top-4 left-4 z-10 bg-rose-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
+        Unavailable
+      </div>
+    );
+  }
+
   return (
     <Link
       to={`/cabin/${cabin.id}`}
-      className="group block relative rounded-[2rem] overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 ease-out"
+      className={`group block relative rounded-[2rem] overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-500 ease-out ${glowClass}`}
     >
+      {badge}
       {/* CARD IMAGE WRAPPER */}
       <div className="relative aspect-[16/12] overflow-hidden">
         <img
@@ -16,19 +49,29 @@ const CabinCard = ({ cabin }: { cabin: Cabin }) => {
           loading="lazy"
         />
         {/* Soft elegant image gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        
+        {/* Price tag on image */}
+        <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+           <span className="text-slate-900 font-black text-sm">${cabin.price_per_night}</span>
+           <span className="text-slate-500 text-[10px] ml-1">/ night</span>
+        </div>
       </div>
 
       {/* CARD INFO (MINIMALIST & ULTRA-PREMIUM) */}
       <div className="p-5 flex items-center justify-between bg-white dark:bg-slate-900">
         <div className="space-y-1">
-          <h3 className="font-bold text-slate-900 dark:text-white text-lg tracking-tight group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300">
+          <h3 className="font-bold text-slate-900 dark:text-white text-lg tracking-tight group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors duration-300">
             {cabin.name}
           </h3>
+          <p className="text-xs text-slate-500 flex items-center gap-1">
+             <MapPin size={12} className="text-sky-500" /> 
+             {cabin.location?.name || "Private Location"}
+          </p>
         </div>
         
         {/* Elegant Arrow Icon that appears on hover */}
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 transform translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-800 text-slate-400 group-hover:bg-sky-500 group-hover:text-white transition-all duration-300 transform translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100">
           <svg
             className="h-4 w-4 stroke-[2.5]"
             fill="none"

@@ -5,13 +5,18 @@ import App from './App.tsx'
 import { initializeData } from './domains/admin/data/initData'
 
 async function bootstrap() {
-  await initializeData();
+  const rootElement = document.getElementById('root');
+  if (!rootElement) throw new Error("Root element not found");
 
-  createRoot(document.getElementById('root')!).render(
+  const root = createRoot(rootElement);
+  root.render(
     <StrictMode>
       <App />
     </StrictMode>,
   )
+
+  // Initialize data in the background
+  void initializeData();
 }
 
 void bootstrap();

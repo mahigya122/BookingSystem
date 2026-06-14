@@ -23,6 +23,8 @@ export interface Booking {
   total_price: number;
   status: BookingStatus;   //string
   has_breakfast: boolean;
+  extra_activities?: any[];
+  extra_offers?: any[];
   payment_status: PaymentStatus;
   payment_method: PaymentMethod;
   transaction_id?: string;

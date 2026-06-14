@@ -8,7 +8,7 @@ interface Props {
 
 const statusConfig: Record<
     PaymentStatus,
-    { label: String; className: string }
+    { label: string; className: string }
 > = {
     pending: {
         label: "Pending",

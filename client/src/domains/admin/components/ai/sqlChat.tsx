@@ -30,6 +30,16 @@ const SQLChat = ({ isOpen }: Props) => {
   };
 
   useEffect(() => {
+    if (isOpen) {
+      setInput("");
+      setLoading(false);
+      setMessages([]);
+      setConversationId(null);
+      setSuggestions(FALLBACK_SUGGESTIONS);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     let cancelled = false;
 
     if (!isOpen) {
@@ -37,12 +47,6 @@ const SQLChat = ({ isOpen }: Props) => {
         cancelled = true;
       };
     }
-
-    setInput("");
-    setLoading(false);
-    setMessages([]);
-    setConversationId(null);
-    setSuggestions(FALLBACK_SUGGESTIONS);
 
     const loadConversation = async () => {
       try {
@@ -80,7 +84,7 @@ const SQLChat = ({ isOpen }: Props) => {
     return () => {
       cancelled = true;
     };
-  }, [isOpen]);
+  }, [isOpen, user?.id]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -111,7 +115,7 @@ const SQLChat = ({ isOpen }: Props) => {
     return () => {
       cancelled = true;
     };
-  }, [isOpen]);
+  }, [isOpen, user?.id]);
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;

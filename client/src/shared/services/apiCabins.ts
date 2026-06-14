@@ -1,52 +1,43 @@
-import { supabase } from "./supabase";
+import type { Cabin } from "@shared/types/cabin";
+import { fetchJson } from "./http";
 
-export interface CabinData{
+export interface CabinData {
   name: string;
   capacity: number;
   price_per_night: number;
   discount: number;
   image_url: string;
   description?: string;
+  location_id?: string;
+  offer_ids?: string[];
+  activity_ids?: string[];
 }
 
-//create
-export async function createCabin(cabin: CabinData){
-    const {data, error} = await supabase
-        .from("cabins")
-        .insert([cabin])
-        .select()
-        .single(); 
-
-     if (error) throw new Error(error.message);   
-
-     return data;         
+export async function getCabins(): Promise<Cabin[]> {
+  return fetchJson<Cabin[]>("/cabins");
 }
 
-//delete
-export async function deleteCabin(id: string){
-    const {error} = await supabase
-        .from("cabins")
-        .delete()
-        .eq("id", id);
-
-    if (error) throw new Error(error.message);
+export async function createCabin(cabinData: CabinData) {
+  return fetchJson<Cabin>("/cabins", {
+    method: "POST",
+    body: JSON.stringify(cabinData),
+  });
 }
 
-//update 
+export async function deleteCabin(id: string) {
+  return fetchJson<{ success: boolean }>(`/cabins/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+}
+
 export interface UpdateCabinData {
   id: string;
   data: Partial<CabinData>;
 }
 
 export async function updateCabin({ id, data }: UpdateCabinData) {
-  const { data: updated, error } = await supabase
-    .from("cabins")
-    .update(data)
-    .eq("id", id)
-    .select()
-    .single();
-
-   if (error) throw new Error(error.message);
-
-   return updated;   
+  return fetchJson<Cabin>(`/cabins/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
 }

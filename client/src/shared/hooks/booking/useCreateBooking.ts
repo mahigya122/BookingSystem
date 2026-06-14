@@ -11,8 +11,11 @@ interface CreateBookingData {
   end_date: string;
   total_price: number;
   has_breakfast: boolean;
+  extra_activities?: any[];
+  extra_offers?: any[];
   payment_status?: string;
   payment_method?: string;
+  is_admin_booking?: boolean;
 }
 
 export function useCreateBooking() {

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { Booking } from "@shared/types/booking";
 import { useUpdateBooking } from "@shared/auth_hooks";
+import type { PaymentStatus, PaymentMethod } from "../../../payments/types/payment.types";
 
 interface Props {
   booking: Booking;
@@ -14,8 +15,8 @@ const EditBookingModal = ({ booking, onClose} : Props) => {
   const [endDate, setEndDate] = useState(booking.end_date);
   const [status, setStatus] = useState<Booking["status"]>(booking.status);
   const [hasBreakfast, setHasBreakfast] = useState(booking.has_breakfast);
-  const [paymentStatus, setPaymentStatus] = useState(booking.payment_status || "pending");
-  const [paymentMethod, setPaymentMethod] = useState(booking.payment_method || "arrival");
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(booking.payment_status || "pending");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(booking.payment_method || "arrival");
 
 // PRICE CALCULATION
 const Pricing = useMemo(() => {
@@ -53,7 +54,7 @@ const Pricing = useMemo(() => {
         total_price: Pricing.total,
         has_breakfast: hasBreakfast,
         status,
-        payment_status: paymentStatus as any,
+        payment_status: paymentStatus,
         payment_method: paymentMethod,
       },
       {
@@ -175,44 +176,37 @@ const Pricing = useMemo(() => {
        </label>
        </div>
 
-        {/* PAYMENT STATUS */}
+        {/* PAYMENT METHOD */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-gray-600">
-              Payment Status
+              Payment Method
             </label>
-
             <select
-              value={paymentStatus}
+              value={paymentMethod}
               onChange={(e) =>
-                setPaymentStatus(e.target.value as any)
+                setPaymentMethod(e.target.value as PaymentMethod)
               }
               className="w-full border rounded-lg p-2 mt-1"
             >
-              <option value="pending">pending</option>
-              <option value="paid">paid</option>
-              <option value="refunded">refunded</option>
+              <option value="arrival">arrival</option>
+              <option value="esewa">esewa</option>
             </select>
           </div>
 
           <div>
             <label className="text-sm text-gray-600">
-              Payment Method
+              Payment Status
             </label>
-
             <select
-              value={paymentMethod}
+              value={paymentStatus}
               onChange={(e) =>
-                setPaymentMethod(e.target.value as any)
+                setPaymentStatus(e.target.value as PaymentStatus)
               }
               className="w-full border rounded-lg p-2 mt-1"
             >
-              <option value="arrival">arrival</option>
-              <option value="cash">cash</option>
-              <option value="visa">visa</option>
-              <option value="mastercard">mastercard</option>
-              <option value="fonepay">fonepay</option>
-              <option value="esewa">esewa</option>
+              <option value="pending">pending</option>
+              <option value="paid">paid</option>
             </select>
           </div>
         </div>

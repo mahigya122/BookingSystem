@@ -10,7 +10,7 @@ type ProfileRow = UserProfile & {
 export async function getProfile(id: string): Promise<ProfileRow> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, full_name, phone, role, created_at")
+    .select("id, email, full_name, phone_no, role, created_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -23,7 +23,7 @@ export async function getProfile(id: string): Promise<ProfileRow> {
       id,
       email: "",
       full_name: "",
-      phone: "",
+      phone_no: "",
       role: "guest",
     }
   );
@@ -35,7 +35,7 @@ export async function saveProfile(profile: ProfileRow) {
     .upsert({
       ...profile,
     })
-    .select("id, email, full_name, phone, role, created_at")
+    .select("id, email, full_name, phone_no, role, created_at")
     .single();
 
   if (error) {

@@ -1,11 +1,6 @@
-import { supabase } from "@shared/services/supabase";
+import type { Booking } from "@shared/types";
+import { fetchJson } from "@shared/services/http";
 
-export const getBookings = async () => {
-    const { data, error } = await supabase
-        .from("bookings")
-        .select("*");
-
-    if (error) throw error;
-
-    return data;
+export const getBookings = async (): Promise<Booking[]> => {
+  return fetchJson<Booking[]>("/bookings");
 };

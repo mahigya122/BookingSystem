@@ -3,12 +3,13 @@ import toast from "react-hot-toast";
 import { useUser } from "@shared/auth_hooks";
 import { fetchProfile, updateProfile } from "../services/profileApi";
 import { updatePassword } from "@shared/services/apiAuth";
+import type { Profile } from "@shared/types/profile";
 
 export const useProfile = () => {
   const { user } = useUser();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phoneNo, setPhoneNo] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
@@ -29,7 +30,7 @@ export const useProfile = () => {
         if (!cancelled) {
           setProfile(data);
           setFullName(data.full_name || "");
-          setPhone(data.phone || "");
+          setPhoneNo(data.phone_no || "");
         }
       } catch {
         if (!cancelled) {
@@ -61,17 +62,17 @@ export const useProfile = () => {
         id: user.id,
         email: user.email ?? "",
         full_name: fullName.trim(),
-        phone: phone.trim(),
+        phone_no: phoneNo.trim(),
         role: user.role ?? "guest",
       });
       toast.success("Profile saved successfully.");
       
       // Update local profile state
-      setProfile((prev: any) => ({
+      setProfile((prev) => prev ? ({
          ...prev,
          full_name: fullName.trim(),
-         phone: phone.trim()
-      }));
+         phone_no: phoneNo.trim()
+      }) : null);
     } catch (saveError) {
       toast.error(saveError instanceof Error ? saveError.message : "Failed to save profile.");
     } finally {
@@ -113,8 +114,8 @@ export const useProfile = () => {
     profile,
     fullName,
     setFullName,
-    phone,
-    setPhone,
+    phone: phoneNo,
+    setPhone: setPhoneNo,
     password,
     setPassword,
     confirmPassword,

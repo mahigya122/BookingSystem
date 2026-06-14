@@ -2,9 +2,6 @@ import type { FC } from "react";
 
 export type PaymentMethod =
     | "arrival"
-    | "visa"
-    | "mastercard"
-    | "fonepay"
     | "esewa";
 
 interface Props {
@@ -15,17 +12,11 @@ interface Props {
 
 const labels: Record<PaymentMethod, string> = {
     "arrival": "Pay on Arrival",
-    "visa": "Visa",
-    "mastercard": "Mastercard",
-    "fonepay": "Fonepay QR",
     "esewa": "eSewa",
 };
 
 const icons: Record<PaymentMethod, string> = {
     arrival: "🏨",
-    visa: "💳",
-    mastercard: "💳",
-    fonepay: "📱",
     esewa: "🟢",
 };
 

@@ -1,4 +1,4 @@
-import { supabase } from "../../../shared/services/supabase";
+import { fetchJson } from "../../../shared/services/http";
 import type { PaymentUpdatePayload } from "../types/payment.types";
 
 export const paymentService = {
@@ -9,22 +9,16 @@ export const paymentService = {
         amount,
         transactionId,
     }: PaymentUpdatePayload) {
-        const { data, error } = await supabase
-            .from("bookings")
-            .update({
+        return fetchJson<{ booking: any }>(`/bookings/${encodeURIComponent(bookingId)}`, {
+            method: "PATCH",
+            body: JSON.stringify({
                 payment_status: status,
                 payment_method: method,
                 payment_amount: amount ?? null,
                 transaction_id: transactionId ?? null,
                 paid_at: status === "paid" ? new Date().toISOString() : null,
-            })
-            .eq("id", bookingId)
-            .select()
-            .single();
-
-        if (error) throw error;
-
-        return data;
+            }),
+        });
     },
 
     async markAsPaidAtReception(bookingId: string, amount: number) {
@@ -41,6 +35,14 @@ export const paymentService = {
         return this.updatePayment({
             bookingId,
             status: "pending",
+            method: "arrival",
+        });
+    },
+
+    async markAsRefunded(bookingId: string) {
+        return this.updatePayment({
+            bookingId,
+            status: "refunded",
             method: "arrival",
         });
     },
