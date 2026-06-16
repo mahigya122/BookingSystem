@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useUser } from "@shared/auth_hooks";
+import { useUser } from "@shared/hooks";
 import { supabase } from "@shared/services/supabase";
 import toast from "react-hot-toast";
 

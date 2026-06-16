@@ -29,46 +29,46 @@ const BookingRow = ({
   return (
     <tr className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
       {/* Guest */}
-      <td className="px-6 py-3">
+      <td className="px-8 py-5">
         <span className="font-bold text-slate-900 dark:text-slate-100">
           {booking.guests?.full_name}
         </span>
       </td>
 
       {/* Cabin */}
-      <td className="px-6 py-3">
+      <td className="px-8 py-5">
         <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
           {booking.cabins?.name}
         </span>
       </td>
 
       {/* Start Date */}
-      <td className="px-6 py-3 text-sm font-medium">
+      <td className="px-8 py-5 text-sm font-medium">
         {new Date(booking.start_date).toLocaleDateString()}
       </td>
 
       {/* End Date */}
-      <td className="px-6 py-3 text-sm font-medium text-slate-500">
+      <td className="px-8 py-5 text-sm font-medium text-slate-500">
         {new Date(booking.end_date).toLocaleDateString()}
       </td>
 
       {/* Booking Status */}
-      <td className="px-6 py-3">
+      <td className="px-8 py-5">
         <span className={`badge ${badgeClass}`}>{statusLabel}</span>
       </td>
 
       {/* PRICE */}
-      <td className="px-6 py-3 font-black text-slate-900 dark:text-white">
+      <td className="px-8 py-5 font-black text-slate-900 dark:text-white">
         ${booking.total_price.toLocaleString()}
       </td>
 
       {/* PAYMENT */}
-      <td className="px-6 py-3">
+      <td className="px-8 py-5">
         <PaymentStatusBadge status={booking.payment_status || 'pending'} />
       </td>
 
       {/* ACTIONS */}
-      <td className="px-6 py-3">
+      <td className="px-8 py-5">
         <div className="flex items-center justify-end gap-2 transition-all duration-300">
           <button
             onClick={() => onDetails(booking)}

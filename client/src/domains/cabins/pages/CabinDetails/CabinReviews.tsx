@@ -60,7 +60,7 @@ const CabinReviews = ({ reviews = [] }: CabinReviewsProps) => {
                     reviews.map((review) => (
                         <div
                             key={review.id}
-                            className="p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-900/20 space-y-4 hover:scale-[1.01] transition-transform duration-300"
+                            className="p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-900/20 space-y-4 transition-all duration-300 hover:border-sky-400 hover:shadow-[0_0_20px_rgba(56,189,248,0.15)]"
                         >
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">

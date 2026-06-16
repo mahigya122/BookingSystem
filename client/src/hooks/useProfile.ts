@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { useUser } from "@shared/auth_hooks";
-import { fetchProfile, updateProfile } from "../services/profileApi";
+import { useUser } from "@shared/hooks";
+import { getProfile as fetchProfile, saveProfile as updateProfile } from "@shared/services/profileStorage";
 import { updatePassword } from "@shared/services/apiAuth";
 import type { Profile } from "@shared/types/profile";
 

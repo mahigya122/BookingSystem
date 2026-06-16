@@ -31,6 +31,8 @@
   --radius-3xl: 1.5rem;
   --radius-4xl: 2rem;
 
+  --breakpoint-xs: 480px;
+
   --shadow-premium: 0 10px 40px -10px rgba(14, 165, 233, 0.2);
   --shadow-card: 0 25px 50px -20px rgba(15, 23, 42, 0.12);
   --shadow-dropdown: 0 30px 60px -12px rgba(0, 0, 0, 0.18);
@@ -142,7 +144,7 @@ table {
 }
 
 thead th {
-  @apply px-6 py-4 text-left text-[11px] font-black uppercase tracking-[0.3em];
+  @apply px-8 py-6 text-left text-[11px] font-black uppercase tracking-[0.3em];
   color: var(--app-text-muted);
   border-bottom: 2px solid var(--app-border);
 }
@@ -157,7 +159,7 @@ tbody tr:hover {
 }
 
 tbody tr td {
-  @apply px-6 py-3.5;
+  @apply px-8 py-5;
   color: var(--app-text-main);
   border-bottom: 1px solid var(--app-border);
 }

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useAuthUser } from "@shared/hooks/auth/useAuthUser";
+import { useUser } from "@shared/hooks";
 
 import GuestInput from "./GuestInput";
 import GuestMessage from "./GuestMessage";
@@ -20,7 +20,7 @@ const FALLBACK_SUGGESTIONS = [
 ];
 
 const GuestChat = ({ isOpen }: Props) => {
-    const { user } = useAuthUser();
+    const { user } = useUser();
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);

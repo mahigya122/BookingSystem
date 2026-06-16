@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { useUser, useCreateBooking, useCabins, useUpdateBooking, useBookings } from "@shared/auth_hooks";
+import { useUser, useCreateBooking, useCabins, useUpdateBooking, useBookings } from "@shared/hooks";
 import type { Cabin } from "@shared/types";
 import { useProfile } from "../../../../hooks/useProfile";
 import { useCabin } from "../../hooks/useCabin";

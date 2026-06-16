@@ -42,7 +42,7 @@ const CabinRow = ({
 
     return (
         <tr className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-            <td className="px-6 py-4">
+            <td className="px-8 py-5">
                 <img
                     src={cabin.image_url}
                     alt= {cabin.name}
@@ -50,11 +50,11 @@ const CabinRow = ({
                 />
             </td>
 
-            <td className="px-6 py-4">
+            <td className="px-8 py-5">
                 <span className="font-bold text-slate-900 dark:text-slate-100">{cabin.name}</span>
             </td>
 
-            <td className="px-6 py-4">
+            <td className="px-8 py-5">
                 <button
                     type="button"
                     onClick={() => onView(cabin, "location")}
@@ -64,17 +64,17 @@ const CabinRow = ({
                 </button>
             </td>
 
-            <td className= "px-6 py-4">
+            <td className="px-8 py-5">
                 <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
                     {cabin.capacity} Guest{cabin.capacity > 1 ? 's' : ''}
                 </span>
             </td>
 
-            <td className= "px-6 py-4 font-black text-slate-900 dark:text-white">
+            <td className="px-8 py-5 font-black text-slate-900 dark:text-white">
                 ${cabin.price_per_night.toLocaleString()}
             </td>
 
-            <td className="px-6 py-4">
+            <td className="px-8 py-5">
                 {cabin.discount > 0 ? (
                     <span className="badge badge-success">{cabin.discount}%</span>
                 ) : (
@@ -82,20 +82,20 @@ const CabinRow = ({
                 )}
             </td>
 
-            <td className="px-6 py-4">
+            <td className="px-8 py-5">
                 {renderCountButton(cabin.offers?.length || 0, "offers", "badge-primary", "offers")}
             </td>
 
-            <td className="px-6 py-4">
+            <td className="px-8 py-5">
                 {renderCountButton(cabin.activities?.length || 0, "activities", "badge-secondary", "activities")}
             </td>
 
-            <td className="px-6 py-4">
+            <td className="px-8 py-5">
                 {renderCountButton(cabin.reviews?.length || 0, "reviews", "badge-warning", "reviews")}
             </td>
 
 
-            <td className="px-6 py-4">
+            <td className="px-8 py-5">
                 <div className="flex items-center justify-end gap-2 transition-all duration-300">
                     <button
                         type="button"

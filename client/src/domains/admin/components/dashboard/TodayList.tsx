@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useUpdateBooking } from "@shared/auth_hooks";
+import { useUpdateBooking } from "@shared/hooks";
 import { toLocalDateMs } from "@shared/utils/dates";
 import type { Booking } from "@shared/types/booking";
 
@@ -76,7 +76,7 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 						return (
 							<div
 								key={booking.id}
-								className="flex items-center justify-between gap-4 p-5 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group"
+								className="flex items-center justify-between gap-4 px-8 py-5 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group"
 							>
 								<div className="flex items-center gap-6">
 									<div style={{ minWidth: "100px" }}>

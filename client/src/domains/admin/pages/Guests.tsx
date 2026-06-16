@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { useGuests, useDeleteGuest } from "@shared/auth_hooks";
+import { useGuests, useDeleteGuest } from "@shared/hooks";
 
 import GuestSubnav from "../components/guest/GuestSubnav";
 import GuestTable from "../components/guest/GuestTable";
@@ -64,7 +64,7 @@ const Guests = () => {
           onEdit={setEditingGuest}
         />
 
-        <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
           <GuestPagination
             currentPage={currentPage}
             totalPages={totalPages}

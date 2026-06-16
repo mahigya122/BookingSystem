@@ -2,7 +2,7 @@ import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersC
 import type { CabinFilters } from "../store/useCabinFilters";
 
 export const useFilterActions = () => {
-  const { filters, setFilters, clearFilters, applyFilters } = useCabinFiltersContext();
+  const { filters, setFilters, clearFilters, applyFilters, isSearching, setSidebarOpen } = useCabinFiltersContext();
 
   const handlePriceChange = (values: number[]) => {
     setFilters({ ...(filters || {}), price: [values[0], values[1]] } as any);
@@ -24,6 +24,10 @@ export const useFilterActions = () => {
 
   const handleStatusChange = (status: CabinFilters["bookingStatus"]) => {
     setFilters({ ...(filters || {}), bookingStatus: status } as any);
+    // Auto-close sidebar on mobile after selection to show results
+    if (window.innerWidth < 1024) {
+      setTimeout(() => setSidebarOpen(false), 300);
+    }
   };
 
   return {
@@ -33,6 +37,8 @@ export const useFilterActions = () => {
     handleDateChange,
     handleStatusChange,
     clearFilters,
-    applyFilters
+    applyFilters,
+    isSearching,
+    setSidebarOpen
   };
 };

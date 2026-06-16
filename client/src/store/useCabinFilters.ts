@@ -101,13 +101,14 @@ export const useCabinFilters = () => {
         const filtersToApply = newFilters || filters;
         
         setIsRefreshing(true);
-        const tid = toast.loading("Refining results...");
+        const tid = toast.loading(isSearching ? "Refining results..." : "Searching cabins...");
         
         // Brief delay to simulate a "refresh" and ensure the user sees the transition
         setTimeout(() => {
             setAppliedFilters(filtersToApply);
             setIsSearching(true);
             setIsRefreshing(false);
+            setSidebarOpen(false); // Close sidebar after search
             toast.success("Results updated", { id: tid });
         }, 400);
     };

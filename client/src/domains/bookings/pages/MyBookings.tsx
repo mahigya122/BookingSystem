@@ -1,7 +1,7 @@
-import { useBookings, useUser, useCancelBooking } from "@shared/auth_hooks";
+import { useBookings, useUser, useCancelBooking } from "@shared/hooks";
 import { useCabinsData } from "../../cabins/hooks/useCabinsData";
 import { useCabinFiltersContext } from "../../cabins/contexts/CabinFiltersContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getBookingRealStatus } from "@shared/utils/bookingUtils";
 import { Calendar, Utensils, CheckCircle2, Clock, Compass, ArrowRight, ShieldCheck, Loader2, XCircle } from "lucide-react";
 
@@ -34,8 +34,9 @@ const MyBookings = () => {
   const { bookings = [], isLoading: loadingBookings } = useBookings();
   const { cabins = [], isLoading: loadingCabins } = useCabinsData();
   const { user } = useUser();
-  const { filters } = useCabinFiltersContext();
+  const { filters, setIsSearching } = useCabinFiltersContext();
   const { cancel, isCancelling } = useCancelBooking();
+  const navigate = useNavigate();
 
   const isLoading = loadingBookings || loadingCabins;
 
@@ -62,6 +63,11 @@ const MyBookings = () => {
   const sortedBookings = [...filteredBookings].sort(
     (a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
   );
+
+  const handleExploreCabins = () => {
+    setIsSearching(true);
+    navigate("/");
+  };
 
   if (isLoading) {
     return (
@@ -97,12 +103,12 @@ const MyBookings = () => {
               : "You haven't reserved any retreats yet. Explore our selection of cabins and find your perfect stay!"}
           </p>
           {filters.bookingStatus === "all" && (
-            <Link
-              to="/"
+            <button
+              onClick={handleExploreCabins}
               className="mt-6 inline-flex items-center gap-2 rounded-full bg-sky-500 px-6 py-3 font-bold text-white hover:bg-sky-650 transition shadow-lg shadow-sky-200/50 dark:shadow-none hover:-translate-y-0.5 active:translate-y-0 active:scale-95 cursor-pointer"
             >
               Explore Cabins <ArrowRight className="h-4.5 w-4.5" />
-            </Link>
+            </button>
           )}
         </div>
       ) : (

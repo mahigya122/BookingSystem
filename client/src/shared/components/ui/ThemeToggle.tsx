@@ -8,7 +8,7 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="relative flex h-10 w-28 items-center rounded-full border p-1 shadow-sm transition-all hover:shadow-md"
+      className="relative flex h-9 w-20 md:h-10 md:w-28 items-center rounded-full border p-1 shadow-sm transition-all hover:shadow-md"
       style={{
         background: "color-mix(in srgb, var(--app-surface-elevated) 84%, white 16%)",
         borderColor: "var(--app-border)",

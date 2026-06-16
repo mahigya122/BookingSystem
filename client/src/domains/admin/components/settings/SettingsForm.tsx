@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSettings, useUpdateSettings } from "@shared/auth_hooks";
+import { useSettings, useUpdateSettings } from "@shared/hooks";
 import type { Settings } from "@shared/types/settings";
 
 const SettingsForm = () => {

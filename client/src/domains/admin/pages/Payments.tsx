@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useBookings } from "@shared/hooks/booking/useBookings";
+import { useBookings } from "@shared/hooks";
 import { CreditCard, Search } from "lucide-react";
 import PaymentStatusBadge from "../../payments/components/PaymentStatusBadge";
 import AdminPaymentActions from "../../payments/components/AdminPaymentActions";
@@ -61,38 +61,38 @@ const PaymentsPage = () => {
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
               <tr>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Booking ID</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Guest</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Date</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Amount</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Method</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
+                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Booking ID</th>
+                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Guest</th>
+                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Date</th>
+                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Amount</th>
+                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Method</th>
+                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
+                <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {filteredBookings.map((booking) => (
                 <tr key={booking.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                  <td className="px-6 py-4">
+                  <td className="px-8 py-5">
                     <span className="font-mono text-xs font-bold text-slate-400">#{booking.id.slice(0, 8)}</span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-8 py-5">
                     <p className="font-bold text-slate-900 dark:text-white">{booking.guests?.full_name}</p>
                     <p className="text-xs text-slate-400">{booking.guests?.email}</p>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-8 py-5">
                     <p className="text-sm font-bold">{new Date(booking.created_at || '').toLocaleDateString()}</p>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-8 py-5">
                     <span className="font-black text-slate-900 dark:text-white">${booking.total_price}</span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-8 py-5">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{booking.payment_method || 'N/A'}</span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-8 py-5">
                     <PaymentStatusBadge status={booking.payment_status || 'pending'} />
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-8 py-5 text-right">
                     <AdminPaymentActions
                       bookingId={booking.id}
                       currentStatus={booking.payment_status || 'pending'}

@@ -12,6 +12,7 @@ export interface Review {
   guest?: {
     full_name: string;
     avatar_url?: string;
+    location?: string;
   };
   cabin?: {
     name: string;

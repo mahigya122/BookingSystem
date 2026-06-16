@@ -1,5 +1,6 @@
 import { useReviews } from "@shared/hooks/useReviews";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 
 const colors = ["bg-sky-400", "bg-orange-400", "bg-violet-500", "bg-emerald-500", "bg-rose-500"];
 
@@ -31,6 +32,17 @@ const Stars = ({ n }: { n: number }) => (
 
 const TestimonialsSection = () => {
     const { reviews = [], isLoading } = useReviews(true);
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const handleNext = () => {
+        if (reviews.length === 0) return;
+        setCurrentIndex((prev) => (prev + 1) % reviews.length);
+    };
+
+    const handlePrev = () => {
+        if (reviews.length === 0) return;
+        setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+    };
 
     if (isLoading) {
         return (
@@ -42,58 +54,99 @@ const TestimonialsSection = () => {
 
     if (reviews.length === 0) return null;
 
-    // Only show latest 3 for the landing page
-    const displayReviews = reviews.slice(0, 3);
-
     return (
-        <section className="space-y-10">
-            <div className="text-center space-y-2">
-                <p className="text-sky-400 text-xl font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>
-                    Guest Reviews
-                </p>
-                <h2 className="text-4xl font-black text-slate-900">Loved by Travellers</h2>
-                <p className="text-slate-400 text-sm max-w-md mx-auto">
-                    Don't just take our word for it — hear from guests who've already made memories.
-                </p>
+        <section className="pt-2 pb-6 md:pt-8 md:pb-12 lg:pt-12 lg:pb-16 w-full">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="space-y-2 text-center md:text-left">
+                    <p className="text-sky-500 text-xl font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>
+                        Guest Reviews
+                    </p>
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+                        Loved by <span className="text-sky-500">Travellers</span>
+                    </h2>
+                    <div className="h-1 w-16 bg-sky-500 mr-auto rounded-full mt-1 hidden md:block" />
+                    <p className="text-slate-500 dark:text-slate-400 text-base max-w-md font-medium leading-relaxed">
+                        Real testimonials from our community.
+                    </p>
+                </div>
+
+                <div className="flex gap-3 self-center md:self-end pb-1">
+                    <button
+                        onClick={handlePrev}
+                        className="h-12 w-12 rounded-full bg-white dark:bg-slate-800 border-2 border-slate-50 dark:border-slate-700 shadow-lg flex items-center justify-center text-slate-900 dark:text-white hover:bg-sky-500 hover:text-white transition-all duration-300 group"
+                    >
+                        <ChevronLeft size={24} strokeWidth={2.5} />
+                    </button>
+                    <button
+                        onClick={handleNext}
+                        className="h-12 w-12 rounded-full bg-white dark:bg-slate-800 border-2 border-slate-50 dark:border-slate-700 shadow-lg flex items-center justify-center text-slate-900 dark:text-white hover:bg-sky-500 hover:text-white transition-all duration-300 group"
+                    >
+                        <ChevronRight size={24} strokeWidth={2.5} />
+                    </button>
+                </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
-                {displayReviews.map((review) => {
-                    const guestName = review.guest?.full_name || "Guest";
-                    const { initials, color } = getAvatarData(guestName);
-                    
-                    return (
-                        <div
-                            key={review.id}
-                            className="group relative bg-white rounded-3xl border-2 border-slate-100 p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
-                        >
-                            {/* Sky-blue top stripe accent */}
-                            <div className="absolute top-0 left-0 right-0 h-1 bg-sky-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-t-3xl" />
+            <div className="relative overflow-hidden -mx-4 px-4">
+                <div 
+                    className="flex gap-6 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
+                    style={{ transform: `translateX(calc(-${currentIndex} * (100% / 3 + 1.5rem)))` }}
+                >
+                    {/* Multiplied list for infinite feel */}
+                    {[...reviews, ...reviews, ...reviews].map((review, idx) => {
+                        const guestName = review.guest?.full_name || "Guest";
+                        const { initials, color } = getAvatarData(guestName);
+                        
+                        return (
+                            <div
+                                key={`${review.id}-${idx}`}
+                                className="w-[85vw] md:w-[calc(33.333%-1rem)] shrink-0"
+                            >
+                                <div className="group relative bg-white dark:bg-slate-900/40 rounded-[2.5rem] border-2 border-slate-50 dark:border-slate-800/60 p-6 h-full transition-all duration-500 hover:border-sky-400 overflow-hidden flex flex-col justify-between min-h-[300px] shadow-sm hover:shadow-xl">
+                                    
+                                    {/* Quote mark */}
+                                    <div className="absolute top-4 right-6 text-6xl font-black text-slate-50 dark:text-slate-800/20 leading-none select-none opacity-50">"</div>
 
-                            {/* Big quote mark decoration */}
-                            <div className="absolute top-4 right-4 text-7xl font-black text-slate-50 leading-none select-none">"</div>
+                                    <div className="relative z-10 space-y-6">
+                                        <div className="flex items-center gap-4">
+                                            {review.guest?.avatar_url ? (
+                                                <img 
+                                                    src={review.guest.avatar_url} 
+                                                    alt={guestName}
+                                                    className="h-12 w-12 rounded-xl object-cover shadow-lg border-2 border-white dark:border-slate-800"
+                                                />
+                                            ) : (
+                                                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${color} text-xs font-black text-white shadow-lg`}>
+                                                    {initials}
+                                                </div>
+                                            )}
+                                            <div>
+                                                <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight">{guestName}</p>
+                                                <p className="text-[10px] font-bold text-slate-400 flex items-center gap-1.5">
+                                                    <span className="h-1 w-1 rounded-full bg-emerald-500" />
+                                                    {review.guest?.location || "Verified Guest"}
+                                                </p>
+                                            </div>
+                                        </div>
 
-                            <div className="flex items-center gap-3 mb-4">
-                                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full ${color} text-sm font-black text-white shadow`}>
-                                    {initials}
-                                </div>
-                                <div>
-                                    <p className="text-sm font-bold text-slate-900">{guestName}</p>
-                                    <p className="text-xs text-slate-400">{review.guest?.location || "Recent Traveller"}</p>
+                                        <div className="space-y-3">
+                                            <Stars n={review.rating} />
+                                            <p className="text-base font-medium text-slate-650 dark:text-slate-350 leading-relaxed italic line-clamp-3">
+                                                "{review.comment}"
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="relative z-10 mt-6 pt-6 border-t border-slate-50 dark:border-slate-800/60 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Stayed at</span>
+                                            <span className="text-[10px] font-black text-sky-500">{review.cabin?.name || "Premium Cabin"}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <Stars n={review.rating} />
-
-                            <p className="mt-3 text-sm text-slate-600 leading-relaxed italic">"{review.comment}"</p>
-
-                            <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2">
-                                <span className="text-xs text-slate-400">Stayed at</span>
-                                <span className="text-xs font-bold text-sky-500">{review.cabin?.name || "Premium Cabin"}</span>
-                            </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
         </section>
     );

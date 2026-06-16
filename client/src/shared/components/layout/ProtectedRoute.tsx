@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
-import { useUser } from "@shared/hooks/auth/useAuthUser";
+import { useUser } from "@shared/hooks";
 import type { AuthRole } from "../../types/auth";
 
 const ProtectedRoute = ({

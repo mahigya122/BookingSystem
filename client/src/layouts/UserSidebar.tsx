@@ -2,7 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { SlidersHorizontal, X, MapPin } from "lucide-react";
 import ExploreFilters from "../domains/cabins/components/ExploreFilters";
 import BookingFilters from "../domains/bookings/components/BookingFilters";
-import { useUser } from "@shared/auth_hooks";
+import { useUser } from "@shared/hooks";
 import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
 
 const UserSidebar = () => {
@@ -15,7 +15,8 @@ const UserSidebar = () => {
     const {
         sidebarOpen,
         setSidebarOpen,
-        activeFilterCount
+        activeFilterCount,
+        isSearching
     } = useCabinFiltersContext();
 
     // COLLAPSED STATE
@@ -104,7 +105,7 @@ const UserSidebar = () => {
                     </div>
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 leading-none mb-1">
-                            Refine
+                            {isSearching ? "Refine" : "Search"}
                         </span>
                         <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">
                             Preferences

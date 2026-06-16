@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useUser, useLogout } from "@shared/auth_hooks";
+import { useUser, useLogout } from "@shared/hooks";
 import ThemeToggle from "@shared/components/ui/ThemeToggle";
 import { Bot, Mountain } from "lucide-react";
 import { useAIChat } from "../domains/admin/contexts/AIChatContext";

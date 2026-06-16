@@ -15,10 +15,10 @@ export default function GuestRow({
   return (
     <tr className="group border-b border-slate-200/60 dark:border-slate-800/70 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
 
-      <td className="px-4 py-4 font-semibold text-slate-900 dark:text-white">{guest.full_name}</td>
-      <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-300">{guest.email}</td>
-      <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-300">{guest.phone}</td>
-      <td className="px-6 py-4">
+      <td className="px-8 py-5 font-semibold text-slate-900 dark:text-white">{guest.full_name}</td>
+      <td className="px-8 py-5 text-sm text-slate-500 dark:text-slate-300">{guest.email}</td>
+      <td className="px-8 py-5 text-sm text-slate-500 dark:text-slate-300">{guest.phone}</td>
+      <td className="px-8 py-5">
         <div className="flex items-center gap-2 transition-all duration-300">
           <button
             onClick={() => onEdit(guest)}

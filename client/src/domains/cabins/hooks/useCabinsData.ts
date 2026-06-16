@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { getCabinsWithBookings } from "../../../services/cabinWithBookings";
-import type { CabinWithBookings } from "../../../services/cabinWithBookings";
+import { getCabinsWithBookings } from "../../../shared/services/cabinWithBookings";
+import type { CabinWithBookings } from "../../../shared/services/cabinWithBookings";
 
 export const useCabinsData = () => {
   const { data: cabins, isLoading, error } = useQuery<CabinWithBookings[]>({

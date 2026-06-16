@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCreateCabin } from "@shared/auth_hooks";
+import { useCreateCabin } from "@shared/hooks";
 import { useLocations } from "@shared/hooks/useLocations";
 import { useOffers } from "@shared/hooks/useOffers";
 import { useActivities } from "@shared/hooks/useActivities";

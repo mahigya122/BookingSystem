@@ -1,18 +1,7 @@
 import { useState } from "react";
 import { useMemo } from "react";
 
-import { useCabins, useDeleteCabin } from "@shared/hooks/cabin";
-import { useBookings } from "@shared/hooks/booking/useBookings";
-
-import CabinSubnav from "../components/cabin/CabinSubnav";
-import CabinTable from "../components/cabin/CabinTable";
-import CabinPagination from "../components/cabin/CabinPagination";
-import CreateCabinModal from "../components/cabin/CreateCabinModal";
-import EditCabinModal from "../components/cabin/EditCabinModal";
-import CabinDetailModal from "../components/cabin/CabinDetailModal";
-import type { CabinDetailSection } from "../components/cabin/CabinRow";
-
-import { useFilteredCabins } from "@shared/hooks/cabin/useFilteredCabins";
+import { useCabins, useDeleteCabin, useBookings, useFilteredCabins } from "@shared/hooks";
 import { usePagination } from "@shared/hooks/usePagination";
 import type { Cabin as CabinType } from "@shared/types/cabin";
 import type { Booking } from "@shared/types/booking";
@@ -110,7 +99,7 @@ const Cabins = () => {
           activeBookingByCabinId={activeBookingByCabinId}
         />
 
-        <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
           <CabinPagination
             currentPage={currentPage}
             totalPages={totalPages}

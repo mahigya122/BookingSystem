@@ -6,10 +6,7 @@ import BookingPagination from "../components/booking/BookingPagination";
 import EditBookingModal from "../components/booking/EditBookingModal";
 import BookingDetailModal from "../components/booking/BookingDetailModal";
 
-import { useBookings } from "@shared/hooks/booking/useBookings";
-import { useDeleteBooking } from "@shared/hooks/booking/useDeleteBooking";
-
-import { useFilteredBookings } from "@shared/hooks/booking/useFilteredBookings";
+import { useBookings, useDeleteBooking, useFilteredBookings } from "@shared/hooks";
 import { usePagination } from "@shared/hooks/usePagination";
 
 import type {
@@ -96,7 +93,7 @@ const BookingPage = () => {
           onDetails={setDetailBooking}
         />
 
-        <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
           <BookingPagination
             currentPage={currentPage}
             totalPages={totalPages}

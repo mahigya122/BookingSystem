@@ -1,6 +1,6 @@
 import { useFilterActions } from "../../../hooks/useFilterActions";
 import type { CabinFilters } from "../../../store/useCabinFilters";
-import { CheckCircle2, Clock, XCircle, ListFilter, RotateCcw } from "lucide-react";
+import { CheckCircle2, Clock, XCircle, ListFilter } from "lucide-react";
 
 const BookingFilters = () => {
     const { filters, handleStatusChange, clearFilters } = useFilterActions();
@@ -22,12 +22,12 @@ const BookingFilters = () => {
                 <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Your Trips</h2>
             </div>
 
-            <div className="group rounded-[2.5rem] border border-emerald-50 dark:border-emerald-900/20 bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-8 shadow-xl shadow-emerald-900/5 hover:shadow-2xl transition-all duration-500">
-                <h3 className="mb-6 text-xs font-black uppercase tracking-[0.2em] text-slate-400">
+            <div className="group transition-all duration-500">
+                <h3 className="mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                     Filter Status
                 </h3>
 
-                <div className="space-y-3">
+                <div className="space-y-1">
                     {statuses.map((status) => {
                         const active = filters.bookingStatus === status;
                         return (
@@ -35,21 +35,21 @@ const BookingFilters = () => {
                                 key={status}
                                 onClick={() => handleStatusChange(status)}
                                 className={`
-                                    w-full rounded-2xl border p-4 text-left text-sm font-black transition-all duration-300
-                                    flex items-center justify-between group/btn
+                                    w-full rounded-xl py-3 px-3 text-left text-sm font-black transition-all duration-300
+                                    flex items-center justify-between group/btn border
                                     ${active
-                                        ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-[1.02]"
-                                        : "bg-white dark:bg-slate-800 border-slate-50 dark:border-slate-800 text-slate-400 hover:border-emerald-200 hover:text-emerald-600"
+                                        ? "border-emerald-500/50 bg-emerald-50/30 dark:bg-emerald-900/10 text-emerald-600 dark:text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                                        : "border-transparent text-slate-400 hover:text-emerald-500 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                                     }
                                 `}
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-xl transition-colors ${active ? "bg-white/20" : "bg-slate-50 dark:bg-slate-900 text-slate-400 group-hover/btn:text-emerald-500"}`}>
+                                    <div className={`transition-colors ${active ? "text-emerald-500" : "text-slate-400 group-hover/btn:text-emerald-500"}`}>
                                         {getStatusIcon(status)}
                                     </div>
                                     <span className="tracking-tight">{status.charAt(0).toUpperCase() + status.slice(1)}</span>
                                 </div>
-                                {active && <div className="h-2 w-2 rounded-full bg-white animate-pulse" />}
+                                {active && <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />}
                             </button>
                         );
                     })}
@@ -65,10 +65,12 @@ const BookingFilters = () => {
                     dark:hover:border-rose-900/30 transition-all duration-500 flex items-center justify-center gap-2 group
                 "
             >
-                <RotateCcw size={14} className="group-hover:-rotate-180 transition-transform duration-500" />
-                Clear All Filters
+                <div className="flex items-center gap-2">
+                   <span className="text-[10px] font-black uppercase tracking-widest">Clear All Filters</span>
+                </div>
             </button>
         </div>
+
     );
 };
 

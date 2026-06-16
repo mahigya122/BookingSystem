@@ -18,13 +18,6 @@ const SpecialOffers = () => {
 
     if (isLoading || uniqueOffers.length === 0) return null;
 
-    const styles = [
-        { bg: "bg-sky-400", dot: "bg-sky-300/60" },
-        { bg: "bg-orange-400", dot: "bg-orange-300/60" },
-        { bg: "bg-emerald-400", dot: "bg-emerald-300/60" },
-        { bg: "bg-violet-400", dot: "bg-violet-300/60" },
-    ];
-
     const fallbackImage = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80";
 
     const handleOfferClick = (offId: string) => {
@@ -37,86 +30,77 @@ const SpecialOffers = () => {
     };
 
     return (
-        <section className="space-y-10">
-            <div className="text-center space-y-2">
-                <p className="text-sky-400 text-xl font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>
+        <section id="special-offers" className="pt-2 pb-6 md:pt-8 md:pb-12 lg:pt-12 lg:pb-16 relative w-full">
+            <div className="text-center space-y-2 mb-6 md:mb-8 lg:mb-10">
+                <p className="text-sky-500 text-xl font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>
                     Our Best Offer
                 </p>
-                <h2 className="text-4xl font-black text-slate-900 dark:text-white">Offers To Inspire You</h2>
-                <p className="text-slate-400 max-w-lg mx-auto text-sm">
-                    Discover exclusive deals and special offers that will spark your wanderlust. From discounted rates to limited-time promotions.
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tight">
+                    Offers To <span className="text-sky-500">Inspire You</span>
+                </h2>
+                <div className="h-1 w-16 bg-sky-500 mx-auto rounded-full mt-1" />
+                <p className="text-slate-500 dark:text-slate-400 text-base max-w-md mx-auto font-medium leading-relaxed">
+                    Discover exclusive deals and special offers that will spark your wanderlust.
                 </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
-                {uniqueOffers.slice(0, 4).map((offer, index) => {
-                    const style = styles[index % styles.length];
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 md:h-[400px]">
+                {/* Tall left card - Featured Offer */}
+                {uniqueOffers[0] && (() => {
+                    const offer = uniqueOffers[0];
                     const isSelected = filters.offer_id === offer.id;
                     const offerTitle = offer.title || (offer as any).name;
                     return (
-                        <div
-                            key={offer.id}
+                        <div 
                             onClick={() => handleOfferClick(offer.id)}
-                            className={`relative overflow-hidden rounded-3xl ${style.bg} min-h-64 flex items-end cursor-pointer group hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 ${
+                            className={`row-span-2 group relative overflow-hidden rounded-2xl md:rounded-3xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-400 aspect-[4/5] md:aspect-auto ${
                                 isSelected ? "ring-4 ring-sky-500 ring-offset-2 dark:ring-offset-slate-900" : ""
                             }`}
                         >
-                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-white/15" />
-                            <div className="absolute right-6 top-1/2 -translate-y-1/2 w-60 h-60 rounded-full bg-white/10" />
-
-                            <img
-                                src={offer.image_url || fallbackImage}
-                                alt={offerTitle}
-                                className="absolute right-0 top-0 h-full w-1/2 object-cover opacity-80 mix-blend-overlay"
-                            />
-                            <img
-                                src={offer.image_url || fallbackImage}
-                                alt={offerTitle}
-                                className="absolute right-4 top-4 bottom-4 w-52 object-cover rounded-2xl shadow-xl border-4 border-white/20"
-                            />
-
-                            <div className="relative z-10 p-8 space-y-2 max-w-[55%]">
-                                <p className="text-white/80 text-sm font-bold italic">Save {offer.discount_percent || (offer as any).discount_pct}%</p>
-                                <h3 className="text-3xl font-black text-white leading-tight">{offerTitle}</h3>
-                                <p className="text-white/70 text-sm line-clamp-2">{offer.description}</p>
-                                <button className="mt-4 rounded-full bg-slate-900 text-white text-xs font-bold px-6 py-2.5 hover:bg-slate-700 transition-colors duration-200 group-hover:scale-105 transition-transform">
-                                    {isSelected ? "Active Filter" : "Filter Cabins"}
-                                </button>
+                            <img src={offer.image_url || fallbackImage} alt={offerTitle} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                            <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full space-y-1 md:space-y-2">
+                                <div className="inline-flex items-center px-2 py-0.5 md:py-1 rounded-lg bg-sky-500 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest">
+                                    Save {offer.discount_percent || (offer as any).discount_pct}%
+                                </div>
+                                <h3 className="text-white font-black text-lg md:text-xl leading-tight">{offerTitle}</h3>
+                                <p className="text-white/70 text-[10px] md:text-xs line-clamp-2">{offer.description}</p>
+                                {isSelected && (
+                                    <span className="block w-fit bg-white text-sky-600 font-black text-[8px] md:text-[9px] uppercase tracking-widest px-2 py-0.5 md:px-2.5 md:py-1 rounded-full shadow-lg mt-1 md:mt-2">Active</span>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })()}
+                
+                {/* Other cards */}
+                {uniqueOffers.slice(1, 5).map((offer, idx) => {
+                    const isSelected = filters.offer_id === offer.id;
+                    const offerTitle = offer.title || (offer as any).name;
+                    
+                    return (
+                        <div 
+                            key={offer.id} 
+                            onClick={() => handleOfferClick(offer.id)}
+                            className={`group relative overflow-hidden rounded-2xl md:rounded-3xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-400 ${
+                                isSelected ? "ring-4 ring-sky-500 ring-offset-2 dark:ring-offset-slate-900" : ""
+                            } ${idx >= 2 ? "hidden md:block" : ""}`}
+                        >
+                            <img src={offer.image_url || fallbackImage} alt={offerTitle} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-100" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                            <div className="absolute bottom-0 left-0 p-3 md:p-4 w-full flex items-end justify-between">
+                                <div>
+                                    <p className="text-white font-black text-xs md:text-sm leading-tight">{offerTitle}</p>
+                                    <p className="text-sky-400 text-[8px] md:text-[10px] font-black uppercase">-{offer.discount_percent || (offer as any).discount_pct}%</p>
+                                </div>
+                                {isSelected && (
+                                    <span className="bg-sky-500 text-white font-black text-[7px] md:text-[8px] uppercase tracking-widest px-1.5 py-0.5 md:px-2 md:py-0.5 rounded-full shadow-lg">Active</span>
+                                )}
                             </div>
                         </div>
                     );
                 })}
             </div>
-
-            {/* Premium full-width offer fallback if we have more than 4 */}
-            {uniqueOffers.length > 4 && (() => {
-                const offer = uniqueOffers[4];
-                const isSelected = filters.offer_id === offer.id;
-                const offerTitle = offer.title || (offer as any).name;
-                return (
-                    <div 
-                        onClick={() => handleOfferClick(offer.id)}
-                        className={`relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-500 to-indigo-600 min-h-40 flex items-center px-10 cursor-pointer hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 ${
-                            isSelected ? "ring-4 ring-sky-500 ring-offset-2 dark:ring-offset-slate-900" : ""
-                        }`}
-                    >
-                        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-20 bg-[radial-gradient(circle,_white_1px,_transparent_1px)] bg-[length:16px_16px]" />
-                        <img
-                            src={offer.image_url || fallbackImage}
-                            alt={offerTitle}
-                            className="absolute right-16 top-0 bottom-0 w-64 object-cover opacity-50 rounded-2xl my-4"
-                        />
-                        <div className="relative z-10 space-y-1">
-                            <p className="text-violet-200 text-sm font-bold italic">Premium Perk</p>
-                            <h3 className="text-3xl font-black text-white">{offerTitle} — Special Access</h3>
-                            <p className="text-white/60 text-sm">{offer.description}</p>
-                            <button className="mt-3 rounded-full bg-white text-violet-700 text-xs font-bold px-6 py-2.5 hover:bg-violet-50 transition-colors duration-200">
-                                {isSelected ? "Active Filter" : "Filter Cabins"}
-                            </button>
-                        </div>
-                    </div>
-                );
-            })()}
         </section>
     );
 };

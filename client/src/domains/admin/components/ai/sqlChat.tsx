@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useAuthUser } from "@shared/hooks/auth/useAuthUser";
+import { useUser } from "@shared/hooks";
 import SQLInput from "./SQLInput";
 import SQLMessage from "./SQLMessage";
 import { askSqlCopilot, getLatestConversation, getSuggestions } from "../../services/ai/sqlAI";
@@ -16,7 +16,7 @@ const FALLBACK_SUGGESTIONS = [
 ];
 
 const SQLChat = ({ isOpen }: Props) => {
-  const { user } = useAuthUser();
+  const { user } = useUser();
   const [messages, setMessages] = useState<SQLMessageType[]>([]);
   const [pendingHistory, setPendingHistory] = useState<SQLMessageType[] | null>(null);
   const [input, setInput] = useState("");

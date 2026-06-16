@@ -53,7 +53,6 @@ const BookingCard = ({
 }: BookingCardProps) => {
     const navigate = useNavigate();
 
-    const isCompleted = userBookingStatus === "checked-out";
     const isCancelled = userBookingStatus === "cancelled";
 
     return (

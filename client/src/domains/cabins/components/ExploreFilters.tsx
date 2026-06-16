@@ -15,7 +15,8 @@ const ExploreFilters = () => {
         handlePriceChange,
         handleCapacityChange,
         clearFilters,
-        applyFilters
+        applyFilters,
+        isSearching
     } = useFilterActions();
 
     return (
@@ -35,7 +36,7 @@ const ExploreFilters = () => {
             </div>
 
             {/* PRICE RANGE */}
-            <div className="group rounded-[2rem] border border-sky-50 dark:border-sky-900/10 bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-7 shadow-xl shadow-sky-900/5 hover:shadow-2xl transition-all duration-500">
+            <div className="group transition-all duration-500">
                 <div className="flex items-center gap-2 mb-6">
                     <div className="p-2 rounded-xl bg-sky-50 dark:bg-sky-900/30 text-sky-500">
                         <DollarSign size={16} />
@@ -106,7 +107,7 @@ const ExploreFilters = () => {
             </div>
 
             {/* CAPACITY BUTTONS */}
-            <div className="group rounded-[2rem] border border-sky-50 dark:border-sky-900/10 bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl p-7 shadow-xl shadow-sky-900/5 hover:shadow-2xl transition-all duration-500">
+            <div className="group transition-all duration-500">
                 <div className="flex items-center gap-2 mb-6">
                     <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500">
                         <Users size={16} />
@@ -138,9 +139,6 @@ const ExploreFilters = () => {
                         );
                     })}
                 </div>
-                <p className="mt-6 text-[10px] font-black text-slate-400 text-center uppercase tracking-widest">
-                    Select group size
-                </p>
             </div>
 
             <button
@@ -151,7 +149,7 @@ const ExploreFilters = () => {
                     flex items-center justify-center gap-2
                 "
             >
-                Search Cabins
+                {isSearching ? "Update Results" : "Search Cabins"}
             </button>
         </div >
     );

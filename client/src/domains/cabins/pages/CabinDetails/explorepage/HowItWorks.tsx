@@ -22,10 +22,10 @@ const steps = [
 ];
 
 const HowItWorks = () => (
-    <section className="relative rounded-3xl bg-slate-50 px-8 py-14 space-y-10 overflow-hidden">
+    <section className="relative bg-slate-50 dark:bg-slate-900/40 pt-2 pb-6 md:pt-8 md:pb-12 lg:pt-12 lg:pb-16 overflow-hidden w-full h-full flex flex-col justify-center">
         {/* Airplane + dashed path (reference image 5 layout) */}
         <svg
-            className="absolute top-28 left-0 right-0 w-full h-16 pointer-events-none"
+            className="absolute top-32 left-0 right-0 w-full h-16 pointer-events-none"
             viewBox="0 0 900 60"
             preserveAspectRatio="none"
             fill="none"
@@ -33,44 +33,46 @@ const HowItWorks = () => (
             {/* Dashed wavy path */}
             <path
                 d="M60 30 Q200 5 300 30 Q400 55 500 30 Q600 5 700 30 Q800 55 840 30"
-                stroke="#94a3b8"
+                stroke="#38bdf8"
                 strokeWidth="2"
                 strokeDasharray="8 6"
-                opacity="0.5"
+                opacity="0.2"
             />
-            {/* Plane at start */}
-            <text x="18" y="38" fontSize="20" opacity="0.4">📍</text>
-            {/* Plane at end */}
-            <text x="855" y="22" fontSize="20" opacity="0.4">✈️</text>
         </svg>
 
-        <div className="text-center space-y-2">
-            <p className="text-sky-400 text-xl font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>
-                How It Works
-            </p>
-            <h2 className="text-4xl font-black text-slate-900">Hassle Free Booking,<br />Plan in Minutes</h2>
-            <p className="text-slate-400 text-sm max-w-lg mx-auto">
-                A simple guide to your seamless stay — follow these easy steps to book your next adventure!
-            </p>
-        </div>
+        <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-12 relative z-10">
+            <div className="text-center space-y-2 mb-6 md:mb-8 lg:mb-10">
+                <p className="text-sky-500 text-xl font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>
+                    How It Works
+                </p>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tight">
+                    Hassle Free Booking,<br />Plan in <span className="text-sky-500">Minutes</span>
+                </h2>
+                <div className="h-1 w-16 bg-sky-500 mx-auto rounded-full mt-1" />
+                <p className="text-slate-500 dark:text-slate-400 text-base max-w-md mx-auto font-medium leading-relaxed">
+                    A simple guide to your seamless stay.
+                </p>
+            </div>
 
-        <div className="grid md:grid-cols-3 gap-8 relative z-10 pt-6">
-            {steps.map(({ icon: Icon, step, title, desc }) => (
-                <div key={step} className="flex flex-col items-center text-center gap-4">
-                    {/* Circle icon (like reference image 5) */}
-                    <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-white border-2 border-slate-200 shadow-md">
-                        <Icon className="h-8 w-8 text-slate-700" strokeWidth={1.6} />
+            <div className="grid md:grid-cols-3 gap-8 relative z-10">
+                {steps.map(({ icon: Icon, step, title, desc }) => (
+                    <div key={step} className="flex flex-col items-center text-center gap-4 group">
+                        {/* Circle icon (like reference image 5) */}
+                        <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 shadow-lg group-hover:scale-110 group-hover:border-sky-400 transition-all duration-500">
+                            <Icon className="h-7 w-7 text-slate-800 dark:text-white group-hover:text-sky-500 transition-colors" strokeWidth={1.5} />
+                            
+                            <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-sky-500 text-white flex items-center justify-center text-[8px] font-black border-2 border-white dark:border-slate-800 shadow-lg">
+                                {step.split(" ")[1]}
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">{title}</h3>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-[220px]">{desc}</p>
+                        </div>
                     </div>
-                    {/* Sky-blue step pill */}
-                    <span className="rounded-full bg-sky-400 text-white text-xs font-bold px-5 py-1.5 shadow-sm shadow-sky-200">
-                        {step}
-                    </span>
-                    <div>
-                        <h3 className="text-lg font-black text-slate-900">{title}</h3>
-                        <p className="text-slate-400 text-sm mt-1 max-w-xs">{desc}</p>
-                    </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     </section>
 );

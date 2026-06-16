@@ -29,7 +29,7 @@ const RecentBookings = ({ bookings }: Props) => {
           recentItems.map((booking) => (
             <div
               key={booking.id}
-              className="flex items-center justify-between gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+              className="flex items-center justify-between gap-4 px-8 py-5 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
             >
               <div className="flex items-center gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">

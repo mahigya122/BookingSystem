@@ -9,6 +9,7 @@ import ClientFullPageLayout from "../layouts/ClientFullPageLayout";
 import MyBookings from "../domains/bookings/pages/MyBookings";
 import PaymentSuccess from "../domains/payments/pages/PaymentSuccess";
 import PaymentFailure from "../domains/payments/pages/PaymentFailure";
+import InfoPage from "../domains/guests/pages/InfoPage";
 
 export const router = createBrowserRouter([
   {
@@ -43,6 +44,7 @@ export const router = createBrowserRouter([
   {
     element: <ClientFullPageLayout />,
     children: [
+      { path: "/info/:slug", element: <InfoPage /> },
       { path: "/cabin/:id", element: <CabinDetails /> },
       { path: "/payment/success", element: <PaymentSuccess /> },
       { path: "/payment/failure", element: <PaymentFailure /> },

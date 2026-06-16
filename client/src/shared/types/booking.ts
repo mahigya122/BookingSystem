@@ -39,5 +39,6 @@ export interface Booking {
   cabins?: {
     name: string;
     price_per_night: number;
+    image_url?: string;
   };
 }

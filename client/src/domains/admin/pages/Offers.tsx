@@ -1,5 +1,5 @@
 import { useOffers } from "@shared/hooks/useOffers";
-import { useCabins } from "@shared/hooks/cabin/useCabins";
+import { useCabins } from "@shared/hooks";
 import type { Offer } from "@shared/types/offer";
 import { useState, useMemo } from "react";
 import { Pencil, Plus, Tag, Trash2, Home, Search, Loader2 } from "lucide-react";
@@ -210,17 +210,17 @@ const Offers = () => {
         <table className="w-full">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
-              <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Promotion</th>
-              <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Applied To</th>
-              <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Discount</th>
-              <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Badge</th>
-              <th className="px-6 py-4 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
+              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Promotion</th>
+              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Applied To</th>
+              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Discount</th>
+              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Badge</th>
+              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {filteredOffers.map((offer) => (
               <tr key={offer.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <td className="px-6 py-4">
+                <td className="px-8 py-5">
                   <div className="flex flex-col">
                     <span className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                         <Tag size={14} className="text-emerald-500" />
@@ -229,21 +229,21 @@ const Offers = () => {
                     <span className="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{offer.description || "No description provided."}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-8 py-5">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
                       <Home size={12} />
                       <span className="text-[11px] font-black uppercase tracking-wider">{getOfferCount(offer) || 0} Cabins</span>
                     </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-8 py-5">
                   <span className="font-black text-emerald-600 dark:text-emerald-400 text-sm">{(offer.discount_percent ?? (offer as any).discount_pct ?? 0)}% OFF</span>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-8 py-5">
                     <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                         {offer.badge || "Default"}
                     </span>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-8 py-5">
                   <div className="flex items-center justify-end gap-2 transition-all duration-300">
                     <button 
                         onClick={() => openEdit(offer)} 

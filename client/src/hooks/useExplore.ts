@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useCabinsData } from "../domains/cabins/hooks/useCabinsData";
 import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
-import { useUser } from "@shared/auth_hooks";
+import { useUser } from "@shared/hooks";
 import { useLocations } from "@shared/hooks/useLocations";
 import { useOffers } from "@shared/hooks/useOffers";
 import { useActivities } from "@shared/hooks/useActivities";

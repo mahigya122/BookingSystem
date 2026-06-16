@@ -1,9 +1,6 @@
 import { useMemo, useState } from "react";
-import { BedDouble, CalendarDays, CheckCircle2, ChevronRight, Sparkles, UserRound, Users, CreditCard, Loader2 } from "lucide-react";
-import { useCreateBooking } from "@shared/hooks/booking/useCreateBooking";
-import { useCabins } from "@shared/hooks/cabin/useCabins";
-import { useGuests } from "../../../guests/hooks/useGuests";
-import { useSettings } from "@shared/hooks/setting/useSettings";
+import { CalendarDays, CheckCircle2, ChevronRight, Sparkles, UserRound, CreditCard, Loader2 } from "lucide-react";
+import { useCreateBooking, useCabins, useSettings } from "@shared/hooks";
 import { useCabinAvailability } from "../../../cabins/hooks/useCabinAvailability";
 import CabinCalendar from "../../../../shared/components/ui/CabinCalendar";
 import type { Cabin } from "@shared/types/cabin";
@@ -292,7 +289,6 @@ const BookingForm = () => {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="relative">
-                <Users className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2" size={16} style={{ color: "var(--app-text-muted)" }} />
                 <input
                   name="capacity"
                   placeholder="Guests required"
@@ -304,7 +300,6 @@ const BookingForm = () => {
               </div>
 
               <div className="relative">
-                <BedDouble className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2" size={16} style={{ color: "var(--app-text-muted)" }} />
                 <select
                   name="cabin_id"
                   value={form.cabin_id}

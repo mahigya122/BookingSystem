@@ -1,6 +1,5 @@
 import {
   Banknote,
-  BedDouble,
   LayoutDashboard,
   LineChart,
   Users,
@@ -18,7 +17,7 @@ import TodayList from "../components/dashboard/TodayList";
 import RecentBookings from "../components/dashboard/RecentBookings";
 
 import { useBookings } from "@shared/hooks/booking/useBookings";
-import { useGuests } from "@shared/auth_hooks";
+import { useGuests } from "@shared/hooks";
 
 import { useDashboardRange } from "../hooks/useDashboardRange";
 import { useDashboardStats } from "../hooks/useDashboardStats";

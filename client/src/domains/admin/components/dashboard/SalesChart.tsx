@@ -7,7 +7,7 @@ import {
     Tooltip,
     ResponsiveContainer,
 } from "recharts";
-import { useTheme } from "@shared/context/ThemeContext";
+import { useTheme } from "@shared/contexts/ThemeContext";
 
 interface Props {
     title?: string;
