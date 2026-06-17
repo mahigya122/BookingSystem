@@ -1,10 +1,16 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { scrollToTop } from "./useScrollToTop";
 
 export function usePagination<T>(
   data: T[],
   itemsPerPage = 10
 ) {
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Automatically scroll to top when page changes
+  useEffect(() => {
+    scrollToTop();
+  }, [currentPage]);
 
   const totalPages = useMemo(() => {
     return Math.max(1, Math.ceil(data.length / itemsPerPage));

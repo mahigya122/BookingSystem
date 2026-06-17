@@ -1,8 +1,9 @@
 import { useActivities } from "@shared/hooks/useActivities";
 import { useCabins } from "@shared/hooks";
+import { usePagination } from "@shared/hooks/usePagination";
 import type { Activity } from "@shared/types/activity";
-import { useState, useMemo } from "react";
-import { Pencil, Plus, Trash2, Zap, Home, Search, Loader2, X, Save } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Pencil, Plus, Trash2, Zap, Home, Search, Loader2, X, Save, ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Activities = () => {
@@ -10,7 +11,7 @@ const Activities = () => {
   const { cabins = [], isLoading: isCabinsLoading } = useCabins();
 
   const [isAdding, setIsAdding] = useState(false);
-  const [searchTerm, setSearchSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   
   const [newActivity, setNewActivity] = useState({ 
     name: "", 
@@ -52,6 +53,17 @@ const Activities = () => {
       (a.description || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [activities, searchTerm]);
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData,
+  } = usePagination(filteredActivities, 10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, setCurrentPage]);
 
   const handleAdd = () => {
     if (!newActivity.name.trim()) {
@@ -138,7 +150,7 @@ const Activities = () => {
                     type="text" 
                     placeholder="Search activities..."
                     value={searchTerm}
-                    onChange={(e) => setSearchSearchTerm(e.target.value)}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-sky-500/20 outline-none transition-all w-64"
                 />
             </div>
@@ -219,7 +231,7 @@ const Activities = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {filteredActivities.map((activity) => (
+            {paginatedData.map((activity) => (
               <tr key={activity.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                 <td className="px-8 py-5">
                     {activity.image_url ? (
@@ -269,11 +281,40 @@ const Activities = () => {
             ))}
           </tbody>
         </table>
-        {filteredActivities.length === 0 && (
+        {paginatedData.length === 0 && (
             <div className="py-20 text-center">
                 <Search size={40} className="mx-auto text-slate-200 mb-4" />
                 <p className="text-slate-400 font-bold tracking-tight">No activities found.</p>
             </div>
+        )}
+
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+              Showing Page {currentPage} <span className="mx-1 text-slate-300 dark:text-slate-700">/</span> {totalPages}
+            </p>
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+              >
+                <ChevronLeft size={14} />
+                Prev
+              </button>
+
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+              >
+                Next
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
         )}
       </div>
 

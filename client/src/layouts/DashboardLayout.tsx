@@ -4,9 +4,12 @@ import Sidebar from "./AdminSidebar";
 import AIChatDrawer from "../domains/admin/components/ai/AIChatDrawer";
 import { AIChatProvider } from "../domains/admin/contexts/AIChatContext";
 import { AdminSidebarProvider } from "../domains/admin/contexts/AdminSidebarContext";
+import { useScrollToTop } from "@shared/hooks/useScrollToTop";
 
 
 const DashboardLayout = () => {
+  const containerRef = useScrollToTop();
+
   return (
     <AdminSidebarProvider>
       <AIChatProvider>
@@ -23,7 +26,10 @@ const DashboardLayout = () => {
             <Sidebar />
 
             {/* MAIN CONTENT */}
-            <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 scroll-smooth">
+            <main 
+              ref={containerRef as React.RefObject<HTMLElement>}
+              className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 scroll-smooth"
+            >
               <div className="max-w-[1600px] mx-auto">
                 <Outlet />
               </div>

@@ -22,14 +22,6 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <ClientDashboard /> },
       {
-        path: "profile",
-        element: (
-          <ProtectedRoute requiredRole="guest">
-            <ClientProfile />
-          </ProtectedRoute>
-        ),
-      },
-      {
         path: "bookings",
         element: (
           <ProtectedRoute requiredRole="guest">
@@ -44,6 +36,14 @@ export const router = createBrowserRouter([
   {
     element: <ClientFullPageLayout />,
     children: [
+      {
+        path: "/profile",
+        element: (
+          <ProtectedRoute requiredRole="guest">
+            <ClientProfile />
+          </ProtectedRoute>
+        ),
+      },
       { path: "/info/:slug", element: <InfoPage /> },
       { path: "/cabin/:id", element: <CabinDetails /> },
       { path: "/payment/success", element: <PaymentSuccess /> },

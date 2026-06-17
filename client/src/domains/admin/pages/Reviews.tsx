@@ -1,20 +1,30 @@
 import { useReviews } from "@shared/hooks/useReviews";
-import { Star, Trash2, CheckCircle, XCircle } from "lucide-react";
+import { usePagination } from "@shared/hooks/usePagination";
+import { Star, Trash2, CheckCircle, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
 const Reviews = () => {
   const { reviews = [], isLoading, removeReview, moderateReview } = useReviews();
 
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData,
+  } = usePagination(reviews, 6);
+
   if (isLoading) return <p>Loading Reviews...</p>;
 
   return (
-    <div className="space-y-8 animate-slide-up">
-      <div>
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Guest Reviews</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Moderate and manage guest feedback.</p>
+    <div className="space-y-8 animate-slide-up pb-12">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Guest Reviews</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Moderate and manage guest feedback.</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {reviews.map((review) => (
+        {paginatedData.map((review) => (
           <div key={review.id} className="card p-6 flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -96,6 +106,35 @@ const Reviews = () => {
           </div>
         ))}
       </div>
+
+      {/* PAGINATION */}
+      {totalPages > 1 && (
+        <div className="card px-8 py-6 flex items-center justify-between shadow-premium">
+          <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+            Showing Page {currentPage} <span className="mx-1 text-slate-300 dark:text-slate-700">/</span> {totalPages}
+          </p>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              <ChevronLeft size={14} />
+              Prev
+            </button>
+
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              Next
+              <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

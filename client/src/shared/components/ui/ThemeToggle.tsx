@@ -8,28 +8,26 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="relative flex h-9 w-20 md:h-10 md:w-28 items-center rounded-full border p-1 shadow-sm transition-all hover:shadow-md"
+      className="group relative flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-xl md:rounded-2xl border transition-all duration-500 shadow-sm"
       style={{
-        background: "color-mix(in srgb, var(--app-surface-elevated) 84%, white 16%)",
+        background: "var(--app-surface-elevated)",
         borderColor: "var(--app-border)",
       }}
       aria-label={isLight ? "Switch to dark mode" : "Switch to light mode"}
     >
-      <div
-        className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full shadow-sm transition-all duration-300 ease-out ${isLight ? "left-1" : "left-[calc(50%+2px)]"}`}
-        style={{
-          background: "linear-gradient(135deg, rgba(229,9,20,0.22), rgba(255,90,95,0.18))",
-          boxShadow: "0 12px 24px -16px rgba(15, 23, 42, 0.5)",
-        }}
-      />
-
-      <div className="relative z-10 flex flex-1 items-center justify-center">
-        <Sun size={14} className={`${isLight ? "text-amber-500" : "text-slate-500"} transition-colors duration-300`} />
+      {/* Background Hover Effect */}
+      <div className="absolute inset-0 rounded-xl md:rounded-2xl bg-sky-500/0 group-hover:bg-sky-500/10 transition-colors duration-500" />
+      
+      <div className="relative z-10 transition-transform duration-500 group-hover:rotate-[360deg] group-hover:scale-110">
+        {isLight ? (
+          <Moon size={18} className="md:size-[22px] text-slate-500 group-hover:text-sky-500 transition-colors duration-500" />
+        ) : (
+          <Sun size={18} className="md:size-[22px] text-amber-400 group-hover:text-amber-300 transition-colors duration-500" />
+        )}
       </div>
 
-      <div className="relative z-10 flex flex-1 items-center justify-center">
-        <Moon size={14} className={`${!isLight ? "text-red-500" : "text-slate-500"} transition-colors duration-300`} />
-      </div>
+      {/* Shine Highlight */}
+      <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-amber-400/40 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
     </button>
   );
 };

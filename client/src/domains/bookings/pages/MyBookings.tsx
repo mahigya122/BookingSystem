@@ -3,7 +3,10 @@ import { useCabinsData } from "../../cabins/hooks/useCabinsData";
 import { useCabinFiltersContext } from "../../cabins/contexts/CabinFiltersContext";
 import { Link, useNavigate } from "react-router-dom";
 import { getBookingRealStatus } from "@shared/utils/bookingUtils";
+import { usePagination } from "@shared/hooks/usePagination";
+import Pagination from "@shared/components/ui/Pagination";
 import { Calendar, Utensils, CheckCircle2, Clock, Compass, ArrowRight, ShieldCheck, Loader2, XCircle } from "lucide-react";
+import { useEffect } from "react";
 
 // Format YYYY-MM-DD to a more readable date (e.g., "Jun 2, 2026")
 const formatDate = (dateStr: string) => {
@@ -64,6 +67,18 @@ const MyBookings = () => {
     (a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
   );
 
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData,
+  } = usePagination(sortedBookings, 5);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters.bookingStatus, setCurrentPage]);
+
   const handleExploreCabins = () => {
     setIsSearching(true);
     navigate("/");
@@ -113,7 +128,7 @@ const MyBookings = () => {
         </div>
       ) : (
         <div className="space-y-6">
-          {sortedBookings.map((booking) => {
+          {paginatedData.map((booking) => {
             // Find corresponding cabin to resolve thumbnail
             const cabinInfo = cabins.find((c) => c.id === booking.cabin_id);
             const duration = getDaysDiff(booking.start_date, booking.end_date);
@@ -234,6 +249,11 @@ const MyBookings = () => {
               </div>
             );
           })}
+          <Pagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
     </div>

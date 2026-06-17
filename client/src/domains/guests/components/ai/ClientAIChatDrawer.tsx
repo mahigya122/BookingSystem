@@ -1,5 +1,3 @@
-import { X } from "lucide-react";
-
 import { useClientAIChat } from "../../contexts/ClientAIChatContext";
 
 import GuestChat from "./GuestChat";
@@ -22,7 +20,7 @@ const ClientAIChatDrawer = () => {
 
             {/* DRAWER */}
             <div
-                className={`fixed right-0 top-0 z-50 h-screen w-[440px] transform border-l shadow-2xl transition-transform duration-300 ${open
+                className={`fixed right-0 top-0 z-50 h-screen w-full sm:w-[440px] transform border-l shadow-2xl transition-transform duration-300 ${open
                         ? "translate-x-0"
                         : "translate-x-full"
                     }`}
@@ -34,41 +32,9 @@ const ClientAIChatDrawer = () => {
                         "-28px 0 80px -38px rgba(0, 0, 0, 0.55)",
                 }}
             >
-                {/* HEADER */}
-                <div
-                    className="flex items-center justify-between border-b px-4 py-3"
-                    style={{
-                        borderColor: "var(--app-border)",
-                    }}
-                >
-                    <div className="space-y-1">
-                        <div
-                            className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.35em]"
-                            style={{
-                                borderColor: "var(--app-border)",
-                                color: "#10b981",
-                                background:
-                                    "color-mix(in srgb, #10b981 8%, transparent)",
-                            }}
-                        >
-                            Guest AI Concierge
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={() => setOpen(false)}
-                        className="h-10 w-10 rounded-xl border"
-                        style={{
-                            borderColor: "var(--app-border)",
-                        }}
-                    >
-                        <X size={20} className="mx-auto" />
-                    </button>
-                </div>
-
-                {/* CHAT */}
-                <div className="h-[calc(100vh-64px)] p-3">
-                    <GuestChat isOpen={open} />
+                {/* CHAT BODY (FULL SCREEN) */}
+                <div className="h-screen relative overflow-hidden">
+                    <GuestChat isOpen={open} onClose={() => setOpen(false)} />
                 </div>
             </div>
         </>

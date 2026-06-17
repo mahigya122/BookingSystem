@@ -1,3 +1,5 @@
+import { Send } from "lucide-react";
+
 interface Props {
     value: string;
     onChange: (value: string) => void;
@@ -12,14 +14,7 @@ const GuestInput = ({
     disabled = false,
 }: Props) => {
     return (
-        <div
-            className="flex gap-2 rounded-2xl border p-1.5 shadow-sm"
-            style={{
-                borderColor: "var(--app-border)",
-                background:
-                    "color-mix(in srgb, var(--app-surface-elevated) 88%, transparent)",
-            }}
-        >
+        <div className="flex gap-2 p-1">
             <input
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
@@ -28,22 +23,17 @@ const GuestInput = ({
                         onSend();
                     }
                 }}
-                placeholder="Ask about cabins, pricing, amenities..."
-                className="flex-1 rounded-xl border px-3.5 py-2.5 outline-none transition"
-                style={{
-                    background:
-                        "color-mix(in srgb, var(--app-surface) 88%, transparent)",
-                    borderColor: "var(--app-border)",
-                    color: "var(--app-text-main)",
-                }}
+                placeholder="Message concierge..."
+                className="flex-1 bg-transparent px-4 py-3 text-sm font-medium outline-none transition dark:text-white placeholder:text-slate-400"
+                autoFocus
             />
 
             <button
                 onClick={onSend}
-                disabled={disabled}
-                className="rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={disabled || !value.trim()}
+                className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-500 text-white transition-all hover:bg-sky-600 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 shadow-lg shadow-sky-500/20"
             >
-                {disabled ? "Sending..." : "Send"}
+                <Send size={18} />
             </button>
         </div>
     );

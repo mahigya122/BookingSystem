@@ -1,8 +1,9 @@
 import { useLocations } from "@shared/hooks/useLocations";
 import { useCabins } from "@shared/hooks";
+import { usePagination } from "@shared/hooks/usePagination";
 import type { Location } from "@shared/types/location";
-import { useState, useMemo } from "react";
-import { Pencil, MapPin, Plus, Trash2, Home, Search, Loader2, Globe, X, Save } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Pencil, MapPin, Plus, Trash2, Home, Search, Loader2, Globe, X, Save, ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Locations = () => {
@@ -54,6 +55,17 @@ const Locations = () => {
       (loc.country || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [locations, searchTerm]);
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData,
+  } = usePagination(filteredLocations, 10);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, setCurrentPage]);
 
   const handleAdd = () => {
     if (!newLocation.name.trim() || !newLocation.city.trim() || !newLocation.country.trim()) {
@@ -232,7 +244,7 @@ const Locations = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {filteredLocations.map((loc) => (
+            {paginatedData.map((loc) => (
               <tr key={loc.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                 <td className="px-8 py-5">
                   {loc.image_url ? (
@@ -291,11 +303,40 @@ const Locations = () => {
             ))}
           </tbody>
         </table>
-        {filteredLocations.length === 0 && (
+        {paginatedData.length === 0 && (
             <div className="py-20 text-center">
                 <Search size={40} className="mx-auto text-slate-200 mb-4" />
                 <p className="text-slate-400 font-bold tracking-tight">No locations found.</p>
             </div>
+        )}
+
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+              Showing Page {currentPage} <span className="mx-1 text-slate-300 dark:text-slate-700">/</span> {totalPages}
+            </p>
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+              >
+                <ChevronLeft size={14} />
+                Prev
+              </button>
+
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+              >
+                Next
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          </div>
         )}
       </div>
 

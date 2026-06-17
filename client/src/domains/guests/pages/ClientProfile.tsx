@@ -1,4 +1,4 @@
-import { useProfile } from "../hooks/useProfile";
+import { useProfile } from "../../../hooks/useProfile";
 import { User, Mail, Shield, Loader2 } from "lucide-react";
 
 const ClientProfile = () => {

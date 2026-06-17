@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLogin, useGoogleLogin } from "../../auth_hooks";
+import { useLogin, useGoogleLogin } from "../../hooks";
 
 import type { AuthUser } from "../../types/auth";
 

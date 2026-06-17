@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import toast from "react-hot-toast";
 
 import { supabase } from "../../services/supabase";
-import { useUser } from "../../auth_hooks";
+import { useUser } from "../../hooks";
 import type { AuthUser } from "../../types/auth";
 import FlippingBook from "./FlippingBook";
 

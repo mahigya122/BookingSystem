@@ -4,6 +4,7 @@ import ExploreFilters from "../domains/cabins/components/ExploreFilters";
 import BookingFilters from "../domains/bookings/components/BookingFilters";
 import { useUser } from "@shared/hooks";
 import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
+import ThemeToggle from "@shared/components/ui/ThemeToggle";
 
 const UserSidebar = () => {
     const { isAuthenticated } = useUser();
@@ -113,12 +114,14 @@ const UserSidebar = () => {
                     </div>
                 </div>
 
-                <button
-                    onClick={() => setSidebarOpen(false)}
-                    className="p-2.5 rounded-2xl hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group"
-                >
-                    <X size={20} className="text-slate-300 group-hover:text-slate-600 dark:group-hover:text-slate-200 group-hover:rotate-90 transition-all duration-500" />
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setSidebarOpen(false)}
+                        className="p-2.5 rounded-2xl hover:bg-white dark:hover:bg-slate-800 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-none transition-all duration-300 border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group"
+                    >
+                        <X size={20} className="text-slate-300 group-hover:text-slate-600 dark:group-hover:text-slate-200 group-hover:rotate-90 transition-all duration-500" />
+                    </button>
+                </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-10 relative z-10">
@@ -180,9 +183,6 @@ const UserSidebar = () => {
                         <span key={i} className="text-sm opacity-30 hover:opacity-100 transition-opacity cursor-default grayscale hover:grayscale-0">{emoji}</span>
                     ))}
                 </div>
-                <span className="text-[10px] font-black text-center uppercase tracking-[0.4em] text-slate-300 dark:text-slate-600 leading-none">
-                    CabinHub v2.4
-                </span>
             </div>
         </div>
     );

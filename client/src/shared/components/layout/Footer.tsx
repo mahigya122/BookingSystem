@@ -1,8 +1,15 @@
-import { Mountain } from "lucide-react";
+import { Mountain, Star } from "lucide-react";
+import {
+    FaXTwitter,
+    FaInstagram,
+    FaFacebookF,
+    FaLinkedinIn
+} from "react-icons/fa6";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { useCabinFiltersContext } from "../../../domains/cabins/contexts/CabinFiltersContext";
+import { scrollToTop } from "../../hooks/useScrollToTop";
 
 const footerLinks = {
     Explore: ["Cabins", "Locations", "Activities", "Offers"],
@@ -10,21 +17,27 @@ const footerLinks = {
     Company: ["About", "Careers", "Blog"],
     Legal: ["Privacy", "Terms", "Cookies"],
 };
-const ExploreFooter = () => {
+
+const socialLinks = [
+    { icon: FaXTwitter, name: "Twitter" },
+    { icon: FaInstagram, name: "Instagram" },
+    { icon: FaFacebookF, name: "Facebook" },
+    { icon: FaLinkedinIn, name: "Linkedin" },
+];
+
+const Footer = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { setIsSearching } = useCabinFiltersContext();
+    const { setIsSearching, isSearching, clearFilters } = useCabinFiltersContext();
     const [qrCode, setQrCode] = useState("");
 
-    // Generate a real QR code for Google Review on mount
     useEffect(() => {
-        // Placeholder for real Google Review link
         const reviewUrl = "https://search.google.com/local/writereview?placeid=CABINHUB_PLACE_ID";
         QRCode.toDataURL(reviewUrl, {
             margin: 1,
             width: 200,
             color: {
-                dark: "#000000", 
+                dark: "#000000",
                 light: "#ffffff"
             }
         }).then(setQrCode).catch((err: Error) => console.error(err));
@@ -34,45 +47,52 @@ const ExploreFooter = () => {
         const isHome = location.pathname === "/";
         const slug = lnk.toLowerCase().replace(/ /g, "-");
 
+        // Always provide feedback by scrolling to top if it's not a section scroll
+        const sectionIdMap: Record<string, string> = {
+            "Cabins": "popular-cabins",
+            "Locations": "explore-locations",
+            "Activities": "activities-section",
+            "Offers": "special-offers"
+        };
+
         if (cat === "Explore") {
-            if (lnk === "Cabins") {
-                setIsSearching(true);
-                if (!isHome) navigate("/");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-                return;
-            }
-
-            const sectionIdMap: Record<string, string> = {
-                "Locations": "explore-locations",
-                "Activities": "activities-section",
-                "Offers": "special-offers"
-            };
-
             const id = sectionIdMap[lnk];
             if (id) {
+                // If we are searching (showing search results), we clear it to show sections
+                if (isSearching) {
+                    setIsSearching(false);
+                }
+
                 if (!isHome) {
                     navigate("/", { state: { scrollTo: id } });
                 } else {
-                    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+                    // Small delay to allow isSearching state to propagate if it was true
+                    setTimeout(() => {
+                        document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+                    }, isSearching ? 100 : 0);
                 }
+                return;
             }
-        } else {
-            navigate(`/info/${slug}`);
+        }
+ else {
+            const targetPath = `/info/${slug}`;
+            if (location.pathname === targetPath) {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+                navigate(targetPath);
+            }
         }
     };
 
     return (
-        <footer className="bg-slate-950 text-white pt-24 pb-12 overflow-hidden border-t border-white/5">
-            <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-12">
-                <div className="grid gap-16 md:grid-cols-5 lg:grid-cols-6 mb-20">
+        <footer className="bg-slate-950 text-white pt-16 pb-12 overflow-hidden border-t border-white/5 shrink-0">
+            <div className="px-4 md:px-8">
+                <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-6 gap-x-8 gap-y-12 md:gap-16 mb-20">
                     {/* Brand & Social Proof */}
-                    <div className="md:col-span-2 space-y-10">
+                    <div className="col-span-2 md:col-span-2 space-y-10">
                         <div className="space-y-6">
-                            <div
-                                className="flex items-center gap-4 cursor-pointer group w-fit"
-                                onClick={() => navigate("/")}
-                            >
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500 shadow-xl shadow-sky-500/20 group-hover:scale-110 transition-transform duration-300">
+                            <div className="flex items-center gap-4 w-fit">
+                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500 shadow-xl shadow-sky-500/20 transition-transform duration-300">
                                     <Mountain className="h-6 w-6 text-white" strokeWidth={2.5} />
                                 </div>
                                 <span className="text-3xl font-black tracking-tight">Cabin<span className="text-sky-500">Hub</span></span>
@@ -81,18 +101,18 @@ const ExploreFooter = () => {
                                 The home for unforgettable nature escapes — handpicked cabins, seamless booking, and memories that last.
                             </p>
                             <div className="flex gap-4">
-                                {["𝕏", "📸", "f", "in"].map((s, i) => (
+                                {socialLinks.map((s, i) => (
                                     <div
                                         key={i}
-                                        className="h-11 w-11 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-lg text-slate-400 hover:bg-sky-500 hover:text-white hover:-translate-y-1 hover:border-sky-500 transition-all duration-300 cursor-pointer"
+                                        className="h-8 w-8 rounded-2xl bg-slate-900/50 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-sky-500 transition-all duration-300 cursor-pointer"
                                     >
-                                        {s}
+                                        <s.icon size={16} />
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* QR Review Section (Minimalist) */}
+                        {/* QR Review Section */}
                         <div className="flex items-center gap-6 group cursor-default">
                             <div className="relative shrink-0">
                                 <div className="absolute -inset-2 bg-sky-500/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -106,6 +126,13 @@ const ExploreFooter = () => {
                             </div>
                             <div className="space-y-1">
                                 <p className="text-sm font-black text-white tracking-tight uppercase">Review us on <span className="text-sky-400">Google</span></p>
+
+                                <div className="flex gap-0.5 py-1">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star key={i} size={10} className="fill-amber-400 text-amber-400" />
+                                    ))}
+                                </div>
+
                                 <p className="text-[10px] text-slate-500 font-bold leading-relaxed max-w-[140px]">
                                     Your feedback helps us grow. <br /> Scan to share your stay!
                                 </p>
@@ -157,4 +184,4 @@ const ExploreFooter = () => {
     );
 };
 
-export default ExploreFooter;
+export default Footer;

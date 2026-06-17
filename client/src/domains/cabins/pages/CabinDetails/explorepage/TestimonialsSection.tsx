@@ -1,151 +1,163 @@
 import { useReviews } from "@shared/hooks/useReviews";
-import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { Loader2, Quote, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
+import { layoutConfig } from "@shared/utils/spacing";
+import SectionHeader from "@shared/components/ui/SectionHeader";
 
-const colors = ["bg-sky-400", "bg-orange-400", "bg-violet-500", "bg-emerald-500", "bg-rose-500"];
+const Colors = ["text-sky-400", "text-emerald-400", "text-blue-500", "text-indigo-400", "text-cyan-500"];
 
-const getAvatarData = (name: string) => {
-    const initials = name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2);
-    
-    // Simple hash for consistent color
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-        hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const color = colors[Math.abs(hash) % colors.length];
-    
-    return { initials, color };
-};
-
-const Stars = ({ n }: { n: number }) => (
-    <div className="flex gap-0.5">
-        {Array.from({ length: 5 }).map((_, i) => (
-            <span key={i} className={`text-sm ${i < n ? "text-amber-400" : "text-slate-200"}`}>★</span>
-        ))}
-    </div>
+const Airplane = ({ className }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 80 80" fill="none">
+        <path d="M10 40 L70 15 L60 40 L70 65 Z" fill="currentColor" opacity="0.12" />
+        <path d="M60 40 L30 50 L35 40 L30 30 Z" fill="currentColor" opacity="0.18" />
+    </svg>
 );
+
+const Palm = ({ className }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 100 140" fill="none">
+        <rect x="46" y="60" width="8" height="80" rx="4" fill="currentColor" opacity="0.2" />
+        <ellipse cx="50" cy="55" rx="30" ry="18" fill="currentColor" opacity="0.15" transform="rotate(-20 50 55)" />
+        <ellipse cx="50" cy="50" rx="26" ry="14" fill="currentColor" opacity="0.15" transform="rotate(15 50 50)" />
+        <ellipse cx="50" cy="45" rx="22" ry="12" fill="currentColor" opacity="0.2" transform="rotate(-35 50 45)" />
+    </svg>
+);
+
+const DashedCircle = ({ className }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 200 200" fill="none">
+        <circle cx="100" cy="100" r="90" stroke="currentColor" strokeWidth="2" strokeDasharray="8 6" opacity="0.1" />
+    </svg>
+);
+
+const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
+const TITLE = "Real Stories from Our Guests";
 
 const TestimonialsSection = () => {
     const { reviews = [], isLoading } = useReviews(true);
     const [currentIndex, setCurrentIndex] = useState(0);
 
+    // Sort by latest first
+    const sortedReviews = useMemo(() => {
+        return [...reviews].sort((a, b) => {
+            const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+            const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+            return dateB - dateA;
+        });
+    }, [reviews]);
+
+    const maxIndex = Math.max(0, Math.ceil(sortedReviews.length / 3) - 1);
+
     const handleNext = () => {
-        if (reviews.length === 0) return;
-        setCurrentIndex((prev) => (prev + 1) % reviews.length);
+        if (sortedReviews.length <= 3) return;
+        setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
     };
 
     const handlePrev = () => {
-        if (reviews.length === 0) return;
-        setCurrentIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
+        if (sortedReviews.length <= 3) return;
+        setCurrentIndex((prev) => Math.max(prev - 1, 0));
     };
 
     if (isLoading) {
         return (
-            <div className="flex h-64 items-center justify-center">
+            <div className="flex h-96 items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-sky-500" />
             </div>
         );
     }
 
-    if (reviews.length === 0) return null;
+    if (sortedReviews.length === 0) return null;
 
     return (
-        <section className="pt-2 pb-6 md:pt-8 md:pb-12 lg:pt-12 lg:pb-16 w-full">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="space-y-2 text-center md:text-left">
-                    <p className="text-sky-500 text-xl font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>
-                        Guest Reviews
-                    </p>
-                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-                        Loved by <span className="text-sky-500">Travellers</span>
-                    </h2>
-                    <div className="h-1 w-16 bg-sky-500 mr-auto rounded-full mt-1 hidden md:block" />
-                    <p className="text-slate-500 dark:text-slate-400 text-base max-w-md font-medium leading-relaxed">
-                        Real testimonials from our community.
-                    </p>
+        <section className={`relative pt-16 pb-16 overflow-hidden bg-white dark:bg-slate-950`}>
+            {/* DECORATIVE ELEMENTS */}
+            <DashedCircle className="absolute top-0 -left-20 w-96 h-96 text-sky-400 pointer-events-none" />
+            <DashedCircle className="absolute bottom-0 -right-20 w-[500px] h-[500px] text-emerald-400 pointer-events-none" />
+
+
+            <Airplane className="absolute top-40 right-[15%] w-16 h-16 text-sky-400 -rotate-12 pointer-events-none opacity-40" />
+            <Airplane className="absolute bottom-40 left-[10%] w-12 h-12 text-sky-300 rotate-45 pointer-events-none opacity-30" />
+
+            <Palm className="absolute top-20 left-[5%] w-32 h-44 text-emerald-400 pointer-events-none rotate-12" />
+            <Palm className="absolute bottom-20 right-[5%] w-40 h-56 text-sky-400 pointer-events-none -rotate-12 opacity-60" />
+
+            <div className={`relative z-10 ${layoutConfig.container}`}>
+                {/* HEADER */}
+                <div className={`flex flex-col md:flex-row md:items-end justify-between gap-8 ${layoutConfig.headerMargin}`}>
+                    <SectionHeader
+                        label="Guest Experiences"
+                        title="Real Stories from Our Guests"
+                        subtitle="Real testimonials from our community of happy explorers."
+                        center={false}
+                        highlightIndex={3}
+                        className="max-w-2xl"
+                    />
+
+                    {/* NAV BUTTONS */}
+                    <div className="flex gap-4 self-start md:self-end">
+                        <button
+                            onClick={handlePrev}
+                            className="h-14 w-14 rounded-2xl bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-900/40 shadow-xl flex items-center justify-center text-slate-900 dark:text-white hover:bg-sky-500 hover:text-white hover:border-sky-500 transition-all duration-500 group active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
+                            disabled={currentIndex === 0 || sortedReviews.length <= 3}
+                        >
+                            <ChevronLeft size={28} strokeWidth={2} />
+                        </button>
+                        <button
+                            onClick={handleNext}
+                            className="h-14 w-14 rounded-2xl bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-900/40 shadow-xl flex items-center justify-center text-slate-900 dark:text-white hover:bg-sky-500 hover:text-white hover:border-sky-500 transition-all duration-500 group active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
+                            disabled={currentIndex >= maxIndex || sortedReviews.length <= 3}
+                        >
+                            <ChevronRight size={28} strokeWidth={2} />
+                        </button>
+                    </div>
                 </div>
 
-                <div className="flex gap-3 self-center md:self-end pb-1">
-                    <button
-                        onClick={handlePrev}
-                        className="h-12 w-12 rounded-full bg-white dark:bg-slate-800 border-2 border-slate-50 dark:border-slate-700 shadow-lg flex items-center justify-center text-slate-900 dark:text-white hover:bg-sky-500 hover:text-white transition-all duration-300 group"
+                {/* TESTIMONIALS SLIDER */}
+                <div className="relative overflow-hidden -mx-4 px-4">
+                    <motion.div
+                        className="flex transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
+                        style={{ transform: `translateX(calc(-${currentIndex} * 100%))` }}
                     >
-                        <ChevronLeft size={24} strokeWidth={2.5} />
-                    </button>
-                    <button
-                        onClick={handleNext}
-                        className="h-12 w-12 rounded-full bg-white dark:bg-slate-800 border-2 border-slate-50 dark:border-slate-700 shadow-lg flex items-center justify-center text-slate-900 dark:text-white hover:bg-sky-500 hover:text-white transition-all duration-300 group"
-                    >
-                        <ChevronRight size={24} strokeWidth={2.5} />
-                    </button>
-                </div>
-            </div>
+                        {sortedReviews.map((review, idx) => {
+                            const guestName = review.guest?.full_name || "Guest";
+                            const colorClass = Colors[idx % Colors.length];
 
-            <div className="relative overflow-hidden -mx-4 px-4">
-                <div 
-                    className="flex gap-6 transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]"
-                    style={{ transform: `translateX(calc(-${currentIndex} * (100% / 3 + 1.5rem)))` }}
-                >
-                    {/* Multiplied list for infinite feel */}
-                    {[...reviews, ...reviews, ...reviews].map((review, idx) => {
-                        const guestName = review.guest?.full_name || "Guest";
-                        const { initials, color } = getAvatarData(guestName);
-                        
-                        return (
-                            <div
-                                key={`${review.id}-${idx}`}
-                                className="w-[85vw] md:w-[calc(33.333%-1rem)] shrink-0"
-                            >
-                                <div className="group relative bg-white dark:bg-slate-900/40 rounded-[2.5rem] border-2 border-slate-50 dark:border-slate-800/60 p-6 h-full transition-all duration-500 hover:border-sky-400 overflow-hidden flex flex-col justify-between min-h-[300px] shadow-sm hover:shadow-xl">
-                                    
-                                    {/* Quote mark */}
-                                    <div className="absolute top-4 right-6 text-6xl font-black text-slate-50 dark:text-slate-800/20 leading-none select-none opacity-50">"</div>
+                            return (
+                                <div
+                                    key={review.id}
+                                    className="w-full md:w-[33.333%] px-4 shrink-0"
+                                >
+                                    <div className="relative p-6 md:p-8 rounded-[2rem] bg-slate-100/60 dark:bg-slate-900/40 backdrop-blur-xl border border-slate-200/60 dark:border-sky-900/20 transition-all duration-500 h-[300px] flex flex-col group">
 
-                                    <div className="relative z-10 space-y-6">
-                                        <div className="flex items-center gap-4">
-                                            {review.guest?.avatar_url ? (
-                                                <img 
-                                                    src={review.guest.avatar_url} 
-                                                    alt={guestName}
-                                                    className="h-12 w-12 rounded-xl object-cover shadow-lg border-2 border-white dark:border-slate-800"
-                                                />
-                                            ) : (
-                                                <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${color} text-xs font-black text-white shadow-lg`}>
-                                                    {initials}
-                                                </div>
-                                            )}
-                                            <div>
-                                                <p className="text-lg font-black text-slate-900 dark:text-white tracking-tight">{guestName}</p>
-                                                <p className="text-[10px] font-bold text-slate-400 flex items-center gap-1.5">
-                                                    <span className="h-1 w-1 rounded-full bg-emerald-500" />
-                                                    {review.guest?.location || "Verified Guest"}
-                                                </p>
-                                            </div>
+                                        {/* Quote Icon */}
+                                        <div className={`mb-4 ${colorClass} opacity-60 transition-all duration-500 group-hover:opacity-100 group-hover:text-sky-400 group-hover:drop-shadow-[0_0_12px_rgba(56,189,248,0.8)]`}>
+                                            <Quote size={32} fill="currentColor" />
                                         </div>
 
-                                        <div className="space-y-3">
-                                            <Stars n={review.rating} />
-                                            <p className="text-base font-medium text-slate-650 dark:text-slate-350 leading-relaxed italic line-clamp-3">
-                                                "{review.comment}"
+                                        <div className="relative z-10 flex-1">
+                                            <p className="text-[14px] md:text-[15px] font-medium text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-4">
+                                                {review.comment}
                                             </p>
                                         </div>
-                                    </div>
 
-                                    <div className="relative z-10 mt-6 pt-6 border-t border-slate-50 dark:border-slate-800/60 flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Stayed at</span>
-                                            <span className="text-[10px] font-black text-sky-500">{review.cabin?.name || "Premium Cabin"}</span>
+                                        <div className="relative z-10 pt-5 mt-auto flex flex-col gap-0.5">
+                                            <h4 className="font-bold text-slate-900 dark:text-white text-base tracking-tight">
+                                                {guestName}
+                                            </h4>
+                                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wide">
+                                                {review.cabin?.name || "Premium Guest"}
+                                            </p>
+                                            <div className="flex items-center gap-1 mt-1">
+                                                <span className="text-sm font-black text-slate-700 dark:text-slate-200">
+                                                    {review.rating ? review.rating.toFixed(1) : "5.0"}
+                                                </span>
+                                                <span className="text-amber-400 text-[13px] -mt-[1px]">★</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </motion.div>
                 </div>
             </div>
         </section>

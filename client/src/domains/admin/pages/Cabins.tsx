@@ -5,6 +5,7 @@ import { useCabins, useDeleteCabin, useBookings, useFilteredCabins } from "@shar
 import { usePagination } from "@shared/hooks/usePagination";
 import type { Cabin as CabinType } from "@shared/types/cabin";
 import type { Booking } from "@shared/types/booking";
+import { useScrollToTop } from "@shared/hooks/useScrollToTop";
 
 const Cabins = () => {
   const { cabins = [], isLoading } = useCabins();
@@ -57,6 +58,9 @@ const Cabins = () => {
     totalPages,
     paginatedData,
   } = usePagination(filteredCabins);
+
+  // Use the hook to handle local filter/sort/pagination changes
+  useScrollToTop([filter, sort, currentPage]);
 
   const handleDelete = (id: string) => {
     const conformDelete = confirm(

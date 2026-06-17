@@ -1,5 +1,7 @@
 import { useUser } from "@shared/hooks";
 import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
+import { motion } from "framer-motion";
+import { pageSpacing, layoutConfig } from "@shared/utils/spacing";
 
 const Airplane = ({ className }: { className?: string }) => (
     <svg className={className} viewBox="0 0 80 80" fill="none">
@@ -23,6 +25,8 @@ const DashedCircle = ({ className }: { className?: string }) => (
     </svg>
 );
 
+const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
+
 const HeroSection = () => {
     const { user } = useUser();
     const { setIsSearching, setSidebarOpen } = useCabinFiltersContext();
@@ -33,10 +37,13 @@ const HeroSection = () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
+    const welcomeTitle = user ? `Welcome back, ${user.email?.split("@")[0]}!` : "Your Next Escape Awaits";
+
     return (
-        <section className="relative min-h-[80vh] overflow-hidden bg-gradient-to-br from-slate-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-sky-950/20 flex items-center">
+        <section className={`relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-sky-950/20 pt-16 pb-16`}>
+
             {/* Decorative dashed circle BG */}
-            <DashedCircle className="absolute -top-16 -right-16 w-96 h-96 pointer-events-none opacity-40" />
+            <DashedCircle className="absolute top-0 -right-16 w-96 h-96 pointer-events-none opacity-40" />
             <DashedCircle className="absolute bottom-0 -left-20 w-72 h-72 pointer-events-none opacity-40" />
 
             {/* Airplane decorations */}
@@ -44,6 +51,7 @@ const HeroSection = () => {
             <Airplane className="absolute bottom-32 right-24 w-10 h-10 text-sky-300 rotate-45 pointer-events-none" />
 
             {/* Palm tree */}
+
             <Palm className="absolute bottom-0 left-[10%] w-24 h-32 pointer-events-none" />
             <Palm className="absolute bottom-0 right-[5%] w-16 h-24 pointer-events-none opacity-60" />
 
@@ -55,38 +63,86 @@ const HeroSection = () => {
                 <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=100&q=70" alt="" className="w-full h-full object-cover" />
             </div>
 
-            <div className="relative z-10 w-full px-8 md:px-16 lg:px-24 pt-10 pb-6 md:pt-16 md:pb-12 lg:pt-20 lg:pb-16 grid md:grid-cols-2 gap-16 items-center max-w-[1400px] mx-auto">
+            <div className={`relative z-10 ${layoutConfig.container} grid md:grid-cols-2 gap-16 items-center`}>
                 {/* Left — text */}
                 <div className="space-y-8">
-                    {/* Cursive sub-label like the reference */}
-                    <p
-                        className="text-sky-500 dark:text-sky-400 text-2xl font-bold"
+                    {/* Cursive sub-label with Magic Letter animation */}
+                    <motion.h2
+                        className="text-sky-500 dark:text-sky-400 text-2xl font-bold flex flex-wrap"
                         style={{ fontFamily: "'Dancing Script', cursive" }}
+                        initial="hidden"
+                        whileInView="show"
+                        viewport={{ once: true }}
                     >
-                        {user ? `Welcome back, ${user.email?.split("@")[0]}! ✨` : "Your Next Escape Awaits ✈️"}
-                    </p>
+                        {welcomeTitle.split(" ").map((word, wi) => (
+                            <span key={wi} className="flex mr-3 last:mr-0">
+                                {word.split("").map((char, i) => (
+                                    <motion.span
+                                        key={i}
+                                        className="inline-block"
+                                        initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+                                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                                        transition={{
+                                            duration: 0.4,
+                                            delay: wi * 0.1 + i * 0.03,
+                                            ease: EASE
+                                        }}
+                                    >
+                                        {char}
+                                    </motion.span>
+                                ))}
+                            </span>
+                        ))}
+                        <motion.span
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 1, type: "spring" }}
+                        >
+                            {user ? " 🎊" : " ✈️"}
+                        </motion.span>
+                    </motion.h2>
 
-                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] text-slate-900 dark:text-white tracking-tight">
+                    <motion.h1
+                        className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] text-slate-900 dark:text-white tracking-tight"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: EASE, delay: 0.2 }}
+                    >
                         Discover Your
                         <span className="block text-sky-500 drop-shadow-sm">Perfect Stay</span>
-                    </h1>
+                    </motion.h1>
 
-                    <p className="text-slate-500 dark:text-slate-400 text-xl max-w-lg leading-relaxed font-medium">
-                        Unique cabins, unforgettable experiences, and nature escapes — handpicked just for you.
-                    </p>
+                    <motion.p
+                        className="text-slate-500 dark:text-slate-400 text-xl max-w-lg leading-relaxed font-medium"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: EASE, delay: 0.3 }}
+                    >
+                        Unique cabins, unforgettable experiences, and nature escapes. handpicked just for you.
+                    </motion.p>
 
-                    <div className="flex flex-wrap gap-6 pt-4">
+                    <motion.div
+                        className="flex flex-wrap gap-6 pt-4"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: EASE, delay: 0.4 }}
+                    >
                         <button
                             onClick={handleExplore}
                             className="rounded-full bg-sky-500 hover:bg-sky-600 text-white font-black px-10 py-5 text-base shadow-2xl shadow-sky-200 dark:shadow-none transition-all duration-300 hover:-translate-y-1.5 hover:shadow-sky-300 active:scale-95"
                         >
-                            Explore Cabins ✈️
+                            Explore Cabins
                         </button>
-                    </div>
+                    </motion.div>
                 </div>
 
-                {/* Right — photo collage (like image 1 reference) */}
-                <div className="relative h-[550px] hidden md:block">
+                {/* Right — photo collage */}
+                <motion.div
+                    className="relative h-[550px] hidden md:block"
+                    initial={{ opacity: 0, x: 40 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 1, ease: EASE, delay: 0.5 }}
+                >
                     {/* Main large image */}
                     <div className="absolute right-0 top-10 w-64 h-80 lg:w-72 lg:h-96 rounded-[3rem] overflow-hidden shadow-2xl border-8 border-white dark:border-slate-800 rotate-3 z-20">
                         <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&q=80" alt="Mountain cabin" className="w-full h-full object-cover" />
@@ -99,7 +155,7 @@ const HeroSection = () => {
                     <div className="absolute left-32 bottom-4 w-48 h-56 lg:w-56 lg:h-64 rounded-[3rem] overflow-hidden shadow-lg border-8 border-white dark:border-slate-800 rotate-2 z-10">
                         <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=300&q=80" alt="Lake cabin" className="w-full h-full object-cover" />
                     </div>
-                    
+
                     {/* Floating badge */}
                     <div className="absolute bottom-20 right-10 bg-white dark:bg-slate-800 rounded-3xl shadow-2xl px-6 py-4 flex items-center gap-3 border border-sky-100 dark:border-sky-900/30 z-30 animate-bounce-slow">
                         <span className="text-3xl">🏡</span>
@@ -108,7 +164,7 @@ const HeroSection = () => {
                             <p className="text-xs text-slate-400 font-bold">This week</p>
                         </div>
                     </div>
-                </div>
+                </motion.div>
             </div>
         </section>
     );

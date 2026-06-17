@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useBookings } from "@shared/hooks";
-import { CreditCard, Search } from "lucide-react";
+import { usePagination } from "@shared/hooks/usePagination";
+import { CreditCard, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import PaymentStatusBadge from "../../payments/components/PaymentStatusBadge";
 import AdminPaymentActions from "../../payments/components/AdminPaymentActions";
 
@@ -15,6 +16,18 @@ const PaymentsPage = () => {
     const matchesStatus = statusFilter === "all" || b.payment_status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData,
+  } = usePagination(filteredBookings, 10);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, setCurrentPage]);
 
   if (isLoading) return <div className="p-8 text-center">Loading payments...</div>;
 
@@ -71,7 +84,7 @@ const PaymentsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {filteredBookings.map((booking) => (
+              {paginatedData.map((booking) => (
                 <tr key={booking.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="px-8 py-5">
                     <span className="font-mono text-xs font-bold text-slate-400">#{booking.id.slice(0, 8)}</span>
@@ -103,7 +116,7 @@ const PaymentsPage = () => {
                 </tr>
               ))}
 
-              {filteredBookings.length === 0 && (
+              {paginatedData.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-bold">
                     No payment records found matching your criteria.
@@ -112,6 +125,33 @@ const PaymentsPage = () => {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* PAGINATION */}
+        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+            Showing Page {currentPage} <span className="mx-1 text-slate-300 dark:text-slate-700">/</span> {totalPages}
+          </p>
+
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              <ChevronLeft size={14} />
+              Prev
+            </button>
+
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="btn btn-secondary py-1.5 px-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+            >
+              Next
+              <ChevronRight size={14} />
+            </button>
+          </div>
         </div>
       </div>
     </div>

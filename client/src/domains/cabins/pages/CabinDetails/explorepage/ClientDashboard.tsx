@@ -3,6 +3,9 @@ import { useLocation } from "react-router-dom";
 import { useExplore } from "../../../hooks/useExplore";
 import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
 import CabinCard from "../../../components/CabinCard";
+import { usePagination } from "@shared/hooks/usePagination";
+import Pagination from "@shared/components/ui/Pagination";
+import { useScrollToTop, scrollToTop } from "@shared/hooks/useScrollToTop";
 
 import HeroSection from "./HeroSection";
 import PopularCabinsSection from "./PopularCabinsSection";
@@ -12,13 +15,27 @@ import ExploreLocations from "./ExploreLocations";
 import ActivitiesSection from "./ActivitiesSection";
 import HowItWorks from "./HowItWorks";
 import TestimonialsSection from "./TestimonialsSection";
-import ExploreFooter from "./ExploreFooter";
 import { Search, MapPin, ArrowLeft } from "lucide-react";
 
 const ClientDashboard = () => {
   const { isSearching, clearFilters, appliedFilters } = useCabinFiltersContext();
   const { cabins, isLoading, filteredCount } = useExplore();
   const location = useLocation();
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData,
+  } = usePagination(cabins, 8);
+
+  // Use the hook to handle pagination scrolls
+  useScrollToTop([currentPage]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [appliedFilters, setCurrentPage]);
 
   // Scroll to section if passed in state (e.g. from footer links on other pages)
   useEffect(() => {
@@ -31,13 +48,6 @@ const ClientDashboard = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location]);
-
-  // Automatically scroll to results only when search starts
-  useEffect(() => {
-    if (isSearching) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  }, [isSearching]);
 
   if (isLoading) {
     return (
@@ -73,7 +83,7 @@ const ClientDashboard = () => {
             <button
                 onClick={() => {
                 clearFilters();
-                window.scrollTo({ top: 0, behavior: "smooth" });
+                scrollToTop();
                 }}
                 className="flex items-center gap-2 px-8 py-4 rounded-[1.5rem] bg-slate-900 dark:bg-sky-600 text-white text-[10px] font-black uppercase tracking-[0.2em] hover:bg-sky-500 hover:shadow-2xl hover:shadow-sky-500/30 transition-all duration-500 group shadow-lg"
             >
@@ -83,12 +93,19 @@ const ClientDashboard = () => {
             </div>
 
             <div className="mt-12">
-                {cabins.length > 0 ? (
-                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {cabins.map((cabin) => (
-                    <CabinCard key={cabin.id} cabin={cabin} />
-                    ))}
-                </div>
+                {paginatedData.length > 0 ? (
+                <>
+                  <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {paginatedData.map((cabin) => (
+                      <CabinCard key={cabin.id} cabin={cabin} />
+                      ))}
+                  </div>
+                  <Pagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                </>
                 ) : (
                 <div className="flex flex-col items-center justify-center py-32 px-6 rounded-[3rem] border-2 border-dashed border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20">
                     <div className="h-20 w-20 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-xl mb-6">
@@ -108,49 +125,32 @@ const ClientDashboard = () => {
 
   // LANDING PAGE VIEW
   return (
-    <div className="animate-in fade-in duration-700 bg-white dark:bg-slate-950">
-      {/* 1. Hero */}
-      <HeroSection />
+    <div className="animate-in fade-in duration-700 bg-white dark:bg-slate-950 w-full overflow-x-hidden">
+      <div className="relative w-full overflow-x-hidden">
+        {/* 1. Hero */}
+        <HeroSection />
 
-      <div className="">
         {/* 3. Popular Cabins */}
-        <div className="max-w-[1600px] mx-auto px-8 md:px-12">
-            <PopularCabinsSection cabins={cabins} filteredCount={filteredCount} />
-        </div>
+        <PopularCabinsSection cabins={cabins} filteredCount={filteredCount} />
 
         {/* 4. Why Choose Us */}
-        <div className="">
-            <WhyChooseUs />
-        </div>
+        <WhyChooseUs />
 
         {/* 5. Special Offers */}
-        <div className="max-w-[1600px] mx-auto px-8 md:px-12">
-            <SpecialOffers />
-        </div>
+        <SpecialOffers />
 
         {/* 6. Explore Locations */}
-        <div className="max-w-[1600px] mx-auto px-8 md:px-12">
-            <ExploreLocations cabins={cabins} />
-        </div>
+        <ExploreLocations cabins={cabins} />
 
         {/* 7. Activities */}
-        <div className="max-w-[1600px] mx-auto px-8 md:px-12">
-            <ActivitiesSection />
-        </div>
+        <ActivitiesSection />
 
         {/* 8. Testimonials */}
-        <div className="max-w-[1600px] mx-auto px-8 md:px-12">
-            <TestimonialsSection />
-        </div>
+        <TestimonialsSection />
 
         {/* 9. How It Works */}
-        <div className="">
-            <HowItWorks />
-        </div>
+        <HowItWorks />
       </div>
-
-      {/* 11. Footer */}
-      <ExploreFooter />
     </div>
   );
 };

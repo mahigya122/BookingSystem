@@ -79,22 +79,31 @@ export const useCabinFilters = () => {
         return count;
     }, [filters]);
 
-    // 4. Auto-Open Sidebar if filters become active
-    const [prevActiveCount, setPrevActiveCount] = useState(activeFilterCount);
-    if (activeFilterCount !== prevActiveCount) {
-        setPrevActiveCount(activeFilterCount);
-        if (activeFilterCount > 0) {
-            setSidebarOpen(true);
+    // 4. Auto-Open Sidebar when filters change
+    const [prevFiltersJson, setPrevFiltersJson] = useState(JSON.stringify(filters));
+    
+    useEffect(() => {
+        const currentJson = JSON.stringify(filters);
+        if (currentJson !== prevFiltersJson) {
+            setPrevFiltersJson(currentJson);
+            // Only open if there are active filters
+            if (activeFilterCount > 0) {
+                setSidebarOpen(true);
+            }
         }
-    }
+    }, [filters, prevFiltersJson, activeFilterCount]);
 
     // 5. Actions
-    const clearFilters = () => {
+    const clearFilters = (silent = false) => {
+        const clearedJson = JSON.stringify(DEFAULT_FILTERS);
         setFilters(DEFAULT_FILTERS);
         setAppliedFilters(DEFAULT_FILTERS);
+        setPrevFiltersJson(clearedJson); // Update prevJson to avoid auto-opening after clear
         setSidebarOpen(false);
         setIsSearching(false);
-        toast.success("Filters cleared");
+        if (!silent) {
+            toast.success("Filters cleared");
+        }
     };
 
     const applyFilters = (newFilters?: CabinFilters) => {
@@ -108,8 +117,8 @@ export const useCabinFilters = () => {
             setAppliedFilters(filtersToApply);
             setIsSearching(true);
             setIsRefreshing(false);
-            setSidebarOpen(false); // Close sidebar after search
-            toast.success("Results updated", { id: tid });
+            // setSidebarOpen(false); // REMOVED: Keep sidebar open as requested
+            toast.dismiss(tid);
         }, 400);
     };
 
