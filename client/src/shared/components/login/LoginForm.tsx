@@ -45,7 +45,7 @@ const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
         <div className="w-full max-w-md">
             <div className="mb-8 space-y-3">
                 <div className="inline-flex rounded-full bg-sky-55/70 dark:bg-sky-950/30 px-3 py-1 text-[11px] font-black uppercase tracking-[0.2em] text-sky-600 dark:text-sky-450 border border-sky-100/40 dark:border-sky-900/20">
-                    {isUser ? 'Guest Access ✨' : 'Admin Access ⚙️'}
+                    {isUser ? 'Guest Access' : 'Admin Access'}
                 </div>
                 <div>
                     <p className="text-sky-400 text-lg font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>
@@ -113,7 +113,7 @@ const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
                         disabled={isPending || isGooglePending}
                         className="w-full rounded-full bg-gradient-to-r from-sky-400 to-sky-500 py-3.5 font-bold text-white shadow-lg shadow-sky-200 dark:shadow-none hover:-translate-y-0.5 transition-all duration-300 hover:shadow-xl hover:shadow-sky-300/40 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
                     >
-                        {isPending ? "Signing you in..." : isUser ? 'Sign In ✈️' : 'Enter Dashboard ⚙️'}
+                        {isPending ? "Signing you in..." : isUser ? 'Sign In' : 'Enter Dashboard'}
                     </button>
 
                     {isUser && (

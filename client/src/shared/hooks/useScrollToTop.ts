@@ -7,9 +7,9 @@ import { useCabinFiltersContext } from "../../domains/cabins/contexts/CabinFilte
 /**
  * Utility to find the nearest scrollable parent and scroll it to top
  */
-export const scrollToTop = (element?: HTMLElement | null) => {
+export const scrollToTop = (element?: HTMLElement | null, behavior: ScrollBehavior = "smooth") => {
   const scrollable = element || document.querySelector("main") || document.querySelector(".overflow-y-auto") || window;
-  scrollable.scrollTo({ top: 0, behavior: "smooth" });
+  scrollable.scrollTo({ top: 0, behavior });
 };
 
 /**
@@ -31,11 +31,12 @@ export const useScrollToTop = (extraDeps: any[] = []) => {
   const containerRef = useRef<HTMLElement | HTMLDivElement>(null);
 
   useEffect(() => {
+    // For navigation, we use "auto" (instant) to avoid seeing the jump
     if (containerRef.current) {
-      containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      containerRef.current.scrollTo({ top: 0, behavior: "auto" });
     } else {
         // Fallback to searching for the main scrollable element
-        scrollToTop();
+        scrollToTop(null, "auto");
     }
   }, [pathname, search, appliedFilters, ...extraDeps]);
 

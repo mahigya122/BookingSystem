@@ -9,7 +9,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { useCabinFiltersContext } from "../../../domains/cabins/contexts/CabinFiltersContext";
-import { scrollToTop } from "../../hooks/useScrollToTop";
 
 const footerLinks = {
     Explore: ["Cabins", "Locations", "Activities", "Offers"],
@@ -28,7 +27,7 @@ const socialLinks = [
 const Footer = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { setIsSearching, isSearching, clearFilters } = useCabinFiltersContext();
+    const { setIsSearching, isSearching } = useCabinFiltersContext();
     const [qrCode, setQrCode] = useState("");
 
     useEffect(() => {

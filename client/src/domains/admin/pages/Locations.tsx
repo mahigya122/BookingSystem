@@ -140,7 +140,7 @@ const Locations = () => {
   }
 
   return (
-    <div className="space-y-8 animate-slide-up pb-12">
+      <div className="px-6 md:px-0 space-y-8 animate-slide-up">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Geographic Locations</h1>

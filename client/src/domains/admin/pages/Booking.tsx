@@ -70,7 +70,7 @@ const BookingPage = () => {
   }
 
   return (
-    <div className="space-y-6 animate-slide-up">
+    <div className="px-6 md:px-0 space-y-6 animate-slide-up">
       <div className="flex flex-col">
         <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
           Bookings

@@ -14,7 +14,7 @@ export type CabinFilters = {
     offer_id: string | null;
 };
 
-const DEFAULT_FILTERS: CabinFilters = {
+export const DEFAULT_FILTERS: CabinFilters = {
     price: [50, 1000],
     capacity: null,
     dateRange: {

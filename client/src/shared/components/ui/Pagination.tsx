@@ -12,39 +12,46 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
     const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
     return (
-        <div className="flex items-center justify-center gap-2 mt-12 pb-8">
+        <div className="flex items-center justify-center gap-1 md:gap-2 mt-4 md:mt-12 pb-4 md:pb-8">
             <button
                 onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed hover:text-sky-600 hover:border-sky-400 transition-all shadow-sm"
+                className="p-1.5 md:p-2 rounded-lg md:rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed hover:text-sky-600 hover:border-sky-400 transition-all shadow-sm"
             >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={16} className="md:size-5" />
             </button>
 
             <div className="flex items-center gap-1">
-                {pages.map((page) => (
-                    <button
-                        key={page}
-                        onClick={() => onPageChange(page)}
-                        className={`
-                            w-10 h-10 rounded-xl text-xs font-black transition-all duration-300
-                            ${currentPage === page
-                                ? "bg-sky-500 text-white shadow-lg shadow-sky-500/30 scale-110"
-                                : "bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 text-slate-400 hover:text-sky-600 hover:border-sky-400"
-                            }
-                        `}
-                    >
-                        {page}
-                    </button>
-                ))}
+                {pages.map((page) => {
+                    const isAdjacent = Math.abs(page - currentPage) <= 1;
+                    const isFirstOrLast = page === 1 || page === totalPages;
+                    
+                    return (
+                        <button
+                            key={page}
+                            onClick={() => onPageChange(page)}
+                            className={`
+                                w-7 h-7 md:w-10 md:h-10 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black transition-all duration-300
+                                items-center justify-center
+                                ${isAdjacent || isFirstOrLast ? "flex" : "hidden md:flex"}
+                                ${currentPage === page
+                                    ? "bg-sky-500 text-white shadow-lg shadow-sky-500/30 scale-105 md:scale-110"
+                                    : "bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 text-slate-400 hover:text-sky-600 hover:border-sky-400"
+                                }
+                            `}
+                        >
+                            {page}
+                        </button>
+                    );
+                })}
             </div>
 
             <button
                 onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed hover:text-sky-600 hover:border-sky-400 transition-all shadow-sm"
+                className="p-1.5 md:p-2 rounded-lg md:rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed hover:text-sky-600 hover:border-sky-400 transition-all shadow-sm"
             >
-                <ChevronRight size={20} />
+                <ChevronRight size={16} className="md:size-5" />
             </button>
         </div>
     );

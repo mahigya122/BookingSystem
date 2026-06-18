@@ -2,6 +2,8 @@ import { useUser } from "@shared/hooks";
 import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
 import { motion } from "framer-motion";
 import { pageSpacing, layoutConfig } from "@shared/utils/spacing";
+import { Compass } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Airplane = ({ className }: { className?: string }) => (
     <svg className={className} viewBox="0 0 80 80" fill="none">
@@ -30,6 +32,7 @@ const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 const HeroSection = () => {
     const { user } = useUser();
     const { setIsSearching, setSidebarOpen } = useCabinFiltersContext();
+    const navigate = useNavigate();
 
     const handleExplore = () => {
         setIsSearching(true);
@@ -133,6 +136,19 @@ const HeroSection = () => {
                         >
                             Explore Cabins
                         </button>
+                        
+                        {user && (
+                            <button
+                                onClick={() => {
+                                    setIsSearching(false);
+                                    navigate('/bookings');
+                                }}
+                                className="inline-flex items-center gap-2 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-black px-10 py-5 text-base hover:border-sky-200 dark:hover:border-sky-800 hover:text-sky-600 transition-all duration-300 hover:-translate-y-1.5 active:scale-95"
+                            >
+                                <Compass size={20} />
+                                View My Trips
+                            </button>
+                        )}
                     </motion.div>
                 </div>
 
@@ -154,15 +170,6 @@ const HeroSection = () => {
                     {/* Third small image bottom */}
                     <div className="absolute left-32 bottom-4 w-48 h-56 lg:w-56 lg:h-64 rounded-[3rem] overflow-hidden shadow-lg border-8 border-white dark:border-slate-800 rotate-2 z-10">
                         <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=300&q=80" alt="Lake cabin" className="w-full h-full object-cover" />
-                    </div>
-
-                    {/* Floating badge */}
-                    <div className="absolute bottom-20 right-10 bg-white dark:bg-slate-800 rounded-3xl shadow-2xl px-6 py-4 flex items-center gap-3 border border-sky-100 dark:border-sky-900/30 z-30 animate-bounce-slow">
-                        <span className="text-3xl">🏡</span>
-                        <div>
-                            <p className="text-sm font-black text-slate-900 dark:text-white">Top Rated</p>
-                            <p className="text-xs text-slate-400 font-bold">This week</p>
-                        </div>
                     </div>
                 </motion.div>
             </div>

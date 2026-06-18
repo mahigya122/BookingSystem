@@ -412,7 +412,7 @@ const CabinDetails = () => {
     };
 
     return (
-        <div className="space-y-10 pb-16 animate-fade-in max-w-6xl mx-auto">
+        <div className="max-w-[1600px] mx-auto px-4 md:px-12 lg:px-16 space-y-16 pb-24 animate-fade-in">
             {/* Gallery + header bar */}
             <CabinGallery
                 cabin={cabin}
@@ -447,9 +447,9 @@ const CabinDetails = () => {
             </div>
 
             {/* Main content split */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start relative">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-start relative">
                 {/* LEFT: description + sections */}
-                <div className="lg:col-span-2 space-y-12">
+                <div className="lg:col-span-2 space-y-16">
                     <div className="space-y-4">
                         <p className="text-sky-400 text-xl font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>
                             The Sanctuary
@@ -482,11 +482,6 @@ const CabinDetails = () => {
                         onPrevMonth={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
                         onNextMonth={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
                         onResetDates={handleResetDates}
-                    />
-
-                    <CabinLocation 
-                        cabinName={cabin.name} 
-                        location={cabin.location}
                     />
 
                     <CabinReviews reviews={cabin.reviews} />
@@ -527,6 +522,11 @@ const CabinDetails = () => {
                                 isUpdateMode={isUpdateMode}
                             />
                         )}
+
+                        <CabinLocation 
+                            cabinName={cabin.name} 
+                            location={cabin.location}
+                        />
 
                         <RecentlyViewed cabins={recentlyViewed} />
                     </div>

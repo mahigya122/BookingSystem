@@ -65,9 +65,6 @@ const BookingFilters = () => {
                     dark:hover:border-rose-900/30 transition-all duration-500 flex items-center justify-center gap-2 group
                 "
             >
-                <div className="flex items-center gap-2">
-                   <span className="text-[10px] font-black uppercase tracking-widest">Clear All Filters</span>
-                </div>
             </button>
         </div>
 

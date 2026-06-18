@@ -1,5 +1,4 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { Bot } from "lucide-react";
 import UserSidebar from "./UserSidebar";
 import ClientNavbar from "./ClientNavbar";
 import { ClientAIChatProvider, useClientAIChat } from "../domains/guests/contexts/ClientAIChatContext";
@@ -8,29 +7,15 @@ import ClientAIChatDrawer from "../domains/guests/components/ai/ClientAIChatDraw
 import Footer from "@shared/components/layout/Footer";
 import NavigationProgressBar from "@shared/components/layout/NavigationProgressBar";
 import { useScrollToTop } from "@shared/hooks/useScrollToTop";
-
-const AIFloatButton = () => {
-  const { open, setOpen } = useClientAIChat();
-
-  if (open) return null;
-
-  return (
-    <button
-      onClick={() => setOpen(true)}
-      className="fixed bottom-6 right-6 z-[9999] group flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-xl md:rounded-2xl bg-sky-50 dark:bg-sky-900/30 border border-sky-100 dark:border-sky-800 text-sky-600 dark:text-sky-400 hover:bg-sky-600 hover:text-white transition-all duration-500 shadow-xl hover:shadow-sky-500/20 hover:-translate-y-1"
-    >
-      <Bot size={22} className="md:size-[26px] group-hover:scale-110 transition-transform duration-300" />
-      <div className="absolute -top-0.5 -right-0.5 h-3 w-3 md:h-3.5 md:w-3.5 rounded-full bg-sky-500 border-2 border-white dark:border-slate-900 animate-pulse" />
-    </button>
-  );
-};
+import AIFloatButton from "@shared/components/ui/AIFloatButton";
+import { useCabinsData } from "../domains/cabins/hooks/useCabinsData";
 
 const LayoutBody = () => {
   const { sidebarOpen, isSearching, setSidebarOpen } = useCabinFiltersContext();
   const location = useLocation();
 
   const isHomePage = location.pathname === "/";
-  const shouldShowSidebar = !isHomePage || isSearching;
+  const shouldShowSidebar = isHomePage && isSearching;
 
   return (
     <div className="flex flex-1 relative">
@@ -64,7 +49,7 @@ const LayoutBody = () => {
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 min-w-0">
-        <div className={`w-full ${shouldShowSidebar ? "p-4 md:p-8 lg:p-10 pb-0" : ""} ${shouldShowSidebar ? "max-w-[1600px] mx-auto" : ""}`}>
+        <div className={`w-full ${isHomePage ? "" : "py-16"} px-4 md:px-12 lg:px-16 max-w-[1600px] mx-auto`}>
           <Outlet />
         </div>
       </main>
@@ -74,37 +59,47 @@ const LayoutBody = () => {
 
 const ClientDashboardLayout = () => {
   const containerRef = useScrollToTop();
+  const { isLoading } = useCabinsData();
+
+  if (isLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-white dark:bg-slate-950">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-sky-500 border-t-transparent" />
+          <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] animate-pulse">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <CabinFiltersProvider>
-      <ClientAIChatProvider>
-        <div className="h-screen flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-sky-100 selection:text-sky-900">
-          {/* NAVIGATION PROGRESS */}
-          <NavigationProgressBar />
+    <ClientAIChatProvider>
+      <div className="h-screen flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-sky-100 selection:text-sky-900 overflow-x-hidden">
+        {/* NAVIGATION PROGRESS */}
+        <NavigationProgressBar />
 
-          {/* NAVBAR */}
-          <ClientNavbar />
+        {/* NAVBAR */}
+        <ClientNavbar />
 
-          {/* SCROLLABLE WRAPPER */}
-          <div
-            ref={containerRef as React.RefObject<HTMLDivElement>}
-            className="flex-1 overflow-y-auto scroll-smooth flex flex-col"
-          >
-            {/* DYNAMIC BODY (SIDEBAR + CONTENT) */}
-            <LayoutBody />
+        {/* SCROLLABLE WRAPPER */}
+        <div
+          ref={containerRef as React.RefObject<HTMLDivElement>}
+          className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth flex flex-col w-full"
+        >
+          {/* DYNAMIC BODY (SIDEBAR + CONTENT) */}
+          <LayoutBody />
 
-            {/* FOOTER - NOW FULL WIDTH BELOW SIDEBAR AREA */}
-            <Footer />
-          </div>
-
-          {/* GLOBAL AI DRAWER */}
-          <ClientAIChatDrawer />
-
-          {/* AI FLOAT BUTTON */}
-          <AIFloatButton />
+          {/* FOOTER - NOW FULL WIDTH BELOW SIDEBAR AREA */}
+          <Footer />
         </div>
-      </ClientAIChatProvider>
-    </CabinFiltersProvider>
+
+        {/* GLOBAL AI DRAWER */}
+        <ClientAIChatDrawer />
+
+        {/* AI FLOAT BUTTON */}
+        <AIFloatButton />
+      </div>
+    </ClientAIChatProvider>
   );
 };
 

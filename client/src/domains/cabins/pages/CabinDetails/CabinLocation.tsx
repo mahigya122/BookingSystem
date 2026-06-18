@@ -14,15 +14,15 @@ const CabinLocation = ({ cabinName, location }: CabinLocationProps) => {
     ];
 
     return (
-        <div className="space-y-6 border-t border-slate-100 dark:border-slate-800/80 pt-8">
+        <div className="space-y-6 border-t border-slate-150 dark:border-slate-800/80 pt-12">
             <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
                 Location & Neighborhood
             </h2>
 
-            <div className="grid md:grid-cols-2 gap-8 items-start">
+            <div className="flex flex-col gap-8 items-start">
                 {/* Simulated Map */}
-                <div className="space-y-4">
-                    <div className="relative h-64 rounded-[2.5rem] overflow-hidden bg-slate-100 dark:bg-slate-800 border-4 border-white dark:border-slate-800 shadow-2xl group">
+                <div className="space-y-4 w-full">
+                    <div className="relative h-72 rounded-[2.5rem] overflow-hidden bg-slate-100 dark:bg-slate-800 border-4 border-white dark:border-slate-800 group">
                         {location?.image_url ? (
                              <img 
                                 src={location.image_url} 
@@ -58,7 +58,7 @@ const CabinLocation = ({ cabinName, location }: CabinLocationProps) => {
                 </div>
 
                 {/* Nearby Attractions */}
-                <div className="space-y-6">
+                <div className="space-y-6 w-full">
                     <div className="space-y-2">
                         <h3 className="font-extrabold text-lg text-slate-800 dark:text-slate-200">
                             About the Area

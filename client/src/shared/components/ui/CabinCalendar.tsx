@@ -67,10 +67,10 @@ const CabinCalendar = ({
                 )}
             </div>
 
-            <div className="relative rounded-[3rem] border border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/30 p-8 shadow-2xl overflow-hidden backdrop-blur-sm">
+            <div className="relative rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-950/30 p-8 overflow-hidden backdrop-blur-sm">
                 {/* Cinema Screen Representation */}
                 <div className="flex flex-col items-center mb-12">
-                    <div className="w-full max-w-md h-1.5 bg-gradient-to-r from-transparent via-sky-500 to-transparent rounded-full shadow-[0_8px_25px_rgba(14,165,233,0.6)]" />
+                    <div className="w-full max-w-md h-1.5 bg-gradient-to-r from-transparent via-sky-500 to-transparent rounded-full shadow-[0_4px_15px_rgba(14,165,233,0.3)]" />
                     <span className="mt-3 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Cabin Horizon / Front</span>
                 </div>
 
@@ -125,22 +125,22 @@ const CabinCalendar = ({
 
                         if (isStart || isEnd) {
                             // YOUR SELECTION - Vibrant Blue
-                            cellClass += "bg-sky-500 text-white border-sky-600 shadow-[0_0_35px_rgba(14,165,233,0.9)] scale-[1.08] z-20 ";
+                            cellClass += "bg-sky-500 text-white border-sky-600 shadow-[0_0_15px_rgba(14,165,233,0.5)] scale-[1.08] z-20 ";
                         } else if (isWithinRange) {
                             // SELECTION RANGE - Transparent Blue
                             cellClass += "bg-sky-500/10 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400 border-sky-300/30 ";
                         } else if (isMine && (userBookingStatus === "booked" || userBookingStatus === "checked-in") && !isPast) {
                             // YOUR ACTIVE/UPCOMING STAY - Green
-                            cellClass += "bg-emerald-500 text-white shadow-[0_0_30px_rgba(16,185,129,1)] ring-2 ring-emerald-300 animate-pulse-slow scale-[1.02] z-10 ";
+                            cellClass += "bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.5)] ring-2 ring-emerald-300 animate-pulse-slow scale-[1.02] z-10 ";
                         } else if (isMine && userBookingStatus === "checked-out") {
                             // YOUR COMPLETED STAY - Blue
-                            cellClass += "bg-sky-600 text-white shadow-[0_0_20px_rgba(14,165,233,0.6)] ring-1 ring-sky-300 scale-[1.02] z-10 ";
+                            cellClass += "bg-sky-600 text-white shadow-[0_0_10px_rgba(14,165,233,0.3)] ring-1 ring-sky-300 scale-[1.02] z-10 ";
                         } else if (isMine && userBookingStatus === "cancelled") {
                             // YOUR CANCELLED STAY - Yellow
-                            cellClass += "bg-amber-400 text-amber-950 shadow-[0_0_15px_rgba(251,191,36,0.4)] ring-1 ring-amber-300 scale-[0.98] cursor-pointer ";
+                            cellClass += "bg-amber-400 text-amber-950 shadow-[0_0_10px_rgba(251,191,36,0.2)] ring-1 ring-amber-300 scale-[0.98] cursor-pointer ";
                         } else if (isMine && isPast) {
                             // YOUR PAST STAY (not completed/cancelled) - Red
-                            cellClass += "bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)] ring-1 ring-rose-300 scale-[0.95] cursor-not-allowed ";
+                            cellClass += "bg-rose-500 text-white shadow-[0_0_10px_rgba(244,63,94,0.2)] ring-1 ring-rose-300 scale-[0.95] cursor-not-allowed ";
                         } else if (isBooked) {
                             // RESERVED BY OTHERS - Red
                             cellClass += "bg-rose-500/80 dark:bg-rose-900/60 text-white scale-[0.9] cursor-not-allowed ";
@@ -184,21 +184,21 @@ const CabinCalendar = ({
                 {/* Cinema Style Legend */}
                 <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 mt-12 pt-8 border-t border-slate-100 dark:border-slate-800/80">
                     <div className="flex items-center gap-2.5">
-                        <div className="h-5 w-5 rounded-lg bg-sky-500 border-b-[3px] border-sky-600 shadow-[0_0_15px_rgba(14,165,233,0.5)]" />
+                        <div className="h-5 w-5 rounded-lg bg-sky-500 border-b-[3px] border-sky-600 shadow-[0_0_8px_rgba(14,165,233,0.3)]" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Selected</span>
                     </div>
                     <div className="flex items-center gap-2.5">
-                        <div className="h-5 w-5 rounded-lg bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.8)] relative">
+                        <div className="h-5 w-5 rounded-lg bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)] relative">
                              <div className="absolute top-0.5 right-0.5 h-1 w-1 rounded-full bg-white" />
                         </div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Upcoming</span>
                     </div>
                     <div className="flex items-center gap-2.5">
-                        <div className="h-5 w-5 rounded-lg bg-sky-600 shadow-[0_0_15px_rgba(14,165,233,0.6)]" />
+                        <div className="h-5 w-5 rounded-lg bg-sky-600 shadow-[0_0_8px_rgba(14,165,233,0.4)]" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Completed</span>
                     </div>
                     <div className="flex items-center gap-2.5">
-                        <div className="h-5 w-5 rounded-lg bg-amber-400 shadow-[0_0_15px_rgba(251,191,36,0.5)]" />
+                        <div className="h-5 w-5 rounded-lg bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.3)]" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Cancelled</span>
                     </div>
                     <div className="flex items-center gap-2.5">

@@ -56,10 +56,10 @@ const BookingCard = ({
     const isCancelled = userBookingStatus === "cancelled";
 
     return (
-        <div className="rounded-[2.5rem] border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-6 shadow-xl space-y-6 max-h-[calc(100vh-120px)] overflow-y-auto">
+        <div className="rounded-2xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-6 space-y-6 max-h-[calc(100vh-120px)] overflow-y-auto">
             {hasUserReservation && !isUpdateMode ? (
-                <div className="rounded-[2.5rem] border border-sky-150 dark:border-sky-900/30 bg-sky-50/20 dark:bg-sky-950/10 p-8 shadow-xl text-center space-y-6 animate-fade-in ring-2 ring-sky-500/10 backdrop-blur-sm">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 shadow-[0_0_20px_rgba(14,165,233,0.3)]">
+                <div className="rounded-2xl border border-sky-150 dark:border-sky-900/30 bg-sky-50/20 dark:bg-sky-950/10 p-8 text-center space-y-6 animate-fade-in ring-1 ring-sky-500/10 backdrop-blur-sm">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400">
                         <Check className="h-7 w-7 stroke-[3]" />
                     </div>
                     <div className="space-y-4">
@@ -70,7 +70,7 @@ const BookingCard = ({
                         <div className="flex flex-col gap-3">
                             <button
                                 onClick={onEnterUpdateMode}
-                                className="w-full py-3 px-6 rounded-2xl bg-sky-500 hover:bg-sky-600 text-white font-black text-sm shadow-lg shadow-sky-200/50 dark:shadow-none transition cursor-pointer"
+                                className="w-full py-3 px-6 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-black text-sm transition cursor-pointer"
                             >
                                 UPDATE BOOKING
                             </button>
@@ -88,8 +88,8 @@ const BookingCard = ({
                     </div>
                 </div>
             ) : isBookedByOthers ? (
-                <div className="rounded-[2.5rem] border border-rose-100 dark:border-rose-900/30 bg-rose-50/20 dark:bg-rose-950/10 p-8 shadow-xl text-center space-y-6 animate-fade-in ring-2 ring-rose-500/10 backdrop-blur-sm">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 shadow-[0_0_20px_rgba(244,63,94,0.3)]">
+                <div className="rounded-2xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/20 dark:bg-rose-950/10 p-8 text-center space-y-6 animate-fade-in ring-1 ring-rose-500/10 backdrop-blur-sm">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400">
                         <svg className="h-7 w-7 stroke-[3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -121,7 +121,7 @@ const BookingCard = ({
                     </div>
 
                     {/* Check-in / Check-out summary */}
-                    <div className="rounded-2xl border border-slate-150 dark:border-slate-800 overflow-hidden divide-y divide-slate-150 dark:divide-slate-800">
+                    <div className="rounded-xl border border-slate-150 dark:border-slate-800 overflow-hidden divide-y divide-slate-150 dark:divide-slate-800">
                         <div className="grid grid-cols-2 divide-x divide-slate-150 dark:divide-slate-800 text-xs font-black">
                             <div className="p-3.5 space-y-1">
                                 <span className="text-slate-400 uppercase tracking-wider block">Check-in</span>
@@ -145,7 +145,7 @@ const BookingCard = ({
                     </div>
 
                     {/* Breakfast toggle */}
-                    <label className="flex items-center gap-3.5 p-4 rounded-2xl bg-sky-500/5 dark:bg-sky-500/10 border border-sky-500/20 cursor-pointer group hover:bg-sky-500/10 transition">
+                    <label className="flex items-center gap-3.5 p-4 rounded-xl bg-sky-500/5 dark:bg-sky-500/10 border border-sky-500/20 cursor-pointer group hover:bg-sky-500/10 transition">
                         <input
                             type="checkbox"
                             checked={breakfast}
@@ -224,7 +224,7 @@ const BookingCard = ({
                     <div className="sticky bottom-0 pt-4 bg-white dark:bg-slate-900">
                         <button
                             onClick={onOpenBookingModal}
-                            className="w-full rounded-full bg-gradient-to-r from-sky-400 to-sky-500 hover:to-sky-600 text-white py-4 font-black shadow-xl shadow-sky-200/50 dark:shadow-none hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+                            className="w-full rounded-xl bg-sky-600 hover:bg-sky-500 text-white py-4 font-black transition-all duration-300 cursor-pointer"
                         >
                             {isUpdateMode 
                                 ? "UPDATE BOOKING" 

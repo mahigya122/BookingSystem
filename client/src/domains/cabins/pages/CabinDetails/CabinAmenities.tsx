@@ -53,16 +53,16 @@ const CabinAmenities = ({
                         </h2>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tap to add to booking</span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {activities.map((activity) => {
                             const isSelected = selectedActivities.includes(activity.id);
                             return (
                                 <button
                                     key={activity.id}
                                     onClick={() => onToggleActivity(activity.id)}
-                                    className={`flex items-center justify-between p-5 rounded-[2rem] border transition-all duration-300 text-left ${
+                                    className={`flex items-center justify-between p-5 rounded-2xl border transition-all duration-300 text-left ${
                                         isSelected 
-                                            ? "bg-sky-500 border-sky-400 shadow-lg shadow-sky-200 dark:shadow-none translate-y-[-2px]" 
+                                            ? "bg-sky-600 border-sky-600 text-white translate-y-[-2px]" 
                                             : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:border-sky-300"
                                     }`}
                                 >
@@ -93,16 +93,16 @@ const CabinAmenities = ({
                         </h2>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Applicable to stay</span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {offers.map((offer) => {
                             const isSelected = selectedOffers.includes(offer.id);
                             return (
                                 <button
                                     key={offer.id}
                                     onClick={() => onToggleOffer(offer.id)}
-                                    className={`flex flex-col gap-2 p-6 rounded-[2rem] border transition-all duration-300 text-left relative overflow-hidden group ${
+                                    className={`flex flex-col gap-2 p-6 rounded-2xl border transition-all duration-300 text-left relative overflow-hidden group ${
                                         isSelected 
-                                            ? "bg-emerald-500 border-emerald-400 shadow-lg shadow-emerald-200 dark:shadow-none translate-y-[-2px]" 
+                                            ? "bg-emerald-600 border-emerald-600 text-white translate-y-[-2px]" 
                                             : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 hover:border-emerald-300"
                                     }`}
                                 >

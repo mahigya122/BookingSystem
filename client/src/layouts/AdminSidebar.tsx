@@ -83,7 +83,7 @@ const Sidebar = () => {
       </div>
 
       {/* NAV */}
-      <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1 custom-scrollbar relative z-10">
+      <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1 custom-scrollbar-hide relative z-10">
         <nav className="space-y-1">
           <SidebarLink to="/dashboard" icon={<Home size={18} />} label="Dashboard" open={isExpanded} end />
           <SidebarLink to="/bookings" icon={<Calendar size={18} />} label="Bookings" open={isExpanded} />

@@ -38,7 +38,7 @@ const CabinGallery = ({
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <button
                     onClick={() => navigate(isFromBookings ? "/bookings" : "/")}
-                    className="inline-flex items-center gap-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800/80 px-5 py-2.5 text-sm font-black text-slate-700 dark:text-slate-200 shadow-sm hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-800/50 transition duration-300 active:scale-95 cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800/80 px-5 py-2.5 text-sm font-black text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition duration-300 active:scale-95 cursor-pointer"
                 >
                     <ArrowLeft className="h-4.5 w-4.5 text-sky-500 stroke-[2.5]" />
                     <span>{isFromBookings ? "Back to My Bookings" : "Back to Stays"}</span>
@@ -50,9 +50,9 @@ const CabinGallery = ({
             </div>
 
             {/* AIRBNB-STYLE GALLERY */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[460px]">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[560px]">
                 {/* Main image */}
-                <div className="md:col-span-2 md:row-span-2 rounded-3xl overflow-hidden relative group">
+                <div className="md:col-span-2 md:row-span-2 rounded-2xl overflow-hidden relative group">
                     <img
                         src={activePhoto}
                         alt={cabin.name}
@@ -65,7 +65,7 @@ const CabinGallery = ({
                 {galleryPhotos.slice(1, 5).map((photo, i) => (
                     <div
                         key={i}
-                        className="rounded-3xl overflow-hidden relative group cursor-pointer"
+                        className="rounded-2xl overflow-hidden relative group cursor-pointer"
                         onClick={() => onSelectPhoto(photo)}
                     >
                         <img
@@ -89,7 +89,7 @@ const CabinGallery = ({
                     <img
                         src={activePhoto}
                         alt="Gallery high definition"
-                        className="max-h-full max-w-full rounded-2xl object-contain shadow-2xl animate-zoom-in"
+                        className="max-h-full max-w-full rounded-2xl object-contain animate-zoom-in"
                     />
                 </div>
             )}

@@ -15,7 +15,7 @@ const Reviews = () => {
   if (isLoading) return <p>Loading Reviews...</p>;
 
   return (
-    <div className="space-y-8 animate-slide-up pb-12">
+    <div className="px-6 md:px-0 space-y-8 animate-slide-up pb-12">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Guest Reviews</h1>

@@ -104,7 +104,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
                 if (user?.id) {
                     const res = await fetch(`/api/ai/guest/conversation/latest?userId=${user.id}`);
                     const data = await res.json();
-                    
+
                     if (data.conversationId) {
                         setConversationId(data.conversationId);
                         if (Array.isArray(data.history) && data.history.length > 0) {
@@ -189,7 +189,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
                 {
                     role: "assistant",
                     content:
-                        errorMessage === "Failed to fetch" 
+                        errorMessage === "Failed to fetch"
                             ? "Connection to AI server refused. Please ensure the backend is running."
                             : `Error: ${errorMessage || "Something went wrong while contacting the AI assistant."}`,
                 },
@@ -239,8 +239,8 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
                     >
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <motion.p 
-                                    className="text-sky-500 text-2xl font-bold" 
+                                <motion.p
+                                    className="text-sky-500 text-2xl font-bold"
                                     style={{ fontFamily: "'Dancing Script', cursive" }}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -248,7 +248,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
                                 >
                                     Welcome to HotelFlow
                                 </motion.p>
-                                <motion.h2 
+                                <motion.h2
                                     className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tight"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -257,8 +257,8 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
                                     Your Next <span className="text-sky-500">Escape</span> Awaits
                                 </motion.h2>
                             </div>
-                            
-                            <motion.p 
+
+                            <motion.p
                                 className="text-slate-500 dark:text-slate-400 font-medium max-w-[300px] mx-auto text-lg leading-relaxed"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -276,7 +276,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
                         className="flex-1 flex flex-col overflow-hidden relative z-10"
                     >
                         {/* MESSAGES */}
-                        <div className="flex-1 space-y-4 overflow-y-auto p-4 md:p-6 custom-scrollbar">
+                        <div className="flex-1 space-y-4 overflow-y-auto p-4 md:p-6 custom-scrollbar-hide">
                             {messages.map((msg, i) => (
                                 <GuestMessage
                                     key={i}

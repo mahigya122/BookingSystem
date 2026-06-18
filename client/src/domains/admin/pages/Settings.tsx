@@ -2,7 +2,7 @@ import SettingsForm from "../components/settings/SettingsForm";
 
 const Settings = () => {
   return (
-    <div className="space-y-12 animate-slide-up pb-12">
+    <div className="px-6 md:px-0 space-y-12 animate-slide-up pb-12">
       <div className="space-y-2">
         <p 
           className="text-sky-500 text-lg font-bold"

@@ -38,7 +38,7 @@ const ClientProfile = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-10 pb-16 animate-fade-in">
+    <div className="max-w-4xl mx-auto px-4 md:px-0 space-y-10 pb-16 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col gap-2">
         <p className="text-sky-400 text-xl font-bold" style={{ fontFamily: "'Dancing Script', cursive" }}>

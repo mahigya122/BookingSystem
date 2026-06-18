@@ -28,7 +28,7 @@ const DashboardLayout = () => {
             {/* MAIN CONTENT */}
             <main 
               ref={containerRef as React.RefObject<HTMLElement>}
-              className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 scroll-smooth"
+              className="flex-1 overflow-y-auto px-0 py-6 md:p-8 lg:p-10 scroll-smooth"
             >
               <div className="max-w-[1600px] mx-auto">
                 <Outlet />

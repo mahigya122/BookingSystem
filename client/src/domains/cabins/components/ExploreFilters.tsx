@@ -1,9 +1,12 @@
+import { useMemo } from "react";
 import { Range, getTrackBackground } from "react-range";
 import { useFilterActions } from "../../../hooks/useFilterActions";
+import { useLocations } from "@shared/hooks/useLocations";
+import { useActivities } from "@shared/hooks/useActivities";
 
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { Users, DollarSign, RotateCcw } from "lucide-react";
+import { DollarSign, RotateCcw, MapPin, Star, Users } from "lucide-react";
 
 const STEP = 10;
 const MIN = 50;
@@ -14,44 +17,155 @@ const ExploreFilters = () => {
         filters,
         handlePriceChange,
         handleCapacityChange,
-        clearFilters,
+        handleLocationChange,
+        handleActivityChange,
+        handleReset,
         applyFilters,
         isSearching
     } = useFilterActions();
 
+    const { locations: rawLocations = [] } = useLocations();
+    const { activities: rawActivities = [] } = useActivities();
+
+    // Dedupe Locations by Name
+    const locations = useMemo(() => {
+        const seen = new Set();
+        return rawLocations.filter(loc => {
+            const name = loc.name.trim().toLowerCase();
+            if (seen.has(name)) return false;
+            seen.add(name);
+            return true;
+        });
+    }, [rawLocations]);
+
+    // Dedupe Activities by Name
+    const activities = useMemo(() => {
+        const seen = new Set();
+        return rawActivities.filter(act => {
+            const name = act.name.trim().toLowerCase();
+            if (seen.has(name)) return false;
+            seen.add(name);
+            return true;
+        });
+    }, [rawActivities]);
+
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex items-center justify-between px-1">
                 <div className="flex flex-col">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-500 mb-1">Filter by</span>
-                    <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Your Stay</h2>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 mb-1">Filter Your Stay</span>
                 </div>
                 <button
-                    onClick={clearFilters}
-                    className="group flex items-center gap-1.5 p-2 rounded-xl hover:bg-sky-50 dark:hover:bg-sky-900/20 text-slate-400 hover:text-sky-600 transition-all duration-300"
+                    onClick={handleReset}
+                    className="group flex items-center gap-1.5 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-sky-600 transition-all duration-300"
                 >
                     <RotateCcw size={14} className="group-hover:-rotate-180 transition-transform duration-500" />
                     <span className="text-[10px] font-black uppercase tracking-widest">Reset</span>
                 </button>
             </div>
 
-            {/* PRICE RANGE */}
-            <div className="group transition-all duration-500">
-                <div className="flex items-center gap-2 mb-6">
-                    <div className="p-2 rounded-xl bg-sky-50 dark:bg-sky-900/30 text-sky-500">
-                        <DollarSign size={16} />
+            {/* LOCATION FILTER */}
+            <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-sky-600 dark:text-sky-400">
+                        <MapPin size={16} />
                     </div>
-                    <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 tracking-tight">Price Nightly</h3>
+                    <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 tracking-tight">Location</h3>
+                </div>
+                <div className="relative">
+                    <select
+                        value={filters.location_id || ""}
+                        onChange={(e) => handleLocationChange(e.target.value || null)}
+                        className="w-full p-3 pr-10 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:border-sky-500 transition-colors appearance-none cursor-pointer"
+                    >
+                        <option value="">All Locations</option>
+                        {locations.map((loc) => (
+                            <option key={loc.id} value={loc.id}>{loc.name}</option>
+                        ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
+                        <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+                    </div>
+                </div>
+            </div>
+
+            {/* ACTIVITY FILTER */}
+            <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-sky-600 dark:text-sky-400">
+                        <Star size={16} />
+                    </div>
+                    <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 tracking-tight">Preferred Activity</h3>
+                </div>
+                <div className="relative">
+                    <select
+                        value={filters.activity_id || ""}
+                        onChange={(e) => handleActivityChange(e.target.value || null)}
+                        className="w-full p-3 pr-10 rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-bold text-slate-700 dark:text-slate-300 outline-none focus:border-sky-500 transition-colors appearance-none cursor-pointer"
+                    >
+                        <option value="">All Activities</option>
+                        {activities.map((act) => (
+                            <option key={act.id} value={act.id}>{act.name}</option>
+                        ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
+                        <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+                    </div>
+                </div>
+            </div>
+
+            {/* CAPACITY (GUESTS) */}
+            <div className="space-y-6">
+                <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-sky-600 dark:text-sky-400">
+                        <Users size={16} />
+                    </div>
+                    <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 tracking-tight">Number of Guests</h3>
                 </div>
 
-                <div className="flex justify-between items-end mb-6">
+                <div className="grid grid-cols-3 gap-3">
+                    {[1, 2, 4, 6, 8, 10].map((guest) => {
+                        const active = filters.capacity === guest;
+                        return (
+                            <button
+                                key={guest}
+                                onClick={() => handleCapacityChange(guest)}
+                                className={`
+                                    h-11 rounded-lg border font-black text-sm transition-all duration-300
+                                    flex items-center justify-center relative overflow-hidden
+                                    ${active
+                                        ? "bg-sky-600 border-sky-600 text-white"
+                                        : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-sky-300 hover:text-sky-600"
+                                    }
+                                `}
+                            >
+                                {guest}
+                                {active && (
+                                    <div className="absolute top-0 right-0 w-3 h-3 bg-white/20 rounded-bl-full" />
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* PRICE RANGE */}
+            <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-sky-600 dark:text-sky-400">
+                        <DollarSign size={16} />
+                    </div>
+                    <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 tracking-tight">Price Range</h3>
+                </div>
+
+                <div className="flex justify-between items-end mb-2 px-1">
                     <div className="flex flex-col">
                         <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Min</span>
-                        <span className="text-lg font-black text-sky-600 dark:text-sky-400">${filters?.price?.[0] ?? 0}</span>
+                        <span className="text-base font-black text-slate-900 dark:text-white">${filters?.price?.[0] ?? 0}</span>
                     </div>
                     <div className="flex flex-col text-right">
                         <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Max</span>
-                        <span className="text-lg font-black text-sky-600 dark:text-sky-400">${filters?.price?.[1] ?? 1000}</span>
+                        <span className="text-base font-black text-slate-900 dark:text-white">${filters?.price?.[1] ?? 1000}</span>
                     </div>
                 </div>
 
@@ -74,7 +188,7 @@ const ExploreFilters = () => {
                                     style={{
                                         background: getTrackBackground({
                                             values: filters?.price || [MIN, MAX],
-                                            colors: ["#f1f5f9", "#0ea5e9", "#f1f5f9"],
+                                            colors: ["#e2e8f0", "#0284c7", "#e2e8f0"],
                                             min: MIN,
                                             max: MAX,
                                         }),
@@ -90,62 +204,22 @@ const ExploreFilters = () => {
                                 <div
                                     {...props}
                                     className={`
-                                        h-6 w-6 rounded-xl bg-white border border-sky-500 shadow-xl 
+                                        h-5 w-5 rounded-full bg-white border-2 border-sky-600 shadow-sm
                                         flex items-center justify-center outline-none transition-transform
-                                        ${isDragged ? "scale-125 border-sky-600" : "hover:scale-110"}
+                                        ${isDragged ? "scale-110" : "hover:scale-105"}
                                     `}
-                                >
-                                    <div className="h-1.5 w-1.5 rounded-full bg-sky-500" />
-                                </div>
+                                />
                             );
                         }}
                     />
-                </div>
-                <p className="mt-4 text-[10px] font-bold text-slate-400 text-center italic">
-                    Average price is $180/night
-                </p>
-            </div>
-
-            {/* CAPACITY BUTTONS */}
-            <div className="group transition-all duration-500">
-                <div className="flex items-center gap-2 mb-6">
-                    <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500">
-                        <Users size={16} />
-                    </div>
-                    <h3 className="text-sm font-black text-slate-800 dark:text-slate-200 tracking-tight">Number of Guests</h3>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                    {[1, 2, 4, 6, 8, 10].map((guest) => {
-                        const active = filters.capacity === guest;
-                        return (
-                            <button
-                                key={guest}
-                                onClick={() => handleCapacityChange(guest)}
-                                className={`
-                                    h-12 rounded-2xl border font-black text-sm transition-all duration-300
-                                    flex items-center justify-center relative overflow-hidden group/btn
-                                    ${active
-                                        ? "bg-sky-500 border-sky-500 text-white shadow-lg shadow-sky-500/20 scale-105"
-                                        : "bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 text-slate-400 hover:border-sky-300 hover:text-sky-600"
-                                    }
-                                `}
-                            >
-                                {guest}
-                                {active && (
-                                    <div className="absolute top-0 right-0 w-4 h-4 bg-white/20 rounded-bl-full" />
-                                )}
-                            </button>
-                        );
-                    })}
                 </div>
             </div>
 
             <button
                 onClick={() => applyFilters()}
                 className="
-                    w-full rounded-[1.5rem] bg-slate-900 dark:bg-sky-600 py-4 text-white font-black text-xs uppercase tracking-[0.2em]
-                    hover:bg-sky-500 hover:shadow-2xl hover:shadow-sky-500/30 hover:-translate-y-1 active:scale-95 transition-all duration-500
+                    w-full rounded-lg bg-slate-900 dark:bg-sky-600 py-4 text-white font-black text-[10px] uppercase tracking-[0.2em]
+                    hover:bg-sky-500 transition-all duration-300
                     flex items-center justify-center gap-2
                 "
             >

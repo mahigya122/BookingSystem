@@ -122,9 +122,9 @@ const InfoPage = () => {
             {/* HERO SECTION */}
             <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-slate-950">
                 <div className="absolute inset-0 opacity-40">
-                    <img 
-                        src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80" 
-                        alt="Background" 
+                    <img
+                        src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80"
+                        alt="Background"
                         className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
@@ -143,8 +143,8 @@ const InfoPage = () => {
                 </div>
 
                 {/* BACK BUTTON */}
-                <Link 
-                    to="/" 
+                <Link
+                    to="/"
                     className="absolute top-10 left-10 z-20 flex items-center gap-2 text-white/70 hover:text-white font-black text-xs uppercase tracking-widest transition-colors group"
                 >
                     <div className="h-10 w-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-slate-950 transition-all">
@@ -161,28 +161,6 @@ const InfoPage = () => {
                         {para}
                     </p>
                 ))}
-
-                <div className="pt-12 border-t border-slate-100 dark:border-slate-800">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-                        <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                                <Mountain className="h-6 w-6 text-sky-500" />
-                            </div>
-                            <div>
-                                <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">CabinHub</p>
-                                <p className="text-xs text-slate-400 font-bold italic">Est. 2024 • Cascade Mountains</p>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-4">
-                            {["𝕏", "📸", "f", "in"].map((s, i) => (
-                                <div key={i} className="h-10 w-10 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-400 hover:text-sky-500 transition-colors cursor-pointer">
-                                    {s}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
             </section>
         </div>
     );

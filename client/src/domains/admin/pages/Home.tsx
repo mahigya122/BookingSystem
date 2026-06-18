@@ -57,7 +57,7 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="space-y-12 animate-slide-up pb-12">
+    <div className="px-6 md:px-0 space-y-12 animate-slide-up pb-12">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
         <div className="space-y-3">
           <p 

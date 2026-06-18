@@ -33,7 +33,7 @@ const PopularCabinsSection = ({ cabins, filteredCount }: PopularCabinsSectionPro
                 />
 
             {displayed.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 md:h-[400px]">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-4 md:h-[400px]">
                     {/* Tall card */}
                     {displayed[0] && (
                         <Link
@@ -111,3 +111,4 @@ const PopularCabinsSection = ({ cabins, filteredCount }: PopularCabinsSectionPro
 };
 
 export default PopularCabinsSection;
+

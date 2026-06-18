@@ -4,6 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { router } from "./app/router";
 import { ThemeProvider } from "@shared/contexts/ThemeContext";
 import { createQueryClient } from "@shared/services/queryClient";
+import { CabinFiltersProvider } from "./domains/cabins/contexts/CabinFiltersContext";
 
 const queryClient = createQueryClient();
 
@@ -11,13 +12,15 @@ function App() {
   return (
     <ThemeProvider>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 3000,
-          }}
-        />
+        <CabinFiltersProvider>
+          <RouterProvider router={router} />
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 3000,
+            }}
+          />
+        </CabinFiltersProvider>
       </QueryClientProvider>
     </ThemeProvider >
   );
