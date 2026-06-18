@@ -82,16 +82,14 @@ export const useCabinFilters = () => {
     // 4. Auto-Open Sidebar when filters change
     const [prevFiltersJson, setPrevFiltersJson] = useState(JSON.stringify(filters));
     
-    useEffect(() => {
-        const currentJson = JSON.stringify(filters);
-        if (currentJson !== prevFiltersJson) {
-            setPrevFiltersJson(currentJson);
-            // Only open if there are active filters
-            if (activeFilterCount > 0) {
-                setSidebarOpen(true);
-            }
+    const currentJson = JSON.stringify(filters);
+    if (currentJson !== prevFiltersJson) {
+        setPrevFiltersJson(currentJson);
+        // Only open if there are active filters
+        if (activeFilterCount > 0) {
+            setSidebarOpen(true);
         }
-    }, [filters, prevFiltersJson, activeFilterCount]);
+    }
 
     // 5. Actions
     const clearFilters = (silent = false) => {

@@ -54,11 +54,6 @@ const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
                     <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white mt-1">
                         {isUser ? 'Sign In' : 'Dashboard Control'}
                     </h2>
-                    <p className="mt-2 max-w-sm text-sm leading-6 text-slate-650 dark:text-slate-350 font-medium">
-                        {isUser
-                            ? 'Sign in to see your bookings, personal details, and stay history.'
-                            : 'Sign in to handle bookings, guests, cabins, and operations from a single dashboard.'}
-                    </p>
                 </div>
             </div>
 

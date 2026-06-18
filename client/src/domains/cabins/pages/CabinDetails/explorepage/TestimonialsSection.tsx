@@ -68,7 +68,7 @@ const TestimonialsSection = () => {
     if (sortedReviews.length === 0) return null;
 
     return (
-        <section className={`relative pt-16 pb-16 overflow-hidden bg-white dark:bg-slate-950`}>
+        <section className={`relative py-[52px] md:py-[56px] lg:py-[60px] overflow-hidden bg-white dark:bg-slate-950`}>
             {/* DECORATIVE ELEMENTS */}
             <DashedCircle className="absolute top-0 -left-20 w-96 h-96 text-sky-400 pointer-events-none" />
             <DashedCircle className="absolute bottom-0 -right-20 w-[500px] h-[500px] text-emerald-400 pointer-events-none" />
@@ -93,20 +93,22 @@ const TestimonialsSection = () => {
                     />
 
                     {/* NAV BUTTONS */}
-                    <div className="flex gap-4 self-start md:self-end">
+                    <div className="flex gap-1 self-start md:self-end">
                         <button
                             onClick={handlePrev}
-                            className="h-14 w-14 rounded-2xl bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-900/40 shadow-xl flex items-center justify-center text-slate-900 dark:text-white hover:bg-sky-500 hover:text-white hover:border-sky-500 transition-all duration-500 group active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
+                            className="p-1.5 text-slate-400 hover:text-sky-500 dark:text-slate-600 dark:hover:text-sky-400 transition-all duration-300 disabled:opacity-20 disabled:pointer-events-none active:scale-90"
                             disabled={currentIndex === 0 || sortedReviews.length <= 3}
+                            title="Previous"
                         >
-                            <ChevronLeft size={28} strokeWidth={2} />
+                            <ChevronLeft size={32} strokeWidth={2.5} className="drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]" />
                         </button>
                         <button
                             onClick={handleNext}
-                            className="h-14 w-14 rounded-2xl bg-white dark:bg-slate-900 border border-sky-100 dark:border-sky-900/40 shadow-xl flex items-center justify-center text-slate-900 dark:text-white hover:bg-sky-500 hover:text-white hover:border-sky-500 transition-all duration-500 group active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
+                            className="p-1.5 text-slate-400 hover:text-sky-500 dark:text-slate-600 dark:hover:text-sky-400 transition-all duration-300 disabled:opacity-20 disabled:pointer-events-none active:scale-90"
                             disabled={currentIndex >= maxIndex || sortedReviews.length <= 3}
+                            title="Next"
                         >
-                            <ChevronRight size={28} strokeWidth={2} />
+                            <ChevronRight size={32} strokeWidth={2.5} className="drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]" />
                         </button>
                     </div>
                 </div>
@@ -134,13 +136,13 @@ const TestimonialsSection = () => {
                                         </div>
 
                                         <div className="relative z-10 flex-1">
-                                            <p className="text-[14px] md:text-[15px] font-medium text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-4">
+                                            <p className="text-[13px] md:text-[14px] font-medium text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-4">
                                                 {review.comment}
                                             </p>
                                         </div>
 
                                         <div className="relative z-10 pt-5 mt-auto flex flex-col gap-0.5">
-                                            <h4 className="font-bold text-slate-900 dark:text-white text-base tracking-tight">
+                                            <h4 className="font-bold text-slate-900 dark:text-white text-sm tracking-tight">
                                                 {guestName}
                                             </h4>
                                             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 tracking-wide">

@@ -39,7 +39,7 @@ const CabinDetailModal = ({
     ? (cabin.reviews!.reduce((acc, review) => acc + review.rating, 0) / reviewCount).toFixed(1)
     : "N/A";
 
-  const tabs: { id: CabinDetailSection; label: string; icon: any }[] = [
+  const tabs: { id: CabinDetailSection; label: string; icon: React.ElementType }[] = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "location", label: "Location", icon: MapPin },
     { id: "offers", label: "Offers", icon: Tag },

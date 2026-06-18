@@ -16,7 +16,7 @@ const PopularCabinsSection = ({ cabins, filteredCount }: PopularCabinsSectionPro
     const displayed = cabins.slice(0, 6);
 
     return (
-        <section id="popular-cabins" className="pt-16 pb-16 relative w-full">
+        <section id="popular-cabins" className="py-[52px] md:py-[56px] lg:py-[60px] relative w-full">
             <div className={layoutConfig.container}>
                 {/* Airplane deco */}
                 <svg className="absolute top-0 left-0 w-10 h-10 text-slate-300 pointer-events-none" viewBox="0 0 80 80" fill="currentColor">
@@ -49,17 +49,17 @@ const PopularCabinsSection = ({ cabins, filteredCount }: PopularCabinsSectionPro
 
                             {/* Price tag */}
                             <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-lg z-10">
-                                <span className="text-slate-900 font-black text-sm md:text-base">${displayed[0].price_per_night}</span>
+                                <span className="text-slate-900 font-black text-xs md:text-sm">${displayed[0].price_per_night}</span>
                                 <span className="text-slate-500 text-[10px] ml-0.5">/nt</span>
                             </div>
 
                             <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full">
-                                <h3 className="text-white font-black text-lg md:text-xl leading-tight group-hover:text-sky-400 transition-colors">
+                                <h3 className="text-white font-black text-base md:text-lg leading-tight group-hover:text-sky-400 transition-colors">
                                     {displayed[0].name}
                                 </h3>
                                 <div className="flex items-center gap-1.5 mt-1">
                                     <MapPin size={12} className="text-sky-400" />
-                                    <p className="text-white/70 text-xs md:text-sm font-medium truncate">
+                                    <p className="text-white/70 text-[10px] md:text-xs font-medium truncate">
                                         {displayed[0].location?.name || "Private Location"}
                                     </p>
                                 </div>
@@ -87,7 +87,7 @@ const PopularCabinsSection = ({ cabins, filteredCount }: PopularCabinsSectionPro
                             </div>
 
                             <div className="absolute bottom-0 left-0 p-3 md:p-4 w-full">
-                                <h3 className="text-white font-black text-xs md:text-sm leading-tight group-hover:text-sky-400 transition-colors">
+                                <h3 className="text-white font-black text-[10px] md:text-xs leading-tight group-hover:text-sky-400 transition-colors">
                                     {cabin.name}
                                 </h3>
                                 <div className="flex items-center gap-1 mt-0.5">

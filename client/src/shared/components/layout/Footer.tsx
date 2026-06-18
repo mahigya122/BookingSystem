@@ -85,16 +85,23 @@ const Footer = () => {
 
     return (
         <footer className="bg-slate-950 text-white pt-16 pb-12 overflow-hidden border-t border-white/5 shrink-0">
-            <div className="px-4 md:px-8">
+            <div className="px-4">
                 <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-6 gap-x-8 gap-y-12 md:gap-16 mb-20">
                     {/* Brand & Social Proof */}
                     <div className="col-span-2 md:col-span-2 space-y-10">
                         <div className="space-y-6">
-                            <div className="flex items-center gap-4 w-fit">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500 shadow-xl shadow-sky-500/20 transition-transform duration-300">
-                                    <Mountain className="h-6 w-6 text-white" strokeWidth={2.5} />
-                                </div>
-                                <span className="text-3xl font-black tracking-tight">Cabin<span className="text-sky-500">Hub</span></span>
+                            <div 
+                                onClick={() => {
+                                    setIsSearching(false);
+                                    navigate("/");
+                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                }}
+                                className="flex items-center gap-2 cursor-pointer group w-fit"
+                            >
+                                <Mountain className="h-6 w-6 text-sky-500 group-hover:scale-110 transition-transform duration-300" />
+                                <span className="text-lg font-black tracking-tight text-white leading-none">
+                                    CabinHub
+                                </span>
                             </div>
                             <p className="text-lg leading-relaxed text-slate-400 max-w-sm font-medium">
                                 The home for unforgettable nature escapes — handpicked cabins, seamless booking, and memories that last.

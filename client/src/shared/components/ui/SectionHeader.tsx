@@ -47,22 +47,22 @@ const SectionHeader = ({
 }: SectionHeaderProps) => {
     return (
         <div className={`space-y-4 ${center ? "text-center" : "text-left"} ${className}`}>
-            {/* Sub heading (Label) */}
-            <motion.p
-                className="text-sky-500 text-xl font-bold"
-                style={{ fontFamily: "'Dancing Script', cursive" }}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: EASE }}
-                viewport={{ once: true }}
-            >
-                {label}
-            </motion.p>
+            <div className={`flex flex-col ${center ? "items-center" : "items-start"} space-y-1`}>
+                {/* Sub heading (Label) */}
+                <motion.p
+                    className="text-sky-500 text-lg font-bold"
+                    style={{ fontFamily: "'Dancing Script', cursive" }}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, ease: EASE }}
+                    viewport={{ once: true }}
+                >
+                    {label}
+                </motion.p>
 
-            {/* Main Title */}
-            <div className={`space-y-3 ${center ? "flex flex-col items-center" : ""}`}>
+                {/* Main Title */}
                 <motion.h2
-                    className={`text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tight flex flex-wrap ${center ? "justify-center" : "justify-start"}`}
+                    className={`text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tight flex flex-wrap ${center ? "justify-center" : "justify-start"}`}
                     variants={container}
                     initial="hidden"
                     whileInView="show"
@@ -82,7 +82,9 @@ const SectionHeader = ({
                         </span>
                     ))}
                 </motion.h2>
+            </div>
 
+            <div className={`space-y-4 ${center ? "flex flex-col items-center" : ""}`}>
                 {/* Decorative underline */}
                 <motion.div
                     className="h-1 bg-sky-500 rounded-full"
@@ -95,22 +97,22 @@ const SectionHeader = ({
                     }}
                     viewport={{ once: true }}
                 />
-            </div>
 
-            {/* Subtitle */}
-            <motion.p
-                className={`text-slate-500 dark:text-slate-400 text-base font-medium leading-relaxed max-w-md ${center ? "mx-auto" : ""}`}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{
-                    duration: 0.6,
-                    ease: EASE,
-                    delay: 0.25,
-                }}
-                viewport={{ once: true }}
-            >
-                {subtitle}
-            </motion.p>
+                {/* Subtitle */}
+                <motion.p
+                    className={`text-slate-500 dark:text-slate-400 text-sm font-medium leading-relaxed max-w-md ${center ? "mx-auto" : ""}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{
+                        duration: 0.6,
+                        ease: EASE,
+                        delay: 0.25,
+                    }}
+                    viewport={{ once: true }}
+                >
+                    {subtitle}
+                </motion.p>
+            </div>
         </div>
     );
 };

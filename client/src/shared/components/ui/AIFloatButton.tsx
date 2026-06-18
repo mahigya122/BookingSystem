@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useClientAIChat } from "../../../domains/guests/contexts/ClientAIChatContext";
 
@@ -49,15 +48,15 @@ const AIFloatButton = () => {
             {/* Main Cloud */}
             <div className="relative bg-white dark:bg-slate-800 px-5 py-4 rounded-[2rem] shadow-2xl border border-sky-200 dark:border-sky-700 min-w-[180px] text-center">
 
-              <p className="text-xs font-black uppercase tracking-widest leading-relaxed text-slate-900 dark:text-white">
-                Ask me if you <br />
-                <span className="text-sky-500">need help!</span>
+              <p className="text-[13px] font-bold tracking-wide leading-relaxed text-slate-700 dark:text-slate-200">
+                <span className="text-sky-500 font-black text-sm block mb-0.5">Hello! ✨</span>
+                How can I help you?
               </p>
 
-              {/* Cloud bumps (comic style) */}
-              <div className="absolute -bottom-3 right-6 w-6 h-6 bg-white dark:bg-slate-800 rounded-full border border-sky-200 dark:border-sky-700" />
-              <div className="absolute -bottom-5 right-3 w-4 h-4 bg-white dark:bg-slate-800 rounded-full border border-sky-200 dark:border-sky-700" />
-              <div className="absolute -bottom-6 right-10 w-3 h-3 bg-white dark:bg-slate-800 rounded-full border border-sky-200 dark:border-sky-700" />
+              {/* Thought bubble pops */}
+              <div className="absolute -bottom-3 right-6 w-5 h-5 bg-white dark:bg-slate-800 rounded-full border border-sky-200 dark:border-sky-700" />
+              <div className="absolute -bottom-5 right-3 w-3 h-3 bg-white dark:bg-slate-800 rounded-full border border-sky-200 dark:border-sky-700" />
+              <div className="absolute -bottom-7 right-8 w-2 h-2 bg-white dark:bg-slate-800 rounded-full border border-sky-200 dark:border-sky-700" />
             </div>
           </motion.div>
         )}
@@ -74,45 +73,33 @@ const AIFloatButton = () => {
         className="
           relative
           group
-          flex h-14 w-14 md:h-16 md:w-16
+          flex
           items-center justify-center
-
-          rounded-2xl
-
-          bg-gradient-to-br from-sky-500 via-cyan-400 to-blue-500
-          dark:from-sky-400 dark:to-cyan-300
-
-          text-white
-
-          border border-white/20
-
-          shadow-[0_10px_30px_rgba(56,189,248,0.45)]
-          hover:shadow-[0_20px_60px_rgba(56,189,248,0.65)]
-
           hover:-translate-y-1
+          active:scale-95
           transition-all duration-300
         "
+        title="Chat with AI"
       >
-        {/* 🔵 Glow halo */}
-        <div className="absolute inset-0 rounded-2xl bg-sky-400/40 blur-2xl animate-pulse" />
-
-        {/* 🌐 Outer ring pulse */}
-        <div className="absolute inset-[-10px] rounded-[1.4rem] border border-sky-300/40 animate-ping opacity-30" />
-
-        {/* 🤖 Bot icon */}
-        <Bot
-          size={26}
+        {/* 🤖 Cute Chatbot icon */}
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/8943/8943377.png"
+          alt="AI Assistant"
           className="
             relative z-10
+            w-16 h-16 md:w-20 md:h-20
+            object-contain
+            drop-shadow-[0_8px_16px_rgba(56,189,248,0.4)]
+            group-hover:drop-shadow-[0_12px_24px_rgba(56,189,248,0.6)]
             group-hover:scale-110
-            transition-transform duration-300
+            transition-all duration-300
           "
         />
 
         {/* 🟢 Online dot */}
         <div
           className="
-            absolute -top-1 -right-1
+            absolute top-1 right-1 z-20
             h-3.5 w-3.5
             rounded-full
             bg-emerald-400

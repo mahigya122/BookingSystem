@@ -1,8 +1,8 @@
 import { Outlet, useLocation } from "react-router-dom";
 import UserSidebar from "./UserSidebar";
 import ClientNavbar from "./ClientNavbar";
-import { ClientAIChatProvider, useClientAIChat } from "../domains/guests/contexts/ClientAIChatContext";
-import { CabinFiltersProvider, useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
+import { ClientAIChatProvider } from "../domains/guests/contexts/ClientAIChatContext";
+import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
 import ClientAIChatDrawer from "../domains/guests/components/ai/ClientAIChatDrawer";
 import Footer from "@shared/components/layout/Footer";
 import NavigationProgressBar from "@shared/components/layout/NavigationProgressBar";
@@ -49,7 +49,7 @@ const LayoutBody = () => {
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 min-w-0">
-        <div className={`w-full ${isHomePage ? "" : "py-16"} px-4 md:px-12 lg:px-16 max-w-[1600px] mx-auto`}>
+        <div className={`w-full ${isHomePage ? "" : "py-16"} px-4 mx-auto`}>
           <Outlet />
         </div>
       </main>

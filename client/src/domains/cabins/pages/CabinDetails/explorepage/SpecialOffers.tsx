@@ -35,7 +35,7 @@ const SpecialOffers = () => {
     };
 
     return (
-        <section id="special-offers" className="pt-16 pb-16 relative w-full">
+        <section id="special-offers" className="py-[52px] md:py-[56px] lg:py-[60px] relative w-full">
             <div className={layoutConfig.container}>
                 <SectionHeader
                     label="Our Best Offer"
@@ -71,8 +71,8 @@ const SpecialOffers = () => {
                                 <div className="inline-flex items-center px-2 py-0.5 md:py-1 rounded-lg bg-sky-500 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest">
                                     Save {offer.discount_percent || (offer as any).discount_pct}%
                                 </div>
-                                <h3 className="text-white font-black text-lg md:text-xl leading-tight">{offerTitle}</h3>
-                                <p className="text-white/70 text-[10px] md:text-xs line-clamp-2">{offer.description}</p>
+                                <h3 className="text-white font-black text-base md:text-lg leading-tight">{offerTitle}</h3>
+                                <p className="text-white/70 text-[9px] md:text-[10px] line-clamp-2">{offer.description}</p>
                                 {isSelected && (
                                     <span className="block w-fit bg-white text-sky-600 font-black text-[8px] md:text-[9px] uppercase tracking-widest px-2 py-0.5 md:px-2.5 md:py-1 rounded-full shadow-lg mt-1 md:mt-2">Active</span>
                                 )}
@@ -114,7 +114,7 @@ const SpecialOffers = () => {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                             <div className="absolute bottom-0 left-0 p-3 md:p-4 w-full flex items-end justify-between">
                                 <div>
-                                    <p className="text-white font-black text-xs md:text-sm leading-tight">{offerTitle}</p>
+                                    <p className="text-white font-black text-[10px] md:text-xs leading-tight">{offerTitle}</p>
                                     <p className="text-sky-400 text-[8px] md:text-[10px] font-black uppercase">-{offer.discount_percent || (offer as any).discount_pct}%</p>
                                 </div>
                                 {isSelected && (

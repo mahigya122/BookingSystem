@@ -5,6 +5,6 @@ export const pageSpacing = {
 };
 
 export const layoutConfig = {
-  container: "max-w-[1400px] mx-auto px-4 md:px-12 lg:px-16",
+  container: "w-full mx-auto px-4",
   headerMargin: "mb-12 md:mb-16",
 };

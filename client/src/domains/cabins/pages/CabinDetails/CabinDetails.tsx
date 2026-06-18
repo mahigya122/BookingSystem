@@ -71,7 +71,6 @@ const CabinDetails = () => {
     const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date());
-    const [breakfast, setBreakfast] = useState(false);
     const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
     const [selectedOffers, setSelectedOffers] = useState<string[]>([]);
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -89,11 +88,14 @@ const CabinDetails = () => {
         return filters?.dateRange?.endDate ? new Date(filters.dateRange.endDate) : null
     });
 
+    const [breakfast, setBreakfast] = useState(existingBooking?.has_breakfast || false);
+
+    // Sync breakfast when entering update mode
     useEffect(() => {
-        if (existingBooking) {
+        if (existingBooking && !isConfirmModalOpen) {
             setBreakfast(existingBooking.has_breakfast);
         }
-    }, [existingBooking]);
+    }, [existingBooking, isConfirmModalOpen]);
 
     const isBookedByOthers = useMemo(() => {
         if (!availability?.bookings || !startDate || !endDate) return false;
@@ -166,13 +168,13 @@ const CabinDetails = () => {
     }, [cabins, id]);
 
     // PRICING & SELECTIONS HOOKS
-    const selectedActivitiesData = useMemo(() => 
-        cabin?.activities?.filter(a => selectedActivities.includes(a.id)) || [], 
-    [cabin?.activities, selectedActivities]);
+    const selectedActivitiesData = useMemo(() =>
+        cabin?.activities?.filter(a => selectedActivities.includes(a.id)) || [],
+        [cabin?.activities, selectedActivities]);
 
-    const selectedOffersData = useMemo(() => 
-        cabin?.offers?.filter(o => selectedOffers.includes(o.id)) || [], 
-    [cabin?.offers, selectedOffers]);
+    const selectedOffersData = useMemo(() =>
+        cabin?.offers?.filter(o => selectedOffers.includes(o.id)) || [],
+        [cabin?.offers, selectedOffers]);
 
     const isLoading = loadingCabin || loadingAvailability || loadingAllCabins || loadingProfile;
 
@@ -263,13 +265,13 @@ const CabinDetails = () => {
 
     // --- HANDLERS ---
     const handleToggleActivity = (id: string) => {
-        setSelectedActivities(prev => 
+        setSelectedActivities(prev =>
             prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
         );
     };
 
     const handleToggleOffer = (id: string) => {
-        setSelectedOffers(prev => 
+        setSelectedOffers(prev =>
             prev.includes(id) ? prev.filter(o => o !== id) : [...prev, id]
         );
     };
@@ -433,7 +435,7 @@ const CabinDetails = () => {
                     <div className="flex items-center gap-1.5">
                         <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                         <span className="font-extrabold text-slate-900 dark:text-white">
-                            {cabin.reviews && cabin.reviews.length > 0 
+                            {cabin.reviews && cabin.reviews.length > 0
                                 ? (cabin.reviews.reduce((acc, r) => acc + r.rating, 0) / cabin.reviews.length).toFixed(1)
                                 : "N/A"}
                         </span>
@@ -442,7 +444,7 @@ const CabinDetails = () => {
                     <div className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
                     <span>👥 Capacity: {cabin.capacity} guests</span>
                     <div className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
-                    <span>🏠 Cabin Listing</span>
+                    <span> Cabin Listing</span>
                 </div>
             </div>
 
@@ -463,7 +465,7 @@ const CabinDetails = () => {
                         </p>
                     </div>
 
-                    <CabinAmenities 
+                    <CabinAmenities
                         activities={cabin.activities}
                         offers={cabin.offers}
                         selectedActivities={selectedActivities}
@@ -491,9 +493,9 @@ const CabinDetails = () => {
                 <div className="lg:col-span-1">
                     <div className="sticky top-24 space-y-8">
                         {(userBookingStatus === "checked-in" || userBookingStatus === "checked-out") && user ? (
-                            <ReviewForm 
-                                cabinId={cabin.id} 
-                                guestId={user.id} 
+                            <ReviewForm
+                                cabinId={cabin.id}
+                                guestId={user.id}
                                 onSuccess={() => navigate(0)}
                             />
                         ) : (
@@ -523,8 +525,8 @@ const CabinDetails = () => {
                             />
                         )}
 
-                        <CabinLocation 
-                            cabinName={cabin.name} 
+                        <CabinLocation
+                            cabinName={cabin.name}
                             location={cabin.location}
                         />
 

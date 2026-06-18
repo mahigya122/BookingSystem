@@ -47,13 +47,6 @@ const FlippingBook = ({ role, onRoleChange, onLoginSuccess, hideToggle }: Props)
       <div className="pointer-events-none absolute inset-y-0 left-1/2 hidden w-px bg-linear-to-b from-transparent via-sky-200/40 to-transparent lg:block" />
 
       <div className="relative mx-auto flex min-h-screen w-full flex-col justify-center px-0 py-0">
-        <div className="mb-4 flex items-center justify-between px-6 text-sm font-semibold text-slate-600 dark:text-slate-350 lg:hidden">
-          <span className="font-black text-2xl tracking-tight">Cabin<span className="text-sky-500">Hub</span></span>
-          <span className="rounded-full border border-sky-100/50 bg-white/60 px-4 py-1.5 text-[12px] uppercase tracking-[0.2em] dark:border-slate-800 dark:bg-slate-900/60 text-sky-600 font-bold">
-            {isUser ? "Guest View" : "Admin View"}
-          </span>
-        </div>
-
         <div className="hidden items-center justify-center lg:flex h-screen w-full">
           <div className="relative w-full h-full overflow-hidden border-none bg-white/40 backdrop-blur-3xl dark:bg-slate-950/40 shadow-none">
             <div
@@ -122,18 +115,6 @@ const FlippingBook = ({ role, onRoleChange, onLoginSuccess, hideToggle }: Props)
 
         <div className="lg:hidden">
           <div className="overflow-hidden rounded-[2rem] border border-sky-150 bg-white/70 shadow-2xl shadow-sky-200/50 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
-            <div className="flex items-center justify-between border-b border-sky-50/70 px-5 py-4 dark:border-slate-800">
-              <div className="space-y-1">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-sky-500">
-                  {isUser ? "Guest login" : "Admin login"}
-                </p>
-                <h1 className="text-xl font-black">{title}</h1>
-              </div>
-              <div className="rounded-full bg-sky-50 px-3 py-1 text-[11px] font-bold text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
-                {isUser ? "Cabin Booking" : "Operations"}
-              </div>
-            </div>
-
             {!hideToggle && (
               <div className="flex flex-wrap gap-2 border-b border-sky-50/70 px-5 py-4 dark:border-slate-800">
                 <button type="button" onClick={() => onRoleChange("user")} className={toggleButtonClass(isUser)}>
@@ -148,7 +129,7 @@ const FlippingBook = ({ role, onRoleChange, onLoginSuccess, hideToggle }: Props)
             <div className="grid gap-0 lg:hidden">
               {isUser ? (
                 <>
-                  <div className="border-b border-sky-50/50 bg-sky-50/10 dark:border-slate-800 dark:bg-slate-900/50">
+                  <div className="hidden border-b border-sky-50/50 bg-sky-50/10 dark:border-slate-800 dark:bg-slate-900/50">
                     <LoginHero role="user" />
                   </div>
                   <div className="bg-white/80 px-5 py-6 dark:bg-slate-950">
@@ -157,7 +138,7 @@ const FlippingBook = ({ role, onRoleChange, onLoginSuccess, hideToggle }: Props)
                 </>
               ) : (
                 <>
-                  <div className="border-b border-sky-50/50 bg-sky-50/10 dark:border-slate-800 dark:bg-slate-900/50">
+                  <div className="hidden border-b border-sky-50/50 bg-sky-50/10 dark:border-slate-800 dark:bg-slate-900/50">
                     <LoginHero role="admin" />
                   </div>
                   <div className="bg-white/80 px-5 py-6 dark:bg-slate-950">

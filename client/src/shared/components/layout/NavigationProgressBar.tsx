@@ -4,22 +4,30 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const NavigationProgressBar = () => {
   const location = useLocation();
+  const [prevPath, setPrevPath] = useState(location.pathname);
   const [isNavigating, setIsNavigating] = useState(false);
 
-  useEffect(() => {
+  // Derive navigating state directly from render cycle when path changes
+  if (location.pathname !== prevPath) {
+    setPrevPath(location.pathname);
     setIsNavigating(true);
-    
+  }
+
+  useEffect(() => {
     // Only scroll to top if we're NOT targeting a specific section
-    if (!location.state?.scrollTo) {
+    if (isNavigating && !location.state?.scrollTo) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    const timer = setTimeout(() => {
-      setIsNavigating(false);
-    }, 500); // Progress bar duration
+    let timer: NodeJS.Timeout;
+    if (isNavigating) {
+      timer = setTimeout(() => {
+        setIsNavigating(false);
+      }, 500); // Progress bar duration
+    }
 
     return () => clearTimeout(timer);
-  }, [location.pathname, location.state]);
+  }, [isNavigating, location.state]);
 
   return (
     <AnimatePresence>

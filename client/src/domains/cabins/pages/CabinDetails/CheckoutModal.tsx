@@ -2,6 +2,9 @@ import { ArrowRight, Loader2, Shield, User } from "lucide-react";
 import PaymentSelector from "../../../payments/components/PaymentSelector";
 import type { Cabin } from "@shared/types";
 
+import type { Activity } from "@shared/types/activity";
+import type { Offer } from "@shared/types/offer";
+
 interface CheckoutModalProps {
     cabin: Cabin;
     checkoutStep: "summary" | "payment";
@@ -9,15 +12,15 @@ interface CheckoutModalProps {
     endDate: Date | null;
     totalNights: number;
     guestCount: number;
-    fullName: string | null;
-    phone: string | null;
+    fullName: string;
+    phone: string;
     breakfast: boolean;
     baseAccommodationPrice: number;
     breakfastTotal: number;
     activitiesTotal: number;
     discountFromOffers: number;
-    selectedActivities: any[];
-    selectedOffers: any[];
+    selectedActivities: Activity[];
+    selectedOffers: Offer[];
     totalPrice: number;
     paymentMethod: string;
     isBookingPending: boolean;
@@ -144,7 +147,7 @@ const CheckoutModal = ({
                                         <span>${activitiesTotal}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-1">
-                                        {selectedActivities.map((a: any) => (
+                                        {selectedActivities.map((a: Activity) => (
                                             <span key={a.id} className="text-[9px] bg-sky-50 dark:bg-sky-950/30 text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded-full border border-sky-100 dark:border-sky-900/30 font-black uppercase">
                                                 {a.name}
                                             </span>
@@ -159,7 +162,7 @@ const CheckoutModal = ({
                                         <span>-${discountFromOffers.toFixed(0)}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-1">
-                                        {selectedOffers.map((o: any) => (
+                                        {selectedOffers.map((o: Offer) => (
                                             <span key={o.id} className="text-[9px] bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/30 font-black uppercase">
                                                 {o.name || o.title}
                                             </span>

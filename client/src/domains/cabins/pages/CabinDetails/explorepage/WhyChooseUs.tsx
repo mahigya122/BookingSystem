@@ -21,7 +21,7 @@ const advantages = [
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
 const WhyChooseUs = () => (
-    <section className={`relative overflow-hidden bg-white dark:bg-slate-950 pt-16 pb-16 w-full`}>
+    <section className={`relative overflow-hidden bg-white dark:bg-slate-950 py-[52px] md:py-[56px] lg:py-[60px] w-full`}>
         {/* Dashed circle decoration top-right */}
         <svg className="absolute -top-12 -right-12 w-64 h-64 pointer-events-none" viewBox="0 0 200 200" fill="none">
             <circle cx="100" cy="100" r="90" stroke="#38bdf8" strokeWidth="2" strokeDasharray="8 6" opacity="0.1" />
@@ -56,8 +56,8 @@ const WhyChooseUs = () => (
                                 <CheckCircle2 className="h-3.5 w-3.5 text-white" />
                             </div>
                             <div>
-                                <p className="font-black text-slate-900 dark:text-white text-base tracking-tight">{title}</p>
-                                <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5 leading-relaxed font-medium">{desc}</p>
+                                <p className="font-black text-slate-900 dark:text-white text-sm tracking-tight">{title}</p>
+                                <p className="text-slate-500 dark:text-slate-400 text-[10px] mt-0.5 leading-relaxed font-medium">{desc}</p>
                             </div>
                         </motion.div>
                     ))}
@@ -94,7 +94,7 @@ const WhyChooseUs = () => (
 
                 {/* Experience Badge */}
                 <div className="absolute bottom-8 right-8 bg-sky-500 text-white p-6 rounded-[2rem] shadow-2xl z-30 rotate-3">
-                    <p className="text-3xl font-black">10+</p>
+                    <p className="text-2xl font-black">10+</p>
                     <p className="text-[10px] font-bold uppercase tracking-widest opacity-80">Years Experience</p>
                 </div>
             </motion.div>

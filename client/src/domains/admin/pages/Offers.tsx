@@ -1,4 +1,4 @@
-import { useOffers } from "@shared/hooks/useOffers";
+import type { Offer } from "@shared/types/offer";
 import { useCabins } from "@shared/hooks";
 import { usePagination } from "@shared/hooks/usePagination";
 import type { Offer } from "@shared/types/offer";

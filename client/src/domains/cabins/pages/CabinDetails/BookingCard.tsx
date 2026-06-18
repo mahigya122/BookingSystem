@@ -1,6 +1,8 @@
 import { Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { Cabin } from "@shared/types";
+import type { Activity } from "@shared/types/activity";
+import type { Offer } from "@shared/types/offer";
 
 interface BookingCardProps {
     cabin: Cabin;
@@ -15,8 +17,8 @@ interface BookingCardProps {
     breakfastTotal: number;
     activitiesTotal: number;
     discountFromOffers: number;
-    selectedActivities: any[];
-    selectedOffers: any[];
+    selectedActivities: Activity[];
+    selectedOffers: Offer[];
     cleaningFee: number;
     serviceTax: number;
     totalPrice: number;
@@ -182,7 +184,7 @@ const BookingCard = ({
                                         <span className="text-slate-900 dark:text-white font-extrabold">${activitiesTotal}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-1 px-1">
-                                        {selectedActivities.map((a: any) => (
+                                        {selectedActivities.map((a: Activity) => (
                                             <span key={a.id} className="text-[10px] bg-sky-50 dark:bg-sky-950/30 text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded-full border border-sky-100 dark:border-sky-900/30">
                                                 {a.name}
                                             </span>
@@ -197,7 +199,7 @@ const BookingCard = ({
                                         <span className="font-extrabold">-${discountFromOffers.toFixed(0)}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-1 px-1">
-                                        {selectedOffers.map((o: any) => (
+                                        {selectedOffers.map((o: Offer) => (
                                             <span key={o.id} className="text-[10px] bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/30">
                                                 {o.name || o.title}
                                             </span>

@@ -109,7 +109,7 @@ export const generateCabins = (locations: SeedReference[], count = 10) => {
     "Golden Leaf Cottage", "Blue Spruce Chalet", "Echo Rock Cabin"
   ];
 
-  return Array.from({ length: count }).map((_, i) => ({
+  return Array.from({ length: count }).map((_, i) => {
     id: faker.string.uuid(),
     name: cabinNames[i % cabinNames.length],
     capacity: faker.number.int({ min: 2, max: 10 }),

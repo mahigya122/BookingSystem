@@ -8,26 +8,17 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="group relative flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-xl md:rounded-2xl border transition-all duration-500 shadow-sm"
-      style={{
-        background: "var(--app-surface-elevated)",
-        borderColor: "var(--app-border)",
-      }}
+      className="p-1.5 text-slate-500 hover:text-sky-500 dark:text-slate-400 dark:hover:text-amber-400 transition-all duration-300 active:scale-90"
       aria-label={isLight ? "Switch to dark mode" : "Switch to light mode"}
+      title={isLight ? "Switch to dark mode" : "Switch to light mode"}
     >
-      {/* Background Hover Effect */}
-      <div className="absolute inset-0 rounded-xl md:rounded-2xl bg-sky-500/0 group-hover:bg-sky-500/10 transition-colors duration-500" />
-      
-      <div className="relative z-10 transition-transform duration-500 group-hover:rotate-[360deg] group-hover:scale-110">
+      <div className={`transition-transform duration-500 ${isLight ? 'hover:-rotate-12' : 'hover:rotate-90'}`}>
         {isLight ? (
-          <Moon size={18} className="md:size-[22px] text-slate-500 group-hover:text-sky-500 transition-colors duration-500" />
+          <Moon size={22} className="drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.6)] transition-all" />
         ) : (
-          <Sun size={18} className="md:size-[22px] text-amber-400 group-hover:text-amber-300 transition-colors duration-500" />
+          <Sun size={22} className="drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.6)] transition-all" />
         )}
       </div>
-
-      {/* Shine Highlight */}
-      <div className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-amber-400/40 blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
     </button>
   );
 };

@@ -27,7 +27,7 @@ const steps = [
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
 const HowItWorks = () => (
-    <section className={`relative bg-slate-50 dark:bg-slate-900/40 pt-16 pb-16 overflow-hidden w-full`}>
+    <section className={`relative bg-slate-50 dark:bg-slate-900/40 py-[52px] md:py-[56px] lg:py-[60px] overflow-hidden w-full`}>
         {/* Airplane + dashed path */}
         <svg
             className="absolute top-32 left-0 right-0 w-full h-16 pointer-events-none"
@@ -72,8 +72,8 @@ const HowItWorks = () => (
                         </div>
 
                         <div className="space-y-1">
-                            <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">{title}</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-[220px]">{desc}</p>
+                            <h3 className="text-lg font-black text-slate-900 dark:text-white tracking-tight">{title}</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-[220px]">{desc}</p>
                         </div>
                     </motion.div>
                 ))}

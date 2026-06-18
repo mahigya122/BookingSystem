@@ -46,7 +46,7 @@ const ExploreLocations = ({ cabins }: ExploreLocationsProps) => {
     };
 
     return (
-        <section id="explore-locations" className="pt-16 pb-16 relative w-full">
+        <section id="explore-locations" className="py-[52px] md:py-[56px] lg:py-[60px] relative w-full">
             <div className={layoutConfig.container}>
                 <div className="absolute right-4 top-16 flex flex-col gap-2 pointer-events-none hidden lg:flex">
                     {displayedLocations.slice(0, 2).map((loc, i) => (
@@ -92,8 +92,8 @@ const ExploreLocations = ({ cabins }: ExploreLocationsProps) => {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                             <div className="absolute bottom-0 left-0 p-4 md:p-5 w-full flex items-end justify-between">
                                 <div>
-                                    <p className="text-white font-black text-sm md:text-base">{displayedLocations[0].name}</p>
-                                    <p className="text-white/60 text-[10px] md:text-xs">{displayedLocations[0].cabinCount} Cabins</p>
+                                    <p className="text-white font-black text-xs md:text-sm">{displayedLocations[0].name}</p>
+                                    <p className="text-white/60 text-[9px] md:text-[10px]">{displayedLocations[0].cabinCount} Cabins</p>
                                 </div>
                                 {isSelected && (
                                     <span className="bg-sky-500 text-white font-black text-[8px] md:text-[9px] uppercase tracking-widest px-2 py-0.5 md:px-2.5 md:py-1 rounded-full shadow-lg">Active</span>
@@ -133,8 +133,8 @@ const ExploreLocations = ({ cabins }: ExploreLocationsProps) => {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                             <div className="absolute bottom-0 left-0 p-3 md:p-4 w-full flex items-end justify-between">
                                 <div>
-                                    <p className="text-white font-black text-xs md:text-sm leading-tight">{loc.name}</p>
-                                    <p className="text-white/60 text-[9px] md:text-xs">{loc.cabinCount} Cabins</p>
+                                    <p className="text-white font-black text-[10px] md:text-xs leading-tight">{loc.name}</p>
+                                    <p className="text-white/60 text-[9px] md:text-[10px]">{loc.cabinCount} Cabins</p>
                                 </div>
                                 {isSelected && (
                                     <span className="bg-sky-500 text-white font-black text-[7px] md:text-[8px] uppercase tracking-widest px-1.5 py-0.5 md:px-2 md:py-0.5 rounded-full shadow-lg">Active</span>

@@ -81,7 +81,7 @@ const ActivitiesSection = () => {
     };
 
     return (
-        <section id="activities-section" className="pt-16 pb-16 relative w-full">
+        <section id="activities-section" className="py-[52px] md:py-[56px] lg:py-[60px] relative w-full">
             <div className={layoutConfig.container}>
                 <SectionHeader
                     label="Things To Do"
@@ -135,10 +135,10 @@ const ActivitiesSection = () => {
 
                                 <div className="flex items-end justify-between">
                                     <div>
-                                        <h3 className="text-white font-black text-sm md:text-base leading-tight">
+                                        <h3 className="text-white font-black text-xs md:text-sm leading-tight">
                                             {activity.name}
                                         </h3>
-                                        <p className="text-white/60 text-[10px] md:text-xs line-clamp-1">
+                                        <p className="text-white/60 text-[9px] md:text-[10px] line-clamp-1">
                                             {activity.description}
                                         </p>
                                     </div>
@@ -196,7 +196,7 @@ const ActivitiesSection = () => {
                             <div className="absolute bottom-0 left-0 p-3 md:p-4 w-full flex items-end justify-between">
                                 <div className="flex items-center gap-2">
                                     <Icon className="h-4 w-4 text-sky-400" />
-                                    <p className="text-white font-black text-xs md:text-sm leading-tight">
+                                    <p className="text-white font-black text-[10px] md:text-xs leading-tight">
                                         {activity.name}
                                     </p>
                                 </div>

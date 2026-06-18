@@ -51,7 +51,7 @@ const CabinLocation = ({ cabinName, location }: CabinLocationProps) => {
                             </div>
                             <div>
                                 <h4 className="font-extrabold text-slate-900 dark:text-white">{location.name}</h4>
-                                <p className="text-xs font-bold text-slate-500">{(location as any).city}, {(location as any).country}</p>
+                                <p className="text-xs font-bold text-slate-550">{location.city}, {location.country}</p>
                             </div>
                         </div>
                     )}

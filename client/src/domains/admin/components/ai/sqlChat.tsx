@@ -24,12 +24,10 @@ const SQLChat = ({ isOpen }: Props) => {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>(FALLBACK_SUGGESTIONS);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const [wasOpen, setWasOpen] = useState(isOpen);
 
-  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
-    endRef.current?.scrollIntoView({ behavior, block: "end" });
-  };
-
-  useEffect(() => {
+  if (isOpen !== wasOpen) {
+    setWasOpen(isOpen);
     if (isOpen) {
       setInput("");
       setLoading(false);
@@ -37,7 +35,11 @@ const SQLChat = ({ isOpen }: Props) => {
       setConversationId(null);
       setSuggestions(FALLBACK_SUGGESTIONS);
     }
-  }, [isOpen]);
+  }
+
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    endRef.current?.scrollIntoView({ behavior, block: "end" });
+  };
 
   useEffect(() => {
     let cancelled = false;

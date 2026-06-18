@@ -35,7 +35,7 @@ const ClientNavbar = () => {
     };
 
     return (
-        <header className="sticky top-0 z-40 flex h-16 md:h-20 items-center justify-between px-4 md:px-12 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+        <header className="sticky top-0 z-40 flex h-16 md:h-20 items-center justify-between px-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
             {/* LEFT: LOGO */}
             <div className="flex items-center gap-4 md:gap-6">
                 {shouldShowSidebar && (
@@ -66,18 +66,18 @@ const ClientNavbar = () => {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => navigate("/profile")}
-                            className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:text-sky-600 transition-colors text-sm"
+                            className="p-1.5 text-slate-500 hover:text-sky-500 dark:text-slate-400 dark:hover:text-sky-400 transition-all duration-300 active:scale-90 text-sm flex items-center justify-center drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"
                             title="My Profile"
                         >
-                            👤
+                            <span className="leading-none" style={{ fontSize: '20px' }}>👤</span>
                         </button>
 
                         <button
                             onClick={handleLogout}
-                            className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-400 hover:text-rose-500 transition-colors"
+                            className="p-1.5 text-slate-500 hover:text-rose-500 dark:text-slate-400 dark:hover:text-rose-400 transition-all duration-300 active:scale-90 flex items-center justify-center drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]"
                             title="Logout"
                         >
-                            <LogOut size={16} />
+                            <LogOut size={22} />
                         </button>
                     </div>
                 ) : (

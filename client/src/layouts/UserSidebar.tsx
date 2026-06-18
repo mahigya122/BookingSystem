@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom";
 import { SlidersHorizontal, X } from "lucide-react";
 import ExploreFilters from "../domains/cabins/components/ExploreFilters";
 import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";

@@ -133,7 +133,7 @@ const MyBookings = () => {
       ) : (
         <div className="space-y-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {paginatedData.map((booking) => {
+            {paginatedData.map((booking: any) => {
               // Find corresponding cabin to resolve thumbnail
               const cabinInfo = cabins.find((c) => c.id === booking.cabin_id);
               if (!cabinInfo) return null;
