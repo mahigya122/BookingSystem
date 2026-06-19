@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useClientAIChat } from "../../../domains/guests/contexts/ClientAIChatContext";
+import { useAIChat } from "../../../domains/admin/contexts/AIChatContext";
 
-const AIFloatButton = () => {
-  const { open, setOpen } = useClientAIChat();
+const AdminAIFloatButton = () => {
+  const { open, setOpen } = useAIChat();
   const [showBubble, setShowBubble] = useState(false);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ const AIFloatButton = () => {
             <div className="relative bg-white dark:bg-slate-800 px-5 py-4 rounded-[2rem] shadow-2xl border border-sky-200 dark:border-sky-700 min-w-[180px] text-center">
 
               <p className="text-[13px] font-bold tracking-wide leading-relaxed text-slate-700 dark:text-slate-200">
-                <span className="text-sky-500 font-black text-sm block mb-0.5">Hello!</span>
+                <span className="text-sky-500 font-black text-sm block mb-0.5">Admin Assistant ✨</span>
                 How can I help you?
               </p>
 
@@ -87,7 +87,7 @@ const AIFloatButton = () => {
           alt="AI Assistant"
           className="
             relative z-10
-            w-12 h-12 md:w-20 md:h-20
+            w-16 h-16 md:w-20 md:h-20
             object-contain
             drop-shadow-[0_8px_16px_rgba(56,189,248,0.4)]
             group-hover:drop-shadow-[0_12px_24px_rgba(56,189,248,0.6)]
@@ -96,7 +96,7 @@ const AIFloatButton = () => {
           "
         />
 
-        {/*  Online dot */}
+        {/* 🟢 Online dot */}
         <div
           className="
             absolute top-1 right-1 z-20
@@ -112,4 +112,4 @@ const AIFloatButton = () => {
   );
 };
 
-export default AIFloatButton;
+export default AdminAIFloatButton;

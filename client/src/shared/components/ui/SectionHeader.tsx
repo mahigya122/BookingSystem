@@ -20,7 +20,7 @@ const container = {
     },
 };
 
-const letter = (wi: number, highlightIndex: number) => ({
+const letter = () => ({
     hidden: {
         opacity: 0,
         y: 16,
@@ -74,7 +74,7 @@ const SectionHeader = ({
                                 <motion.span
                                     key={i}
                                     className={`inline-block ${wi >= highlightIndex ? "text-sky-500" : ""}`}
-                                    variants={letter(wi, highlightIndex)}
+                                    variants={letter()}
                                 >
                                     {char}
                                 </motion.span>

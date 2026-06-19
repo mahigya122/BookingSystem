@@ -1,19 +1,25 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
+
 import ProtectedRoute from "@shared/components/layout/ProtectedRoute";
 import DashboardLayout from "../layouts/DashboardLayout";
-import Home from "../domains/admin/pages/Home";
-import Booking from "../domains/admin/pages/Booking";
-import Cabins from "../domains/admin/pages/Cabins";
-import Guests from "../domains/admin/pages/Guests";
-import Profile from "../domains/admin/pages/Profile";
-import Settings from "../domains/admin/pages/Settings";
-import Book from "../domains/admin/pages/Book";
-import Login from "../domains/admin/pages/Login";
-import Payments from "../domains/admin/pages/Payments";
-import Locations from "../domains/admin/pages/Locations";
-import Offers from "../domains/admin/pages/Offers";
-import Activities from "../domains/admin/pages/Activities";
-import Reviews from "../domains/admin/pages/Reviews";
+
+// Trigger background preload for the primary entry Dashboard page
+import("../domains/admin/pages/Home").catch(() => {});
+import {
+  Home,
+  Booking,
+  Cabins,
+  Guests,
+  Profile,
+  Settings,
+  Book,
+  Login,
+  Payments,
+  Locations,
+  Offers,
+  Activities,
+  Reviews,
+} from "./lazyPages";
 
 export const adminRouter = createBrowserRouter([
   {

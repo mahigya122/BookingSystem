@@ -1,6 +1,4 @@
-import { useMemo } from "react";
 import type { AuthUser } from "../../types/auth";
-
 import LoginForm from "./LoginForm";
 import LoginHero from "./LoginHero";
 
@@ -21,12 +19,6 @@ const toggleButtonClass = (active: boolean) =>
 
 const FlippingBook = ({ role, onRoleChange, onLoginSuccess, hideToggle }: Props) => {
   const isUser = role === "user";
-
-  const title = useMemo(
-    () => (isUser ? "CabinHub" : "CabinHub Manager"),
-    [isUser]
-  );
-
   return (
     <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-sky-50 via-white to-cyan-50 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 dark:text-white flex items-center">
       {/* Dashed circle decorations in bg */}

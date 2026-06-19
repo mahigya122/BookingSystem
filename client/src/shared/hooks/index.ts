@@ -8,7 +8,6 @@ export { useGoogleLogin } from "./auth/useGoogleLogin";
 export { useBookings } from "./booking/useBookings";
 export { useCreateBooking } from "./booking/useCreateBooking";
 export { useDeleteBooking } from "./booking/useDeleteBooking";
-export { useFilteredBookings } from "./booking/useFilteredBookings";
 export { useUpdateBooking } from "./booking/useUpdateBooking";
 export { useCancelBooking } from "./booking/useCancelBooking";
 
@@ -16,7 +15,6 @@ export { useCancelBooking } from "./booking/useCancelBooking";
 export { useCabins } from "./cabin/useCabins";
 export { useCreateCabin } from "./cabin/useCreateCabin";
 export { useDeleteCabin } from "./cabin/useDeleteCabin";
-export { useFilteredCabins } from "./cabin/useFilteredCabins";
 export { useUpdateCabin } from "./cabin/useUpdateCabin";
 
 // Guest Hooks
@@ -30,3 +28,5 @@ export { useUpdateSettings } from "./setting/useUpdateSettings";
 
 // Utility Hooks
 export * from './usePagination';
+export { useOffers } from "./useOffers";
+export { useDashboardStats } from "./useDashboardStats";

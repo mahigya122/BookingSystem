@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./AdminNavbar";
 import Sidebar from "./AdminSidebar";
 import AIChatDrawer from "../domains/admin/components/ai/AIChatDrawer";
+import AdminAIFloatButton from "@shared/components/ui/AdminAIFloatButton";
 import { AIChatProvider } from "../domains/admin/contexts/AIChatContext";
 import { AdminSidebarProvider } from "../domains/admin/contexts/AdminSidebarContext";
 import { useScrollToTop } from "@shared/hooks/useScrollToTop";
@@ -26,17 +27,18 @@ const DashboardLayout = () => {
             <Sidebar />
 
             {/* MAIN CONTENT */}
-            <main 
+            <main
               ref={containerRef as React.RefObject<HTMLElement>}
-              className="flex-1 overflow-y-auto px-0 py-6 md:p-8 lg:p-10 scroll-smooth"
+              className="flex-1 overflow-y-auto px-4 py-6 md:py-16 scroll-smooth w-full"
             >
-              <div className="max-w-[1600px] mx-auto">
+              <div className="w-full mx-auto">
                 <Outlet />
               </div>
             </main>
           </div>
 
           <AIChatDrawer />
+          <AdminAIFloatButton />
         </div>
       </AIChatProvider>
     </AdminSidebarProvider>

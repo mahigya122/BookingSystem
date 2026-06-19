@@ -16,25 +16,25 @@ export const useFilterActions = () => {
   const navigate = useNavigate();
 
   const handlePriceChange = (values: number[]) => {
-    setFilters({ ...(filters || {}), price: [values[0], values[1]] } as Partial<CabinFilters>);
+    setFilters({ ...filters, price: [values[0], values[1]] });
   };
 
   const handleCapacityChange = (guest: number) => {
-    setFilters({ ...(filters || {}), capacity: filters?.capacity === guest ? null : guest } as Partial<CabinFilters>);
+    setFilters({ ...filters, capacity: filters.capacity === guest ? null : guest });
   };
 
   const handleDateChange = (item: { startDate: Date | null; endDate: Date | null }) => {
     setFilters({
-      ...(filters || {}),
+      ...filters,
       dateRange: {
         startDate: item.startDate,
         endDate: item.endDate,
       }
-    } as Partial<CabinFilters>);
+    });
   };
 
   const handleStatusChange = (status: CabinFilters["bookingStatus"]) => {
-    setFilters({ ...(filters || {}), bookingStatus: status } as Partial<CabinFilters>);
+    setFilters({ ...filters, bookingStatus: status });
     // Auto-close sidebar on mobile after selection to show results
     if (window.innerWidth < 1024) {
       setTimeout(() => setSidebarOpen(false), 300);
@@ -42,11 +42,11 @@ export const useFilterActions = () => {
   };
 
   const handleLocationChange = (locationId: string | null) => {
-    setFilters({ ...(filters || {}), location_id: locationId } as Partial<CabinFilters>);
+    setFilters({ ...filters, location_id: locationId });
   };
 
   const handleActivityChange = (activityId: string | null) => {
-    setFilters({ ...(filters || {}), activity_id: activityId } as Partial<CabinFilters>);
+    setFilters({ ...filters, activity_id: activityId });
   };
 
   const handleReset = () => {

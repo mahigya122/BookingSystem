@@ -1,18 +1,34 @@
 import { useLocations } from "@shared/hooks/useLocations";
-import { useCabins } from "@shared/hooks";
-import { usePagination } from "@shared/hooks/usePagination";
+import { useCabins, useUpdateCabin } from "@shared/hooks";
 import type { Location } from "@shared/types/location";
 import { useState, useMemo, useEffect } from "react";
-import { Pencil, MapPin, Plus, Trash2, Home, Search, Loader2, Globe, X, Save, ChevronLeft, ChevronRight } from "lucide-react";
+import { Pencil, MapPin, Plus, Trash2, Home, Search, Loader2, Globe, X, Save, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import toast from "react-hot-toast";
+import type { Cabin } from "@shared/types/cabin";
 
 const Locations = () => {
-  const { locations = [], isLoading: isLocationsLoading, addLocation, removeLocation, editLocation, isCreating, isUpdating, isDeleting } = useLocations();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const {
+    locations = [],
+    totalCount = 0,
+    isLoading: isLocationsLoading,
+    addLocation,
+    removeLocation,
+    editLocation,
+    isCreating,
+    isUpdating,
+    isDeleting
+  } = useLocations(currentPage, 10, searchTerm);
+
   const { cabins = [], isLoading: isCabinsLoading } = useCabins();
+  const { editCabin, isPending: isUpdatingCabin } = useUpdateCabin();
+
+  const totalPages = Math.ceil(totalCount / 10);
 
   const [isAdding, setIsAdding] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  
+
   const [newLocation, setNewLocation] = useState({ 
     name: "", 
     city: "", 
@@ -22,6 +38,7 @@ const Locations = () => {
   });
   
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+  const [viewingLocation, setViewingLocation] = useState<Location | null>(null);
   const [editForm, setEditForm] = useState({ 
     name: "", 
     city: "", 
@@ -34,7 +51,7 @@ const Locations = () => {
     const stats: Record<string, number> = {};
     const normalize = (s?: string) => s?.toLowerCase().trim() || "";
 
-    cabins.forEach(cabin => {
+    cabins.forEach((cabin: Cabin) => {
       const locationName = normalize(cabin.location?.name);
       if (locationName) {
         stats[locationName] = (stats[locationName] || 0) + 1;
@@ -48,24 +65,9 @@ const Locations = () => {
     return locationStats[normalize(location.name)] || 0;
   };
 
-  const filteredLocations = useMemo(() => {
-    return locations.filter(loc => 
-      (loc.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (loc.city || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (loc.country || "").toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [locations, searchTerm]);
-
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData,
-  } = usePagination(filteredLocations, 10);
-
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, setCurrentPage]);
+  }, [searchTerm]);
 
   const handleAdd = () => {
     if (!newLocation.name.trim() || !newLocation.city.trim() || !newLocation.country.trim()) {
@@ -114,6 +116,13 @@ const Locations = () => {
     });
   };
 
+  const toggleCabinLocation = (cabin: Cabin, locationId: string | null) => {
+    editCabin({
+      id: cabin.id,
+      data: { location_id: locationId || undefined }
+    });
+  };
+
   const handleDelete = (id: string, location: Location) => {
     const count = getLocationCount(location);
     if (count > 0) {
@@ -139,8 +148,12 @@ const Locations = () => {
     );
   }
 
+  // Find cabins with current location
+  const cabinsWithLocation = viewingLocation ? cabins.filter((c: Cabin) => c.location_id === viewingLocation.id) : [];
+  const cabinsWithoutLocation = viewingLocation ? cabins.filter((c: Cabin) => c.location_id !== viewingLocation.id) : [];
+
   return (
-      <div className="px-6 md:px-0 space-y-8 animate-slide-up">
+      <div className="px-6 md:px-0 space-y-8 animate-slide-up pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Geographic Locations</h1>
@@ -164,28 +177,28 @@ const Locations = () => {
       </div>
 
       {isAdding && (
-        <div className="card p-8 space-y-8 bg-amber-50/20 dark:bg-amber-900/10 border-amber-100/50 dark:border-amber-900/20 animate-in slide-in-from-top duration-300">
+        <div className="card p-8 space-y-8 bg-sky-50/20 dark:bg-sky-900/10 border-sky-100/50 dark:border-sky-900/20 animate-in slide-in-from-top duration-300">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+            <div className="h-10 w-10 rounded-xl bg-sky-500/10 flex items-center justify-center text-sky-600">
                 <MapPin size={20} />
             </div>
-            <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Initialize New Area</h3>
+            <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">New Global Destination</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-                <label className={inputLabelClass}>Area Name</label>
+                <label className={inputLabelClass}>Destination Name</label>
                 <input
-                    placeholder="E.g. Alpine Heights"
+                    placeholder="E.g. Emerald Bay"
                     value={newLocation.name}
                     onChange={(e) => setNewLocation({ ...newLocation, name: e.target.value })}
                     className={inputBaseClass}
                 />
             </div>
             <div className="space-y-2">
-                <label className={inputLabelClass}>City</label>
+                <label className={inputLabelClass}>City / Region</label>
                 <input
-                    placeholder="E.g. Aspen"
+                    placeholder="E.g. South Lake Tahoe"
                     value={newLocation.city}
                     onChange={(e) => setNewLocation({ ...newLocation, city: e.target.value })}
                     className={inputBaseClass}
@@ -194,39 +207,38 @@ const Locations = () => {
             <div className="space-y-2">
                 <label className={inputLabelClass}>Country</label>
                 <input
-                    placeholder="E.g. USA"
+                    placeholder="E.g. United States"
                     value={newLocation.country}
                     onChange={(e) => setNewLocation({ ...newLocation, country: e.target.value })}
                     className={inputBaseClass}
                 />
             </div>
           </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-                <label className={inputLabelClass}>Image URL</label>
-                <div className="relative">
-                    <Globe size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                        placeholder="https://..."
-                        value={newLocation.image_url}
-                        onChange={(e) => setNewLocation({ ...newLocation, image_url: e.target.value })}
-                        className={`${inputBaseClass} pl-12`}
-                    />
-                </div>
-            </div>
-            <div className="space-y-2">
-                <label className={inputLabelClass}>Narrative Description</label>
+                <label className={inputLabelClass}>Cover Image URL</label>
                 <input
-                    placeholder="Short description of the area..."
-                    value={newLocation.description}
-                    onChange={(e) => setNewLocation({ ...newLocation, description: e.target.value })}
+                    placeholder="https://..."
+                    value={newLocation.image_url}
+                    onChange={(e) => setNewLocation({ ...newLocation, image_url: e.target.value })}
                     className={inputBaseClass}
                 />
             </div>
+            <div className="space-y-2">
+                <label className={inputLabelClass}>Brief Narrative</label>
+                <textarea
+                    placeholder="Describe the area's allure..."
+                    value={newLocation.description}
+                    onChange={(e) => setNewLocation({ ...newLocation, description: e.target.value })}
+                    className={`${inputBaseClass} min-h-[46px] resize-none pt-2`}
+                />
+            </div>
           </div>
-          <div className="flex justify-end pt-4 border-t border-amber-100/50 dark:border-amber-900/20">
-            <button onClick={handleAdd} disabled={isCreating} className="btn btn-primary px-10 shadow-lg shadow-amber-500/10">
-                {isCreating ? <Loader2 size={18} className="animate-spin" /> : <><Plus size={18} /> Initialize Area</>}
+
+          <div className="flex justify-end pt-4 border-t border-sky-100/50 dark:border-sky-900/20">
+            <button onClick={handleAdd} disabled={isCreating} className="btn btn-primary px-10 shadow-lg shadow-sky-500/10">
+                {isCreating ? <Loader2 size={18} className="animate-spin" /> : <><Globe size={18} /> Establish Destination</>}
             </button>
           </div>
         </div>
@@ -236,63 +248,56 @@ const Locations = () => {
         <table className="w-full">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Image</th>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Location</th>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Cabins</th>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Region</th>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
+              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Destination</th>
+              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Geography</th>
+              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Inventory</th>
+              <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {paginatedData.map((loc) => (
-              <tr key={loc.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <td className="px-8 py-5">
-                  {loc.image_url ? (
-                    <img
-                      src={loc.image_url}
-                      alt={loc.name}
-                      className="h-10 w-16 object-cover rounded-lg shadow-sm border border-slate-100 dark:border-slate-800"
-                    />
-                  ) : (
-                    <div className="h-10 w-16 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-[10px] text-slate-400 uppercase font-black">
-                      No Img
-                    </div>
-                  )}
-                </td>
+            {locations.map((location) => (
+              <tr key={location.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                 <td className="px-8 py-5">
                   <div className="flex flex-col">
                     <span className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <MapPin size={14} className="text-sky-500 flex-shrink-0" />
-                        {loc.name}
+                        <MapPin size={14} className="text-sky-500" />
+                        {location.name}
                     </span>
-                    <span className="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{loc.description || "No description provided."}</span>
+                    <span className="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{location.description || "No description provided."}</span>
                   </div>
                 </td>
                 <td className="px-8 py-5">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-900/30">
-                      <Home size={12} />
-                      <span className="text-[11px] font-black uppercase tracking-wider">{getLocationCount(loc) || 0}</span>
-                    </div>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">{location.city}</span>
+                    <span className="text-[11px] text-slate-400 uppercase tracking-widest font-black">{location.country}</span>
+                  </div>
                 </td>
                 <td className="px-8 py-5">
-                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-350">
-                        <Globe size={14} className="text-slate-400" />
-                        <span className="text-sm font-semibold">{loc.city}, {loc.country}</span>
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                      <Home size={12} />
+                      <span className="text-[11px] font-black uppercase tracking-wider">{getLocationCount(location)} Cabins</span>
                     </div>
                 </td>
                 <td className="px-8 py-5">
                   <div className="flex items-center justify-end gap-2 transition-all duration-300">
                     <button 
-                        onClick={() => openEdit(loc)} 
+                        onClick={() => setViewingLocation(location)} 
+                        className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 dark:hover:border-sky-900 shadow-sm transition-all"
+                        title="View Cabins"
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button 
+                        onClick={() => openEdit(location)} 
                         className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-200 dark:hover:border-amber-900 shadow-sm transition-all"
                         title="Edit Location"
                     >
                       <Pencil size={18} />
                     </button>
                     <button 
-                        onClick={() => handleDelete(loc.id, loc)} 
+                        onClick={() => handleDelete(location.id, location)} 
                         disabled={isDeleting} 
-                        className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-500 hover:border-rose-200 dark:hover:border-rose-900 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-250 border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-500 hover:border-rose-200 dark:hover:border-rose-900 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                         title="Delete Location"
                     >
                       {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
@@ -303,7 +308,8 @@ const Locations = () => {
             ))}
           </tbody>
         </table>
-        {paginatedData.length === 0 && (
+        
+        {locations.length === 0 && (
             <div className="py-20 text-center">
                 <Search size={40} className="mx-auto text-slate-200 mb-4" />
                 <p className="text-slate-400 font-bold tracking-tight">No locations found.</p>
@@ -342,36 +348,39 @@ const Locations = () => {
 
       {editingLocation && (
         <div className="modal-overlay">
-          <div className="modal-content w-full max-w-2xl flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900">
+          <div className="modal-content w-full max-w-xl p-8 space-y-8 animate-in zoom-in-95 duration-200 border-2 border-slate-100 dark:border-slate-800 shadow-2xl">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Edit Location</h2>
-                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Update geographic region: <span className="text-sky-500">{editingLocation.name}</span></p>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Edit Destination</h2>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Updating global destination parameters</p>
               </div>
-              <button onClick={() => setEditingLocation(null)} className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <button onClick={() => setEditingLocation(null)} className="p-3 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                 <X size={24} className="text-slate-400" />
               </button>
             </div>
 
-            <div className="p-8 bg-slate-50/30 dark:bg-slate-950/30 space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                    <label className={inputLabelClass}>Area Name</label>
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                    <label className={inputLabelClass}>Destination Name</label>
                     <input
                         value={editForm.name}
                         onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                         className={modalInputBaseClass}
                     />
                 </div>
-                <div className="space-y-2">
-                    <label className={inputLabelClass}>City</label>
+                <div className="space-y-1.5">
+                    <label className={inputLabelClass}>City / Region</label>
                     <input
                         value={editForm.city}
                         onChange={(e) => setEditForm({ ...editForm, city: e.target.value })}
                         className={modalInputBaseClass}
                     />
                 </div>
-                <div className="space-y-2">
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1.5">
                     <label className={inputLabelClass}>Country</label>
                     <input
                         value={editForm.country}
@@ -379,33 +388,108 @@ const Locations = () => {
                         className={modalInputBaseClass}
                     />
                 </div>
+                <div className="space-y-1.5">
+                    <label className={inputLabelClass}>Cover Image URL</label>
+                    <input
+                        value={editForm.image_url}
+                        onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
+                        className={modalInputBaseClass}
+                    />
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <label className={inputLabelClass}>Visual Reference (URL)</label>
-                <input
-                  value={editForm.image_url}
-                  onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
-                  className={modalInputBaseClass}
-                />
-              </div>
-
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <label className={inputLabelClass}>Narrative Description</label>
                 <textarea
                   value={editForm.description}
                   onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                  className={`${modalInputBaseClass} min-h-[120px] resize-none leading-relaxed`}
+                  className={`${modalInputBaseClass} min-h-28 mt-1 outline-none resize-none leading-relaxed`}
                 />
               </div>
             </div>
 
-            <div className="px-8 py-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-end gap-3">
-              <button onClick={() => setEditingLocation(null)} className="btn btn-secondary px-6">
-                Discard
+            <div className="flex justify-end gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button onClick={() => setEditingLocation(null)} className="btn btn-secondary px-8 h-12">
+                Cancel
               </button>
-              <button onClick={handleUpdate} disabled={isUpdating} className="btn btn-primary px-10 shadow-xl shadow-sky-500/20">
-                {isUpdating ? <Loader2 size={18} className="animate-spin" /> : <><Save size={18} /> Update Location</>}
+              <button onClick={handleUpdate} disabled={isUpdating} className="btn btn-primary px-12 h-12">
+                {isUpdating ? <Loader2 size={20} className="animate-spin" /> : <><Save size={20} className="mr-2" /> Save Changes</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewingLocation && (
+        <div className="modal-overlay">
+          <div className="modal-content w-full max-w-2xl p-8 space-y-6 animate-in zoom-in-95 duration-200 border-2 border-slate-100 dark:border-slate-800 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">{viewingLocation.name}</h2>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Manage cabins situated in this location</p>
+              </div>
+              <button onClick={() => setViewingLocation(null)} className="p-3 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <X size={24} className="text-slate-400" />
+              </button>
+            </div>
+
+            <div className="space-y-6 overflow-y-auto max-h-[60vh] pr-2 custom-scrollbar font-bold">
+              <div className="space-y-4">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">Currently Assigned ({cabinsWithLocation.length})</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {cabinsWithLocation.length === 0 ? (
+                    <p className="text-sm text-slate-400 italic font-medium py-6 text-center bg-slate-50 dark:bg-slate-900/30 rounded-2xl border-2 border-dashed border-slate-100 dark:border-slate-800">No cabins are currently mapped to this location.</p>
+                  ) : (
+                    cabinsWithLocation.map(cabin => (
+                      <div key={cabin.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl group">
+                        <div className="flex items-center gap-3">
+                          <img src={cabin.image_url} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover" />
+                          <div>
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.capacity} Guests Max</p>
+                          </div>
+                        </div>
+                        <button 
+                          disabled={isUpdatingCabin}
+                          onClick={() => toggleCabinLocation(cabin, null)}
+                          className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-rose-500 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 hover:bg-rose-500 hover:text-white transition-all"
+                        >
+                          Unlink
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-500">Other Cabins ({cabinsWithoutLocation.length})</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {cabinsWithoutLocation.map(cabin => (
+                    <div key={cabin.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl group">
+                      <div className="flex items-center gap-3">
+                        <img src={cabin.image_url} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+                        <div>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
+                          <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Currently: <span className="text-slate-600 dark:text-slate-300">{cabin.location?.name || "Unassigned"}</span></p>
+                        </div>
+                      </div>
+                      <button 
+                        disabled={isUpdatingCabin}
+                        onClick={() => toggleCabinLocation(cabin, viewingLocation.id)}
+                        className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-sky-600 bg-sky-50 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-900/30 hover:bg-sky-500 hover:text-white transition-all"
+                      >
+                        Set Location
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button onClick={() => setViewingLocation(null)} className="btn btn-primary px-12 h-12 text-xs">
+                Done
               </button>
             </div>
           </div>

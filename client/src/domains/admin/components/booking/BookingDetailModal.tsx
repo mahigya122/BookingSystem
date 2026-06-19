@@ -1,10 +1,10 @@
 import type { Booking } from "@shared/types/booking";
-import { 
-  X, 
-  User, 
-  Home, 
-  CreditCard, 
-  Info, 
+import {
+  X,
+  User,
+  Home,
+  CreditCard,
+  Info,
   Coffee,
   Clock,
   MapPin
@@ -22,8 +22,8 @@ const BookingDetailModal = ({
   const nights = Math.ceil(
     (new Date(booking.end_date).getTime() -
       new Date(booking.start_date).getTime()) /
-      (1000 * 60 * 60 * 24)
-    );
+    (1000 * 60 * 60 * 24)
+  );
 
   const statusColors = {
     "booked": "badge-warning",
@@ -35,7 +35,7 @@ const BookingDetailModal = ({
   return (
     <div className="modal-overlay">
       <div className="modal-content w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-        
+
         {/* HEADER */}
         <div className="px-10 py-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 flex-shrink-0">
           <div className="flex items-center gap-4">
@@ -57,9 +57,9 @@ const BookingDetailModal = ({
 
         {/* CONTENT */}
         <div className="flex-1 overflow-y-auto p-10 bg-slate-50/30 dark:bg-slate-950/30 space-y-10">
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            
+
             {/* GUEST & CABIN INFO */}
             <div className="space-y-8">
               <section className="space-y-4">
@@ -132,9 +132,9 @@ const BookingDetailModal = ({
                       </span>
                     </div>
                     <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
-                       <div className="h-px w-8 bg-slate-200" />
-                       <span className="badge badge-primary">{nights} Nights</span>
-                       <div className="h-px w-8 bg-slate-200" />
+                      <div className="h-px w-8 bg-slate-200" />
+                      <span className="badge badge-primary">{nights} Nights</span>
+                      <div className="h-px w-8 bg-slate-200" />
                     </div>
                     <div className="flex flex-col gap-1 text-right">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Departure</span>

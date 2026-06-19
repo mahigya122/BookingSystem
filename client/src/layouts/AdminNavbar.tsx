@@ -1,74 +1,58 @@
 import { useNavigate } from "react-router-dom";
-import { useUser, useLogout } from "@shared/hooks";
+import { useLogout } from "@shared/hooks";
 import ThemeToggle from "@shared/components/ui/ThemeToggle";
-import { Bot, Mountain } from "lucide-react";
-import { useAIChat } from "../domains/admin/contexts/AIChatContext";
+import { Mountain, LogOut } from "lucide-react";
 
 const Navbar = () => {
-    const { user } = useUser();
     const { logout } = useLogout();
     const navigate = useNavigate();
-    const { setOpen } = useAIChat();
 
     const handleLogout = () => {
         logout();
     };
 
     return (
-        <header className="nav-panel sticky top-0 z-40 flex h-20 items-center justify-between px-8 backdrop-blur-xl border-b border-sky-100 dark:border-sky-900/20">
-            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate("/dashboard")}>
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-600 shadow-lg shadow-sky-200 dark:shadow-none group-hover:scale-110 transition-transform duration-300">
-                    <Mountain className="h-6 w-6 text-white" />
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white leading-none">
-                        Cabin<span className="text-sky-600">Admin</span>
-                    </span>
-                    <span className="text-[10px] font-bold text-sky-400 uppercase tracking-[0.2em] mt-1">
-                        System Control
-                    </span>
+        <header className="sticky top-0 z-40 flex h-16 md:h-20 items-center justify-between px-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-4 md:gap-6 cursor-pointer group" onClick={() => navigate("/dashboard")}>
+                <div className="flex items-center gap-2">
+                    <Mountain className="h-6 w-6 text-sky-600 group-hover:scale-110 transition-transform duration-300" />
+                    <div className="flex flex-col">
+                        <span className="text-lg font-black tracking-tight text-slate-900 dark:text-white leading-none">
+                            Cabin<span className="text-sky-600">Admin</span>
+                        </span>
+                        <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-1 leading-none">
+                            System Control
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            <div className="flex items-center gap-6">
-                {/* VIEW SITE LINK (Subtle) */}
+            <div className="flex items-center gap-4">
+                {/* VIEW SITE LINK */}
                 <button
                     onClick={() => window.location.href = "/"}
-                    className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-full border border-sky-100 dark:border-sky-900/40 text-[10px] font-black uppercase tracking-widest text-sky-400 hover:text-sky-600 hover:border-sky-200 transition-all duration-300"
+                    className="hidden lg:flex px-5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-black uppercase tracking-widest hover:bg-sky-500 hover:text-white dark:hover:bg-sky-500 dark:hover:text-white transition-all duration-300"
                 >
                     View Site
                 </button>
 
-                <button
-                    onClick={() => setOpen(true)}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-all duration-300 shadow-sm"
-                >
-                    <Bot size={16} className="animate-bounce" />
-                    <span className="text-xs font-black uppercase tracking-widest">AI Intelligence</span>
-                </button>
+                <ThemeToggle />
 
-                <div className="hidden h-8 w-px bg-slate-100 dark:bg-slate-800 sm:block" />
-
-                <div className="hidden sm:flex items-center gap-4">
-                    <div className="flex flex-col items-end">
-                        <span className="text-xs font-black text-slate-900 dark:text-white leading-none">{user?.email?.split('@')[0] || "Admin"}</span>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-400 mt-1.5">Master Controller</span>
-                    </div>
+                <div className="flex items-center gap-2 ml-1">
                     <button
                         onClick={() => navigate("/profile")}
-                        className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-50 dark:bg-slate-800 border-2 border-transparent hover:border-sky-400 hover:shadow-xl hover:shadow-sky-400/20 transition-all duration-500 shadow-sm group"
+                        className="p-1.5 text-slate-500 hover:text-sky-500 dark:text-slate-400 dark:hover:text-sky-400 transition-all duration-300 active:scale-90 text-sm flex items-center justify-center drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"
+                        title="My Profile"
                     >
-                        <span className="group-hover:scale-125 transition-transform duration-500">👤</span>
+                        <span className="leading-none" style={{ fontSize: '20px' }}>👤</span>
                     </button>
-                </div>
 
-                <div className="flex items-center gap-4">
-                    <ThemeToggle />
                     <button
                         onClick={handleLogout}
-                        className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-rose-500 transition-colors"
+                        className="p-1.5 text-slate-500 hover:text-rose-500 dark:text-slate-400 dark:hover:text-rose-400 transition-all duration-300 active:scale-90 flex items-center justify-center drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]"
+                        title="Logout"
                     >
-                        Logout
+                        <LogOut size={22} />
                     </button>
                 </div>
             </div>

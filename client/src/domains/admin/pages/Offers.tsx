@@ -1,17 +1,32 @@
 import type { Offer } from "@shared/types/offer";
-import { useCabins } from "@shared/hooks";
-import { usePagination } from "@shared/hooks/usePagination";
-import type { Offer } from "@shared/types/offer";
+import { useCabins, useOffers, useUpdateCabin } from "@shared/hooks";
 import { useState, useMemo, useEffect } from "react";
-import { Pencil, Plus, Tag, Trash2, Home, Search, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Pencil, Plus, Tag, Trash2, Home, Search, Loader2, ChevronLeft, ChevronRight, Eye, X } from "lucide-react";
 import toast from "react-hot-toast";
+import type { Cabin } from "@shared/types/cabin";
 
 const Offers = () => {
-  const { offers = [], isLoading: isOffersLoading, addOffer, removeOffer, editOffer, isCreating, isUpdating, isDeleting } = useOffers();
-  const { cabins = [], isLoading: isCabinsLoading } = useCabins();
-  
-  const [isAdding, setIsAdding] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const {
+    offers = [],
+    totalCount = 0,
+    isLoading: isOffersLoading,
+    addOffer,
+    removeOffer,
+    editOffer,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useOffers(currentPage, 10, searchTerm);
+
+  const { cabins = [], isLoading: isCabinsLoading } = useCabins();
+  const { editCabin, isPending: isUpdatingCabin } = useUpdateCabin();
+  
+  const totalPages = Math.ceil(totalCount / 10);
+
+  const [isAdding, setIsAdding] = useState(false);
 
   const [newOffer, setNewOffer] = useState({ 
     title: "", 
@@ -22,6 +37,7 @@ const Offers = () => {
   });
   
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null);
+  const [viewingOffer, setViewingOffer] = useState<Offer | null>(null);
   const [editForm, setEditForm] = useState({ 
     title: "", 
     description: "", 
@@ -49,23 +65,9 @@ const Offers = () => {
     return offerStats[normalize(offer.title || (offer as any).name)] || 0;
   };
 
-  const filteredOffers = useMemo(() => {
-    return offers.filter(o => 
-      (o.title || o.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (o.description || "").toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [offers, searchTerm]);
-
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData,
-  } = usePagination(filteredOffers, 10);
-
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, setCurrentPage]);
+  }, [searchTerm]);
 
   const handleAdd = () => {
     if (!newOffer.title.trim()) {
@@ -115,6 +117,23 @@ const Offers = () => {
     });
   };
 
+  const toggleCabinOffer = (cabin: Cabin, offerId: string) => {
+    const currentOfferIds = cabin.offers?.map(o => o.id) || [];
+    const isLinked = currentOfferIds.includes(offerId);
+    
+    let nextOfferIds: string[];
+    if (isLinked) {
+      nextOfferIds = currentOfferIds.filter(id => id !== offerId);
+    } else {
+      nextOfferIds = [...currentOfferIds, offerId];
+    }
+
+    editCabin({
+      id: cabin.id,
+      data: { offer_ids: nextOfferIds }
+    });
+  };
+
   const handleDelete = (id: string, offer: Offer) => {
     const count = getOfferCount(offer);
     if (count > 0) {
@@ -135,6 +154,10 @@ const Offers = () => {
       </div>
     );
   }
+
+  // Find cabins with current offer
+  const cabinsWithOffer = viewingOffer ? cabins.filter(c => c.offers?.some(o => o.id === viewingOffer.id)) : [];
+  const cabinsWithoutOffer = viewingOffer ? cabins.filter(c => !c.offers?.some(o => o.id === viewingOffer.id)) : [];
 
   return (
       <div className="px-6 md:px-0 space-y-8 animate-slide-up">
@@ -226,11 +249,11 @@ const Offers = () => {
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Applied To</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Discount</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Badge</th>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
+              <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {paginatedData.map((offer) => (
+            {offers.map((offer) => (
               <tr key={offer.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                 <td className="px-8 py-5">
                   <div className="flex flex-col">
@@ -258,6 +281,13 @@ const Offers = () => {
                 <td className="px-8 py-5">
                   <div className="flex items-center justify-end gap-2 transition-all duration-300">
                     <button 
+                        onClick={() => setViewingOffer(offer)} 
+                        className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 dark:hover:border-sky-900 shadow-sm transition-all"
+                        title="View Cabins"
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button 
                         onClick={() => openEdit(offer)} 
                         className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-200 dark:hover:border-amber-900 shadow-sm transition-all"
                         title="Edit Offer"
@@ -278,7 +308,7 @@ const Offers = () => {
             ))}
           </tbody>
         </table>
-        {paginatedData.length === 0 && (
+        {offers.length === 0 && (
             <div className="py-20 text-center">
                 <Search size={40} className="mx-auto text-slate-200 mb-4" />
                 <p className="text-slate-400 font-bold tracking-tight">No offers found.</p>
@@ -324,7 +354,7 @@ const Offers = () => {
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Update promotional details</p>
               </div>
               <button onClick={() => setEditingOffer(null)} className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                <Plus size={24} className="rotate-45 text-slate-400" />
+                <X size={24} className="text-slate-400" />
               </button>
             </div>
 
@@ -384,6 +414,82 @@ const Offers = () => {
               </button>
               <button onClick={handleUpdate} disabled={isUpdating} className="btn btn-primary px-10">
                 {isUpdating ? <Loader2 size={18} className="animate-spin" /> : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewingOffer && (
+        <div className="modal-overlay">
+          <div className="modal-content w-full max-w-2xl p-8 space-y-6 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">{viewingOffer.title || viewingOffer.name}</h2>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Manage cabins assigned to this offer</p>
+              </div>
+              <button onClick={() => setViewingOffer(null)} className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <X size={24} className="text-slate-400" />
+              </button>
+            </div>
+
+            <div className="space-y-6 overflow-y-auto max-h-[60vh] pr-2 custom-scrollbar">
+              <div className="space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-widest text-emerald-500">Currently Applied ({cabinsWithOffer.length})</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {cabinsWithOffer.length === 0 ? (
+                    <p className="text-sm text-slate-400 italic">No cabins currently assigned.</p>
+                  ) : (
+                    cabinsWithOffer.map(cabin => (
+                      <div key={cabin.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl group">
+                        <div className="flex items-center gap-3">
+                          <img src={cabin.image_url} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover" />
+                          <div>
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.location?.name || "No Location"}</p>
+                          </div>
+                        </div>
+                        <button 
+                          disabled={isUpdatingCabin}
+                          onClick={() => toggleCabinOffer(cabin, viewingOffer.id)}
+                          className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-rose-500 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 hover:bg-rose-500 hover:text-white transition-all"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <h3 className="text-xs font-black uppercase tracking-widest text-sky-500">Available Cabins ({cabinsWithoutOffer.length})</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {cabinsWithoutOffer.map(cabin => (
+                    <div key={cabin.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl">
+                      <div className="flex items-center gap-3">
+                        <img src={cabin.image_url} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover opacity-60" />
+                        <div>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
+                          <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.location?.name || "No Location"}</p>
+                        </div>
+                      </div>
+                      <button 
+                        disabled={isUpdatingCabin}
+                        onClick={() => toggleCabinOffer(cabin, viewingOffer.id)}
+                        className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-sky-600 bg-sky-50 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-900/30 hover:bg-sky-500 hover:text-white transition-all"
+                      >
+                        Add to Offer
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4">
+              <button onClick={() => setViewingOffer(null)} className="btn btn-primary px-10">
+                Done
               </button>
             </div>
           </div>

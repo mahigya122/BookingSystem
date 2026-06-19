@@ -1,8 +1,8 @@
 import type { Activity } from "../types/activity";
 import { fetchJson } from "./http";
 
-export async function getActivities(): Promise<Activity[]> {
-  return fetchJson<Activity[]>("/activities");
+export async function getActivities(url = "/activities"): Promise<Activity[]> {
+  return fetchJson<Activity[]>(url);
 }
 
 export async function createActivity(activity: Omit<Activity, "id" | "created_at">) {

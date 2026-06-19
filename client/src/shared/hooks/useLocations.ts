@@ -1,13 +1,40 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getLocations, createLocation, updateLocation, deleteLocation } from "../services/locationsApi";
+import type { Location } from "../types/location";
 import toast from "react-hot-toast";
 
-export function useLocations() {
+export function useLocations(
+  page?: number,
+  pageSize?: number,
+  search = "",
+  sort = "name-az"
+): {
+  locations: Location[];
+  totalCount: number;
+  isLoading: boolean;
+  error: any;
+  addLocation: any;
+  isCreating: boolean;
+  editLocation: any;
+  isUpdating: boolean;
+  removeLocation: any;
+  isDeleting: boolean;
+} {
   const queryClient = useQueryClient();
 
-  const { data: locations, isLoading, error } = useQuery({
-    queryKey: ["locations"],
-    queryFn: getLocations,
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["locations", page, pageSize, search, sort],
+    queryFn: () => {
+      let url = "/locations";
+      if (page !== undefined && pageSize !== undefined) {
+        url += `?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}&sort=${sort}`;
+      } else if (search) {
+        url += `?search=${encodeURIComponent(search)}&sort=${sort}`;
+      } else if (sort !== "name-az") {
+        url += `?sort=${sort}`;
+      }
+      return getLocations(url);
+    },
   });
 
   const { mutate: addLocation, isPending: isCreating } = useMutation({
@@ -37,5 +64,20 @@ export function useLocations() {
     onError: (err: Error) => toast.error(err.message),
   });
 
-  return { locations, isLoading, error, addLocation, isCreating, editLocation, isUpdating, removeLocation, isDeleting };
+  const isPaginated = page !== undefined && pageSize !== undefined;
+  const locationsList = isPaginated ? (data as any)?.data ?? [] : (data as any) ?? [];
+  const total = isPaginated ? (data as any)?.count ?? 0 : locationsList.length;
+
+  return {
+    locations: locationsList as Location[],
+    totalCount: total,
+    isLoading,
+    error,
+    addLocation,
+    isCreating,
+    editLocation,
+    isUpdating,
+    removeLocation,
+    isDeleting,
+  };
 }

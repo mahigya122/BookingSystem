@@ -5,7 +5,8 @@ import {
   Users,
   Percent,
   TrendingUp,
-  History
+  History,
+  Loader2
 } from "lucide-react";
 
 import DashboardHeader from "../components/dashboard/DashboardHeader";
@@ -17,17 +18,18 @@ import TodayList from "../components/dashboard/TodayList";
 import RecentBookings from "../components/dashboard/RecentBookings";
 
 import { useBookings } from "@shared/hooks/booking/useBookings";
-import { useGuests } from "@shared/hooks";
+import { useGuests, useDashboardStats } from "@shared/hooks";
 
 import { useDashboardRange } from "../hooks/useDashboardRange";
-import { useDashboardStats } from "../hooks/useDashboardStats";
+import { useDashboardStats as useFrontendDashboardStats } from "../hooks/useDashboardStats";
 import { useSalesChart } from "../hooks/useSalesChart";
 import { useStayDuration } from "../hooks/useStayDuration";
 import { useTodayActivity } from "../hooks/useTodayActivity";
 
 const Dashboard = () => {
-  const { bookings = [] } = useBookings();
-  const { guests = [] } = useGuests();
+  const { bookings = [], isLoading: isBookingsLoading } = useBookings();
+  const { guests = [], isLoading: isGuestsLoading } = useGuests();
+  const { stats, isLoading: isStatsLoading } = useDashboardStats();
 
   const { range, setRange, rangeStart, rangeEnd } = useDashboardRange();
 
@@ -36,12 +38,9 @@ const Dashboard = () => {
 
   const {
     filteredBookings,
-    allTimeBookings,
-    totalSales,
-    occupancyRate,
     cancelledBookings,
     totalBookings,
-  } = useDashboardStats({
+  } = useFrontendDashboardStats({
     bookings,
     startMs,
     endMs,
@@ -56,8 +55,27 @@ const Dashboard = () => {
     endMs,
   });
 
+  const isLoading = isBookingsLoading || isGuestsLoading || isStatsLoading;
+
+  if (isLoading) {
+    return (
+      <div className="flex h-96 items-center justify-center bg-slate-50/10 dark:bg-slate-950/10">
+        <Loader2 className="h-10 w-10 animate-spin text-sky-500" />
+      </div>
+    );
+  }
+
+  // Fallback calculations in case stats hook fails or returns null
+  const allTimeBookingsLocal = bookings.filter((b) => b.status !== "cancelled").length;
+  const totalSalesLocal = bookings.filter((b) => b.status !== "cancelled").reduce((sum, b) => sum + b.total_price, 0);
+
+  const finalTotalBookings = stats ? stats.totalBookings : allTimeBookingsLocal;
+  const finalTotalGuests = stats ? stats.totalGuests : guests.length;
+  const finalRevenue = stats ? stats.revenue : totalSalesLocal;
+  const finalOccupancy = stats ? stats.occupancyRate : (totalBookings > 0 ? Math.round((filteredBookings.filter(b => b.status === "checked-in").length / totalBookings) * 100) : 0);
+
   return (
-    <div className="px-6 md:px-0 space-y-12 animate-slide-up pb-12">
+    <div className="w-full space-y-12 animate-slide-up pb-12">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
         <div className="space-y-3">
           <p 
@@ -85,28 +103,28 @@ const Dashboard = () => {
         {/* ROW 1: CORE OPERATIONS */}
         <StatsCard
           title="Total Reservations"
-          value={allTimeBookings}
+          value={finalTotalBookings}
           icon={<History size={22} />}
           color="bg-sky-50 dark:bg-sky-900/20"
         />
 
         <StatsCard
           title="Guest Directory"
-          value={guests.length}
+          value={finalTotalGuests}
           icon={<Users size={22} />}
           color="bg-indigo-50 dark:bg-indigo-900/20"
         />
 
         <StatsCard
           title="Net Revenue"
-          value={`$${totalSales.toLocaleString()}`}
+          value={`$${finalRevenue.toLocaleString()}`}
           icon={<Banknote size={22} />}
           color="bg-emerald-50 dark:bg-emerald-900/20"
         />
 
         <StatsCard
           title="Occupancy Rate"
-          value={`${occupancyRate}%`}
+          value={`${finalOccupancy}%`}
           icon={<Percent size={20} />}
           color="bg-amber-50 dark:bg-amber-900/20"
         />
@@ -114,28 +132,28 @@ const Dashboard = () => {
         {/* ROW 2: MANAGEMENT INSIGHTS */}
         <StatsCard
           title="Activity Booking"
-          value={totalBookings}
+          value={finalTotalBookings}
           icon={<TrendingUp size={22} />}
           color="bg-cyan-50 dark:bg-cyan-900/20"
         />
 
         <StatsCard
           title="Return Guest"
-          value={Math.round(guests.length * 0.4)}
+          value={Math.round(finalTotalGuests * 0.4)}
           icon={<div className="font-black text-lg">👤</div>}
           color="bg-violet-50 dark:bg-violet-900/20"
         />
 
         <StatsCard
           title="Avg. Booking Value"
-          value={`$${Math.round(totalSales / (totalBookings || 1)).toLocaleString()}`}
+          value={`$${finalTotalBookings ? Math.round(finalRevenue / finalTotalBookings).toLocaleString() : "0"}`}
           icon={<LineChart size={22} />}
           color="bg-rose-50 dark:bg-rose-900/20"
         />
 
         <StatsCard
           title="Cancellation Rate"
-          value={`${Math.round((cancelledBookings / (totalBookings + cancelledBookings || 1)) * 100)}%`}
+          value={totalBookings ? `${Math.round((cancelledBookings / (totalBookings + cancelledBookings || 1)) * 100)}%` : "0%"}
           icon={<LayoutDashboard size={20} />}
           color="bg-slate-50 dark:bg-slate-800/20"
         />

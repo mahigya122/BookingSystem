@@ -1,8 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useContext } from "react";
 import { useLocation } from "react-router-dom";
-// We import the context directly to check if it exists before using useCabinFiltersContext
-// which throws an error if context is missing.
-import { useCabinFiltersContext } from "../../domains/cabins/contexts/CabinFiltersContext";
+import { CabinFiltersContext } from "../../domains/cabins/contexts/CabinFiltersContext";
 
 /**
  * Utility to find the nearest scrollable parent and scroll it to top
@@ -18,15 +16,8 @@ export const scrollToTop = (element?: HTMLElement | null, behavior: ScrollBehavi
  */
 export const useScrollToTop = (extraDeps: any[] = []) => {
   const { pathname, search } = useLocation();
-  let appliedFilters = null;
-  
-  try {
-    // Try to get filters if context exists
-    const context = useCabinFiltersContext();
-    appliedFilters = context.appliedFilters;
-  } catch {
-    // Context not available, ignore filters
-  }
+  const context = useContext(CabinFiltersContext);
+  const appliedFilters = context?.appliedFilters ?? null;
 
   const containerRef = useRef<HTMLElement | HTMLDivElement>(null);
 

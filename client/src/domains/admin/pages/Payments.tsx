@@ -1,33 +1,29 @@
 import { useState, useEffect } from "react";
 import { useBookings } from "@shared/hooks";
-import { usePagination } from "@shared/hooks/usePagination";
 import { CreditCard, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import PaymentStatusBadge from "../../payments/components/PaymentStatusBadge";
 import AdminPaymentActions from "../../payments/components/AdminPaymentActions";
 
 const PaymentsPage = () => {
-  const { bookings = [], isLoading } = useBookings();
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const filteredBookings = bookings.filter((b) => {
-    const matchesSearch = b.guests?.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || b.payment_status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
-  const {
+  const { bookings = [], totalCount = 0, isLoading } = useBookings(
     currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData,
-  } = usePagination(filteredBookings, 10);
+    10,
+    "all",
+    "recent",
+    searchTerm,
+    statusFilter
+  );
+
+  const totalPages = Math.ceil(totalCount / 10);
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, setCurrentPage]);
+  }, [searchTerm, statusFilter]);
 
   if (isLoading) return <div className="p-8 text-center">Loading payments...</div>;
 
@@ -84,7 +80,7 @@ const PaymentsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {paginatedData.map((booking) => (
+              {bookings.map((booking: any) => (
                 <tr key={booking.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                   <td className="px-8 py-5">
                     <span className="font-mono text-xs font-bold text-slate-400">#{booking.id.slice(0, 8)}</span>
@@ -116,7 +112,7 @@ const PaymentsPage = () => {
                 </tr>
               ))}
 
-              {paginatedData.length === 0 && (
+              {bookings.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-bold">
                     No payment records found matching your criteria.

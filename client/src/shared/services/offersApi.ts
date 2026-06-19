@@ -1,8 +1,8 @@
 import type { Offer } from "../types/offer";
 import { fetchJson } from "./http";
 
-export async function getOffers(): Promise<Offer[]> {
-  return fetchJson<Offer[]>("/offers");
+export async function getOffers(url = "/offers"): Promise<Offer[]> {
+  return fetchJson<Offer[]>(url);
 }
 
 export async function createOffer(offer: Omit<Offer, "id" | "created_at">) {

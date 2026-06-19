@@ -1,4 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { useUser, useCreateBooking, useCabins, useUpdateBooking, useBookings } from "@shared/hooks";
 import type { Cabin } from "@shared/types";
@@ -18,8 +20,8 @@ import CabinLocation from "./CabinLocation";
 import CabinReviews from "./CabinReviews";
 import BookingCard from "./BookingCard";
 import RecentlyViewed from "./RecentlyViewed";
-import CheckoutModal from "./CheckoutModal";
-import ProfileIncompleteModal from "./ProfileIncompleteModal";
+import { CheckoutModal, ProfileIncompleteModal } from "@shared/modals/lazyModals";
+import ModalSpinner from "@shared/components/ui/ModalSpinner";
 import ReviewForm from "./ReviewForm";
 
 // Format date to YYYY-MM-DD string in local timezone
@@ -535,38 +537,42 @@ const CabinDetails = () => {
 
                     {/* Modals */}
                     {isProfileIncompleteModalOpen && (
-                        <ProfileIncompleteModal
-                            fullName={fullName}
-                            phone={phone}
-                            onClose={() => setIsProfileIncompleteModalOpen(false)}
-                        />
+                        <Suspense fallback={<ModalSpinner />}>
+                            <ProfileIncompleteModal
+                                fullName={fullName}
+                                phone={phone}
+                                onClose={() => setIsProfileIncompleteModalOpen(false)}
+                            />
+                        </Suspense>
                     )}
 
                     {isConfirmModalOpen && (
-                        <CheckoutModal
-                            cabin={cabin}
-                            checkoutStep={checkoutStep}
-                            startDate={startDate}
-                            endDate={endDate}
-                            totalNights={totalNights}
-                            guestCount={filters.capacity || 1}
-                            fullName={fullName}
-                            phone={phone}
-                            breakfast={breakfast}
-                            baseAccommodationPrice={baseAccommodationPrice}
-                            breakfastTotal={breakfastTotal}
-                            activitiesTotal={activitiesTotal}
-                            discountFromOffers={discountFromOffers}
-                            selectedActivities={selectedActivitiesData}
-                            selectedOffers={selectedOffersData}
-                            totalPrice={totalPrice}
-                            paymentMethod={paymentMethod}
-                            isBookingPending={isBookingPending}
-                            onClose={() => setIsConfirmModalOpen(false)}
-                            onStepChange={setCheckoutStep}
-                            onPaymentMethodChange={setPaymentMethod}
-                            onConfirm={handleConfirmBooking}
-                        />
+                        <Suspense fallback={<ModalSpinner />}>
+                            <CheckoutModal
+                                cabin={cabin}
+                                checkoutStep={checkoutStep}
+                                startDate={startDate}
+                                endDate={endDate}
+                                totalNights={totalNights}
+                                guestCount={filters.capacity || 1}
+                                fullName={fullName}
+                                phone={phone}
+                                breakfast={breakfast}
+                                baseAccommodationPrice={baseAccommodationPrice}
+                                breakfastTotal={breakfastTotal}
+                                activitiesTotal={activitiesTotal}
+                                discountFromOffers={discountFromOffers}
+                                selectedActivities={selectedActivitiesData}
+                                selectedOffers={selectedOffersData}
+                                totalPrice={totalPrice}
+                                paymentMethod={paymentMethod}
+                                isBookingPending={isBookingPending}
+                                onClose={() => setIsConfirmModalOpen(false)}
+                                onStepChange={setCheckoutStep}
+                                onPaymentMethodChange={setPaymentMethod}
+                                onConfirm={handleConfirmBooking}
+                            />
+                        </Suspense>
                     )}
                 </div>
             </div>

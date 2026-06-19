@@ -33,11 +33,11 @@ const RecentBookings = ({ bookings }: Props) => {
             >
               <div className="flex items-center gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
-                   {booking.status === "booked" ? <Clock size={18} /> : 
-                    booking.status === "cancelled" ? <XCircle size={18} className="text-rose-500" /> : 
-                    <CheckCircle2 size={18} className="text-emerald-500" />}
+                  {booking.status === "booked" ? <Clock size={18} /> :
+                    booking.status === "cancelled" ? <XCircle size={18} className="text-rose-500" /> :
+                      <CheckCircle2 size={18} className="text-emerald-500" />}
                 </div>
-                
+
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
                     {booking.guests?.full_name || `Guest (ID: ${booking.guest_id?.slice(0, 8)}...)`}
@@ -52,9 +52,8 @@ const RecentBookings = ({ bookings }: Props) => {
                 <p className="text-sm font-black text-slate-900 dark:text-white">
                   ${booking.total_price}
                 </p>
-                <p className={`text-[10px] font-bold uppercase tracking-widest ${
-                  booking.payment_status === "paid" ? "text-emerald-500" : "text-amber-500"
-                }`}>
+                <p className={`text-[10px] font-bold uppercase tracking-widest ${booking.payment_status === "paid" ? "text-emerald-500" : "text-amber-500"
+                  }`}>
                   {booking.payment_status}
                 </p>
               </div>

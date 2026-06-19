@@ -6,7 +6,7 @@ import { useCabinFilters } from "../../../store/useCabinFilters";
 // Use ReturnType to ensure the context is always in sync with the hook
 type CabinFiltersContextType = ReturnType<typeof useCabinFilters>;
 
-const CabinFiltersContext = createContext<CabinFiltersContextType | undefined>(undefined);
+export const CabinFiltersContext = createContext<CabinFiltersContextType | undefined>(undefined);
 
 export const CabinFiltersProvider = ({ children }: { children: ReactNode }) => {
     const value = useCabinFilters();

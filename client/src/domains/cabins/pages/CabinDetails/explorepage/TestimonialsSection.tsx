@@ -28,10 +28,6 @@ const DashedCircle = ({ className }: { className?: string }) => (
         <circle cx="100" cy="100" r="90" stroke="currentColor" strokeWidth="2" strokeDasharray="8 6" opacity="0.1" />
     </svg>
 );
-
-const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
-const TITLE = "Real Stories from Our Guests";
-
 const TestimonialsSection = () => {
     const { reviews = [], isLoading } = useReviews(true);
     const [currentIndex, setCurrentIndex] = useState(0);

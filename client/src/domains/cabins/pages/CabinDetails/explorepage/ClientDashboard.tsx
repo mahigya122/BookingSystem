@@ -27,7 +27,7 @@ const ClientDashboard = () => {
     setCurrentPage,
     totalPages,
     paginatedData,
-  } = usePagination(cabins, 8);
+  } = usePagination(cabins, 12);
 
   // Use the hook to handle pagination scrolls
   useScrollToTop([currentPage]);
@@ -60,66 +60,66 @@ const ClientDashboard = () => {
   // SEARCH RESULTS VIEW
   if (isSearching) {
     return (
-      <div 
+      <div
         key={JSON.stringify(appliedFilters)}
         className="space-y-[52px] md:space-y-[56px] lg:space-y-[60px] pb-[52px] md:pb-[56px] lg:pb-[60px] animate-in fade-in duration-700 bg-white dark:bg-slate-950"
       >
         <div className="w-full mx-auto px-4">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-sky-50 dark:border-sky-900/20 pb-8 md:pb-10 pt-6 md:pt-10">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-sky-50 dark:border-sky-900/20 pb-8 md:pb-10 pt-6 md:pt-10">
             <div className="space-y-4">
-                <div className="space-y-1 flex flex-col items-start">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-sky-50 dark:bg-sky-900/30 px-3 md:px-4 py-1 md:py-1.5 text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-800">
-                    <Search size={12} />
-                    Refine
-                    </div>
-                    <h1 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-tight md:leading-none">
-                    Found <span className="text-sky-500">{filteredCount}</span> Perfect Stays
-                    </h1>
+              <div className="space-y-1 flex flex-col items-start">
+                <div className="inline-flex items-center gap-2 rounded-full bg-sky-50 dark:bg-sky-900/30 px-3 md:px-4 py-1 md:py-1.5 text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 border border-sky-100 dark:border-sky-800">
+                  <Search size={12} />
+                  Refine
                 </div>
-                <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium flex items-center gap-2">
+                <h1 className="text-2xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-tight md:leading-none">
+                  Found <span className="text-sky-500">{filteredCount}</span> Perfect Stays
+                </h1>
+              </div>
+              <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm font-medium flex items-center gap-2">
                 <MapPin size={16} className="text-sky-400" />
                 Available cabins based on your refined preferences
-                </p>
+              </p>
             </div>
 
             <button
-                onClick={() => {
+              onClick={() => {
                 clearFilters();
                 scrollToTop();
-                }}
-                className="flex items-center justify-center gap-2 px-6 md:px-8 py-3.5 md:py-4 rounded-2xl md:rounded-[1.5rem] bg-slate-900 dark:bg-sky-600 text-white text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] hover:bg-sky-500 hover:shadow-2xl hover:shadow-sky-500/30 transition-all duration-500 group shadow-lg"
+              }}
+              className="flex items-center justify-center gap-2 px-6 md:px-8 py-3.5 md:py-4 rounded-2xl md:rounded-[1.5rem] bg-slate-900 dark:bg-sky-600 text-white text-[8px] md:text-[9px] font-black uppercase tracking-[0.2em] hover:bg-sky-500 hover:shadow-2xl hover:shadow-sky-500/30 transition-all duration-500 group shadow-lg"
             >
-                <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                Back to Explore
+              <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+              Back to Explore
             </button>
-            </div>
+          </div>
 
-            <div className="mt-12">
-                {paginatedData.length > 0 ? (
-                <>
-                  <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-3 xl:grid-cols-4">
-                      {paginatedData.map((cabin) => (
-                      <CabinCard key={cabin.id} cabin={cabin} />
-                      ))}
-                  </div>
-                  <Pagination 
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                  />
-                </>
-                ) : (
-                <div className="flex flex-col items-center justify-center py-32 px-6 rounded-[3rem] border-2 border-dashed border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20">
-                    <div className="h-20 w-20 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-xl mb-6">
-                    <Search size={32} className="text-slate-300" />
-                    </div>
-                    <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2">No matches found</h3>
-                    <p className="text-slate-400 text-lg text-center max-w-sm">
-                    We couldn't find any cabins matching your exact filters. Try broadening your search.
-                    </p>
+          <div className="mt-12">
+            {paginatedData.length > 0 ? (
+              <>
+                <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-3 xl:grid-cols-4">
+                  {paginatedData.map((cabin) => (
+                    <CabinCard key={cabin.id} cabin={cabin} />
+                  ))}
                 </div>
-                )}
-            </div>
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-32 px-6 rounded-[3rem] border-2 border-dashed border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/20">
+                <div className="h-20 w-20 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center shadow-xl mb-6">
+                  <Search size={32} className="text-slate-300" />
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2">No matches found</h3>
+                <p className="text-slate-400 text-lg text-center max-w-sm">
+                  We couldn't find any cabins matching your exact filters. Try broadening your search.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

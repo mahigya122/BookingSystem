@@ -1,42 +1,36 @@
-import { useState } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useState, useEffect, Suspense } from "react";
 
 import { useGuests, useDeleteGuest } from "@shared/hooks";
 
 import GuestSubnav from "../components/guest/GuestSubnav";
 import GuestTable from "../components/guest/GuestTable";
 import GuestPagination from "../components/guest/GuestPagination";
-import EditGuestModal from "../components/guest/EditGuestModal";
+import { EditGuestModal } from "@shared/modals/lazyModals";
+import ModalSpinner from "@shared/components/ui/ModalSpinner";
 
-import { useFilteredGuests } from "@shared/hooks/guests/useFilteredGuests";
-import { usePagination } from "@shared/hooks/usePagination";
 import type { Guest, GuestSortType } from "@shared/types/guest";
 
 const Guests = () => {
-  const { guests = [], isLoading } = useGuests();
-  const { removeGuest } = useDeleteGuest();
-
-  const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<GuestSortType>("recent");
 
-  const filteredGuests = useFilteredGuests({
-    guests,
-    search,
-    sort,
-  });
+  const { guests = [], totalCount = 0, isLoading } = useGuests(currentPage, 15, search, sort);
+  const { removeGuest } = useDeleteGuest();
 
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData,
-  } = usePagination<Guest>(filteredGuests);
+  const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
+
+  const totalPages = Math.ceil(totalCount / 15);
+
+  // Reset to page 1 when search or sort changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, sort]);
 
   const handleDelete = (id: string) => {
     const confirmed = confirm("Delete this guest?");
-
     if (!confirmed) return;
-
     removeGuest(id);
   };
 
@@ -59,7 +53,7 @@ const Guests = () => {
 
       <div className="card overflow-hidden">
         <GuestTable
-          guests={paginatedData}
+          guests={guests}
           onDelete={handleDelete}
           onEdit={setEditingGuest}
         />
@@ -74,11 +68,13 @@ const Guests = () => {
       </div>
 
       {editingGuest && (
-        <EditGuestModal
-          key={editingGuest.id}
-          guest={editingGuest}
-          onClose={() => setEditingGuest(null)}
-        />
+        <Suspense fallback={<ModalSpinner />}>
+          <EditGuestModal
+            key={editingGuest.id}
+            guest={editingGuest}
+            onClose={() => setEditingGuest(null)}
+          />
+        </Suspense>
       )}
     </div>
   );

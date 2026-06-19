@@ -56,9 +56,8 @@ const BookingFilters = () => {
                 </div>
             </div>
 
-            {/* CLEAR BUTTON */}
             <button
-                onClick={clearFilters}
+                onClick={() => clearFilters()}
                 className="
                     w-full rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 py-4 
                     text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 hover:text-rose-500 hover:border-rose-100 

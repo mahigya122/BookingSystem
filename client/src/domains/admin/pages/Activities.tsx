@@ -1,17 +1,33 @@
 import { useActivities } from "@shared/hooks/useActivities";
-import { useCabins } from "@shared/hooks";
-import { usePagination } from "@shared/hooks/usePagination";
+import { useCabins, useUpdateCabin } from "@shared/hooks";
 import type { Activity } from "@shared/types/activity";
 import { useState, useMemo, useEffect } from "react";
-import { Pencil, Plus, Trash2, Zap, Home, Search, Loader2, X, Save, ChevronLeft, ChevronRight } from "lucide-react";
+import { Pencil, Plus, Trash2, Zap, Home, Search, Loader2, X, Save, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import toast from "react-hot-toast";
+import type { Cabin } from "@shared/types/cabin";
 
 const Activities = () => {
-  const { activities = [], isLoading: isActivitiesLoading, addActivity, removeActivity, editActivity, isCreating, isUpdating, isDeleting } = useActivities();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const {
+    activities = [],
+    totalCount = 0,
+    isLoading: isActivitiesLoading,
+    addActivity,
+    removeActivity,
+    editActivity,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useActivities(currentPage, 10, searchTerm);
+
   const { cabins = [], isLoading: isCabinsLoading } = useCabins();
+  const { editCabin, isPending: isUpdatingCabin } = useUpdateCabin();
+
+  const totalPages = Math.ceil(totalCount / 10);
 
   const [isAdding, setIsAdding] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   
   const [newActivity, setNewActivity] = useState({ 
     name: "", 
@@ -21,6 +37,7 @@ const Activities = () => {
   });
   
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+  const [viewingActivity, setViewingActivity] = useState<Activity | null>(null);
   const [editForm, setEditForm] = useState({ 
     name: "", 
     description: "", 
@@ -47,23 +64,9 @@ const Activities = () => {
     return activityStats[normalize(activity.name)] || 0;
   };
 
-  const filteredActivities = useMemo(() => {
-    return activities.filter(a => 
-      a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (a.description || "").toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [activities, searchTerm]);
-
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData,
-  } = usePagination(filteredActivities, 10);
-
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, setCurrentPage]);
+  }, [searchTerm]);
 
   const handleAdd = () => {
     if (!newActivity.name.trim()) {
@@ -111,6 +114,23 @@ const Activities = () => {
     });
   };
 
+  const toggleCabinActivity = (cabin: Cabin, activityId: string) => {
+    const currentActivityIds = cabin.activities?.map(a => a.id) || [];
+    const isLinked = currentActivityIds.includes(activityId);
+    
+    let nextActivityIds: string[];
+    if (isLinked) {
+      nextActivityIds = currentActivityIds.filter(id => id !== activityId);
+    } else {
+      nextActivityIds = [...currentActivityIds, activityId];
+    }
+
+    editCabin({
+      id: cabin.id,
+      data: { activity_ids: nextActivityIds }
+    });
+  };
+
   const handleDelete = (id: string, activity: Activity) => {
     const count = getActivityCount(activity);
     if (count > 0) {
@@ -135,6 +155,14 @@ const Activities = () => {
       </div>
     );
   }
+
+  // Find cabins with current activity
+  const cabinsWithActivity = viewingActivity 
+    ? cabins.filter(c => c.activities?.some(a => a.id === viewingActivity.id)) 
+    : [];
+  const cabinsWithoutActivity = viewingActivity 
+    ? cabins.filter(c => !c.activities?.some(a => a.id === viewingActivity.id)) 
+    : [];
 
   return (
     <div className="px-6 md:px-0 space-y-8 animate-slide-up pb-12">
@@ -227,11 +255,11 @@ const Activities = () => {
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Activity</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Applied To</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Price</th>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
+              <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {paginatedData.map((activity) => (
+            {activities.map((activity) => (
               <tr key={activity.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                 <td className="px-8 py-5">
                     {activity.image_url ? (
@@ -261,6 +289,13 @@ const Activities = () => {
                 <td className="px-8 py-5">
                   <div className="flex items-center justify-end gap-2 transition-all duration-300">
                     <button 
+                        onClick={() => setViewingActivity(activity)} 
+                        className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 dark:hover:border-sky-900 shadow-sm transition-all"
+                        title="View Cabins"
+                    >
+                      <Eye size={18} />
+                    </button>
+                    <button 
                         onClick={() => openEdit(activity)} 
                         className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-200 dark:hover:border-amber-900 shadow-sm transition-all"
                         title="Edit Activity"
@@ -281,7 +316,7 @@ const Activities = () => {
             ))}
           </tbody>
         </table>
-        {paginatedData.length === 0 && (
+        {activities.length === 0 && (
             <div className="py-20 text-center">
                 <Search size={40} className="mx-auto text-slate-200 mb-4" />
                 <p className="text-slate-400 font-bold tracking-tight">No activities found.</p>
@@ -377,6 +412,82 @@ const Activities = () => {
               </button>
               <button onClick={handleUpdate} disabled={isUpdating} className="btn btn-primary px-10 shadow-xl shadow-sky-500/20">
                 {isUpdating ? <Loader2 size={18} className="animate-spin" /> : <><Save size={18} /> Update Experience</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewingActivity && (
+        <div className="modal-overlay">
+          <div className="modal-content w-full max-w-2xl p-8 space-y-6 animate-in zoom-in-95 duration-200 border-2 border-slate-100 dark:border-slate-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">{viewingActivity.name}</h2>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1">Manage cabins offering this activity</p>
+              </div>
+              <button onClick={() => setViewingActivity(null)} className="p-3 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <X size={24} className="text-slate-400" />
+              </button>
+            </div>
+
+            <div className="space-y-6 overflow-y-auto max-h-[60vh] pr-2 custom-scrollbar font-bold">
+              <div className="space-y-4">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">Currently Included ({cabinsWithActivity.length})</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {cabinsWithActivity.length === 0 ? (
+                    <p className="text-sm text-slate-400 italic font-medium py-4 text-center bg-slate-50 dark:bg-slate-900/30 rounded-2xl border-2 border-dashed border-slate-100 dark:border-slate-800">No cabins currently include this activity.</p>
+                  ) : (
+                    cabinsWithActivity.map(cabin => (
+                      <div key={cabin.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl group">
+                        <div className="flex items-center gap-3">
+                          <img src={cabin.image_url} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover" />
+                          <div>
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.location?.name || "No Location"}</p>
+                          </div>
+                        </div>
+                        <button 
+                          disabled={isUpdatingCabin}
+                          onClick={() => toggleCabinActivity(cabin, viewingActivity.id)}
+                          className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-rose-500 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 hover:bg-rose-500 hover:text-white transition-all"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-500">Available Cabins ({cabinsWithoutActivity.length})</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {cabinsWithoutActivity.map(cabin => (
+                    <div key={cabin.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl group">
+                      <div className="flex items-center gap-3">
+                        <img src={cabin.image_url} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+                        <div>
+                          <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
+                          <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.location?.name || "No Location"}</p>
+                        </div>
+                      </div>
+                      <button 
+                        disabled={isUpdatingCabin}
+                        onClick={() => toggleCabinActivity(cabin, viewingActivity.id)}
+                        className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-sky-600 bg-sky-50 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-900/30 hover:bg-sky-500 hover:text-white transition-all"
+                      >
+                        Add to Activity
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4">
+              <button onClick={() => setViewingActivity(null)} className="btn btn-primary px-12 h-12 text-xs">
+                Done
               </button>
             </div>
           </div>

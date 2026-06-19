@@ -1,20 +1,28 @@
-import { useState } from "react";
-import { useMemo } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useState, useMemo, useEffect, Suspense } from "react";
 
-import { useCabins, useDeleteCabin, useBookings, useFilteredCabins } from "@shared/hooks";
-import { usePagination } from "@shared/hooks/usePagination";
+import { useCabins, useDeleteCabin, useBookings } from "@shared/hooks";
 import type { Cabin as CabinType } from "@shared/types/cabin";
 import type { Booking } from "@shared/types/booking";
 import { useScrollToTop } from "@shared/hooks/useScrollToTop";
+import CabinSubnav from "../components/cabin/CabinSubnav";
+import CabinTable from "../components/cabin/CabinTable";
+import CabinPagination from "../components/cabin/CabinPagination";
+import { CreateCabinModal, EditCabinModal, CabinDetailModal } from "@shared/modals/lazyModals";
+import ModalSpinner from "@shared/components/ui/ModalSpinner";
+import type { CabinDetailSection } from "../components/cabin/CabinRow";
 
 const Cabins = () => {
-  const { cabins = [], isLoading } = useCabins();
-  const { bookings = [], isLoading: isBookingsLoading } = useBookings();
-
-  const { removeCabin } = useDeleteCabin();
-
+  const [currentPage, setCurrentPage] = useState(1);
   const [filter, setFilter] = useState("all");
   const [sort, setSort] = useState("recent");
+
+  const { cabins = [], totalCount = 0, isLoading } = useCabins(currentPage, 10, filter, sort);
+  const { bookings = [], isLoading: isBookingsLoading } = useBookings();
+
+  const totalPages = Math.ceil(totalCount / 10);
+
+  const { removeCabin } = useDeleteCabin();
 
   const [showCreate, setShowCreate] = useState(false);
 
@@ -22,18 +30,17 @@ const Cabins = () => {
   const [selectedCabin, setSelectedCabin] = useState<CabinType | null>(null);
   const [selectedSection, setSelectedSection] = useState<CabinDetailSection>("overview");
 
-  const filteredCabins = useFilteredCabins(
-    cabins,
-    filter,
-    sort
-  );
+  // Reset to page 1 when filter/sort changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, sort]);
 
   const activeBookingByCabinId = useMemo(() => {
     const active = bookings.filter(
-      (booking) => booking.status === "booked" || booking.status === "checked-in"
+      (booking: Booking) => booking.status === "booked" || booking.status === "checked-in"
     );
 
-    return active.reduce<Record<string, Booking>>((acc, booking) => {
+    return active.reduce((acc: Record<string, Booking>, booking: Booking) => {
       const existing = acc[booking.cabin_id];
 
       if (!existing) {
@@ -49,15 +56,8 @@ const Cabins = () => {
       }
 
       return acc;
-    }, {});
+    }, {} as Record<string, Booking>);
   }, [bookings]);
-
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData,
-  } = usePagination(filteredCabins);
 
   // Use the hook to handle local filter/sort/pagination changes
   useScrollToTop([filter, sort, currentPage]);
@@ -93,7 +93,7 @@ const Cabins = () => {
 
       <div className="card overflow-hidden">
         <CabinTable
-          cabins={paginatedData}
+          cabins={cabins}
           onDelete={handleDelete}
           onEdit={setEditingCabin}
           onView={(cabin, section = "overview") => {
@@ -113,26 +113,32 @@ const Cabins = () => {
       </div>
 
       {showCreate && (
-        <CreateCabinModal
-          onClose={() => setShowCreate(false)}
-        />
+        <Suspense fallback={<ModalSpinner />}>
+          <CreateCabinModal
+            onClose={() => setShowCreate(false)}
+          />
+        </Suspense>
       )}
       {editingCabin && (
-        <EditCabinModal
-          cabin={editingCabin}
-          onClose={() => setEditingCabin(null)}
-        />
+        <Suspense fallback={<ModalSpinner />}>
+          <EditCabinModal
+            cabin={editingCabin}
+            onClose={() => setEditingCabin(null)}
+          />
+        </Suspense>
       )}
       {selectedCabin && (
-        <CabinDetailModal
-          cabin={selectedCabin}
-          activeBooking={activeBookingByCabinId[selectedCabin.id] ?? null}
-          initialSection={selectedSection}
-          onClose={() => {
-            setSelectedCabin(null);
-            setSelectedSection("overview");
-          }}
-        />
+        <Suspense fallback={<ModalSpinner />}>
+          <CabinDetailModal
+            cabin={selectedCabin}
+            activeBooking={activeBookingByCabinId[selectedCabin.id] ?? null}
+            initialSection={selectedSection}
+            onClose={() => {
+              setSelectedCabin(null);
+              setSelectedSection("overview");
+            }}
+          />
+        </Suspense>
       )}
     </div>
   );

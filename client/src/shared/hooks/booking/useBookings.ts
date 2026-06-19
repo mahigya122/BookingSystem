@@ -2,11 +2,51 @@ import { useQuery } from "@tanstack/react-query";
 import type { Booking } from "../../types/booking";
 import { fetchJson } from "../../services/http";
 
-export function useBookings() {
-  const { data: bookings, isLoading, error } = useQuery<Booking[]>({
-    queryKey: ["bookings"],
-    queryFn: () => fetchJson<Booking[]>("/bookings"),
+export function useBookings(
+  page?: number,
+  pageSize?: number,
+  filter = "all",
+  sort = "recent",
+  search = "",
+  paymentStatus = "all"
+): {
+  bookings: Booking[];
+  totalCount: number;
+  isLoading: boolean;
+  error: any;
+} {
+  const {
+    data,
+    isLoading,
+    error,
+  } = useQuery<any>({
+    queryKey: [
+      "bookings",
+      page,
+      pageSize,
+      filter,
+      sort,
+      search,
+      paymentStatus,
+    ],
+
+    queryFn: () => {
+      let url = `/bookings?filter=${filter}&sort=${sort}&search=${encodeURIComponent(search)}&paymentStatus=${paymentStatus}`;
+      if (page !== undefined && pageSize !== undefined) {
+        url += `&page=${page}&pageSize=${pageSize}`;
+      }
+      return fetchJson<any>(url);
+    },
   });
 
-  return { bookings: bookings || [], isLoading, error };
+  const isPaginated = page !== undefined && pageSize !== undefined;
+  const bookingsList = isPaginated ? data?.data ?? [] : data ?? [];
+  const total = isPaginated ? data?.count ?? 0 : bookingsList.length;
+
+  return {
+    bookings: bookingsList as Booking[],
+    totalCount: total,
+    isLoading,
+    error,
+  };
 }

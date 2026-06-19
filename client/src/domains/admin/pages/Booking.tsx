@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useEffect, useState, Suspense } from "react";
 
 import BookingSubnav from "../components/booking/BookingSubnav";
 import BookingTable from "../components/booking/BookingTable";
 import BookingPagination from "../components/booking/BookingPagination";
-import EditBookingModal from "../components/booking/EditBookingModal";
-import BookingDetailModal from "../components/booking/BookingDetailModal";
+import { EditBookingModal, BookingDetailModal } from "@shared/modals/lazyModals";
+import ModalSpinner from "@shared/components/ui/ModalSpinner";
 
-import { useBookings, useDeleteBooking, useFilteredBookings } from "@shared/hooks";
-import { usePagination } from "@shared/hooks/usePagination";
+import { useBookings, useDeleteBooking } from "@shared/hooks";
 
 import type {
   Booking,
@@ -16,52 +16,31 @@ import type {
 } from "@shared/types/booking";
 
 const BookingPage = () => {
-  const { bookings = [], isLoading } =
-    useBookings();
-
-  const { removeBooking } =
-    useDeleteBooking();
-
-  const [filter, setFilter] =
-    useState<BookingStatus>("all");
-
-  const [sort, setSort] =
-    useState<SortType>("recent");
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filter, setFilter] = useState<BookingStatus>("all");
+  const [sort, setSort] = useState<SortType>("recent");
   const [search, setSearch] = useState("");
 
-  const [editingBooking, setEditingBooking] =
-    useState<Booking | null>(null);
-
-  const [detailBooking, setDetailBooking] =
-    useState<Booking | null>(null);
-
-  const filteredBookings =
-    useFilteredBookings({
-      bookings,
-      filter,
-      sort,
-      search,
-    });
-
   const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData,
-  } = usePagination(filteredBookings, 15);
+    bookings = [],
+    totalCount = 0,
+    isLoading,
+  } = useBookings(currentPage, 10, filter, sort, search);
+
+  const totalPages = Math.ceil(totalCount / 10);
+
+  const { removeBooking } = useDeleteBooking();
+
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [detailBooking, setDetailBooking] = useState<Booking | null>(null);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filteredBookings, setCurrentPage]);
+  }, [filter, sort, search]);
 
   const handleDelete = (id: string) => {
-    const confirmed = confirm(
-      "Delete booking?"
-    );
-
+    const confirmed = confirm("Delete booking?");
     if (!confirmed) return;
-
     removeBooking(id);
   };
 
@@ -87,7 +66,7 @@ const BookingPage = () => {
 
       <div className="card overflow-hidden">
         <BookingTable
-          bookings={paginatedData}
+          bookings={bookings}
           onDelete={handleDelete}
           onEdit={setEditingBooking}
           onDetails={setDetailBooking}
@@ -103,20 +82,22 @@ const BookingPage = () => {
       </div>
 
       {editingBooking && (
-        <EditBookingModal
-          key={editingBooking.id}
-          booking={editingBooking}
-          onClose={() =>
-            setEditingBooking(null)
-          }
-        />
+        <Suspense fallback={<ModalSpinner />}>
+          <EditBookingModal
+            key={editingBooking.id}
+            booking={editingBooking}
+            onClose={() => setEditingBooking(null)}
+          />
+        </Suspense>
       )}
 
       {detailBooking && (
-        <BookingDetailModal
-          booking={detailBooking}
-          onClose={() => setDetailBooking(null)}
-        />
+        <Suspense fallback={<ModalSpinner />}>
+          <BookingDetailModal
+            booking={detailBooking}
+            onClose={() => setDetailBooking(null)}
+          />
+        </Suspense>
       )}
     </div>
   );

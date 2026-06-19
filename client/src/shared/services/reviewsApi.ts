@@ -1,9 +1,17 @@
 import type { Review } from "../types/review";
 import { fetchJson } from "./http";
 
-export async function getReviews(approved?: boolean): Promise<Review[]> {
-  const url = approved ? `/reviews?approved=true` : "/reviews";
-  return fetchJson<Review[]>(url);
+export async function getReviews(approved?: boolean, page?: number, pageSize?: number): Promise<any> {
+  let url = "/reviews";
+  const params = new URLSearchParams();
+  if (approved !== undefined) params.append("approved", approved ? "true" : "false");
+  if (page !== undefined) params.append("page", page.toString());
+  if (pageSize !== undefined) params.append("pageSize", pageSize.toString());
+
+  const queryStr = params.toString();
+  if (queryStr) url += `?${queryStr}`;
+
+  return fetchJson<any>(url);
 }
 
 export async function deleteReview(id: string) {

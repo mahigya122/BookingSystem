@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { CalendarDays, CheckCircle2, ChevronRight, Sparkles, UserRound, CreditCard, Loader2 } from "lucide-react";
-import { useCreateBooking, useCabins, useSettings } from "@shared/hooks";
+import { useCreateBooking, useCabins, useSettings, useGuests } from "@shared/hooks";
 import { useCabinAvailability } from "../../../cabins/hooks/useCabinAvailability";
 import CabinCalendar from "../../../../shared/components/ui/CabinCalendar";
 import type { Cabin } from "@shared/types/cabin";

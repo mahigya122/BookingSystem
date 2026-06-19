@@ -2,12 +2,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getReviews, deleteReview, updateReviewStatus, createReview } from "../services/reviewsApi";
 import toast from "react-hot-toast";
 
-export function useReviews(approved?: boolean) {
+export function useReviews(approved?: boolean, page?: number, pageSize?: number) {
   const queryClient = useQueryClient();
 
-  const { data: reviews, isLoading, error } = useQuery({
-    queryKey: ["reviews", { approved }],
-    queryFn: () => getReviews(approved),
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["reviews", { approved, page, pageSize }],
+    queryFn: () => getReviews(approved, page, pageSize),
   });
 
   const { mutate: removeReview, isPending: isDeleting } = useMutation({
@@ -40,5 +40,18 @@ export function useReviews(approved?: boolean) {
     onError: (err: Error) => toast.error(err.message),
   });
 
-  return { reviews, isLoading, error, removeReview, isDeleting, moderateReview, isModerating, addReview, isCreating };
+  const isPaginated = page !== undefined && pageSize !== undefined;
+
+  return {
+    reviews: isPaginated ? (data as any)?.data ?? [] : (data as any) ?? [],
+    totalCount: isPaginated ? (data as any)?.count ?? 0 : ((data as any)?.length ?? 0),
+    isLoading,
+    error,
+    removeReview,
+    isDeleting,
+    moderateReview,
+    isModerating,
+    addReview,
+    isCreating,
+  };
 }

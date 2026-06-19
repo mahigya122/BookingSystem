@@ -1,13 +1,37 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getActivities, createActivity, updateActivity, deleteActivity } from "../services/activitiesApi";
+import type { Activity } from "../types/activity";
 import toast from "react-hot-toast";
 
-export function useActivities() {
+export function useActivities(
+  page?: number,
+  pageSize?: number,
+  search = ""
+): {
+  activities: Activity[];
+  totalCount: number;
+  isLoading: boolean;
+  error: any;
+  addActivity: any;
+  isCreating: boolean;
+  editActivity: any;
+  isUpdating: boolean;
+  removeActivity: any;
+  isDeleting: boolean;
+} {
   const queryClient = useQueryClient();
 
-  const { data: activities, isLoading, error } = useQuery({
-    queryKey: ["activities"],
-    queryFn: getActivities,
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["activities", page, pageSize, search],
+    queryFn: () => {
+      let url = "/activities";
+      if (page !== undefined && pageSize !== undefined) {
+        url += `?page=${page}&pageSize=${pageSize}&search=${encodeURIComponent(search)}`;
+      } else if (search) {
+        url += `?search=${encodeURIComponent(search)}`;
+      }
+      return getActivities(url);
+    },
   });
 
   const { mutate: addActivity, isPending: isCreating } = useMutation({
@@ -37,5 +61,20 @@ export function useActivities() {
     onError: (err: Error) => toast.error(err.message),
   });
 
-  return { activities, isLoading, error, addActivity, isCreating, editActivity, isUpdating, removeActivity, isDeleting };
+  const isPaginated = page !== undefined && pageSize !== undefined;
+  const activitiesList = isPaginated ? (data as any)?.data ?? [] : (data as any) ?? [];
+  const total = isPaginated ? (data as any)?.count ?? 0 : activitiesList.length;
+
+  return {
+    activities: activitiesList as Activity[],
+    totalCount: total,
+    isLoading,
+    error,
+    addActivity,
+    isCreating,
+    editActivity,
+    isUpdating,
+    removeActivity,
+    isDeleting,
+  };
 }

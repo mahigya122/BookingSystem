@@ -1,8 +1,8 @@
 import type { Location } from "../types/location";
 import { fetchJson } from "./http";
 
-export async function getLocations(): Promise<Location[]> {
-  return fetchJson<Location[]>("/locations");
+export async function getLocations(url = "/locations"): Promise<Location[]> {
+  return fetchJson<Location[]>(url);
 }
 
 export async function createLocation(location: Omit<Location, "id" | "created_at">) {

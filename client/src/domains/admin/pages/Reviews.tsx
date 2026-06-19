@@ -1,16 +1,12 @@
+import { useState } from "react";
 import { useReviews } from "@shared/hooks/useReviews";
-import { usePagination } from "@shared/hooks/usePagination";
 import { Star, Trash2, CheckCircle, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
 const Reviews = () => {
-  const { reviews = [], isLoading, removeReview, moderateReview } = useReviews();
+  const [currentPage, setCurrentPage] = useState(1);
+  const { reviews = [], totalCount = 0, isLoading, removeReview, moderateReview } = useReviews(undefined, currentPage, 6);
 
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData,
-  } = usePagination(reviews, 6);
+  const totalPages = Math.ceil(totalCount / 6);
 
   if (isLoading) return <p>Loading Reviews...</p>;
 
@@ -24,7 +20,7 @@ const Reviews = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {paginatedData.map((review) => (
+        {reviews.map((review: any) => (
           <div key={review.id} className="card p-6 flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex items-center justify-between">

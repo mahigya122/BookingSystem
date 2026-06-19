@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useActivities } from "@shared/hooks/useActivities";
 import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
-import { pageSpacing, layoutConfig } from "@shared/utils/spacing";
+import { layoutConfig } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
 import {
     Mountain,
@@ -45,8 +45,6 @@ const activityImages: Record<string, string> = {
 
 const fallbackActivityImage =
     "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?w=800&q=80";
-
-const TITLE = "Activities for Every Traveller";
 
 const ActivitiesSection = () => {
     const { activities = [], isLoading } = useActivities();
