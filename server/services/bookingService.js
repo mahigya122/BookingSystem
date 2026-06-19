@@ -15,10 +15,12 @@ export async function getAllBookings() {
       status,
       total_price,
       has_breakfast,
+      extra_activities,
+      extra_offers,
       payment_status,
       payment_method,
       guests (full_name, email),
-      cabins (name, price_per_night)
+      cabins (name, price_per_night, image_url)
     `)
     .order("start_date", { ascending: true })
     .order("created_at", { ascending: true });
@@ -31,33 +33,56 @@ export async function getAllBookings() {
 }
 
 const toIsoDate = (value) => {
+  if (value instanceof Date) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+
   if (typeof value !== "string" || !value.trim()) {
     throw new Error("A valid date is required.");
   }
 
-  const date = new Date(value);
+  // If it's already a YYYY-MM-DD string
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
 
+  const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
     throw new Error(`Invalid date: ${value}`);
   }
 
-  return value.slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
-const normalizeDate = (value) => new Date(`${toIsoDate(value)}T00:00:00.000Z`);
+const normalizeDate = (value) => {
+  const iso = toIsoDate(value);
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
 
 const addDays = (date, days) => {
   const next = new Date(date);
-  next.setUTCDate(next.getUTCDate() + days);
+  next.setDate(next.getDate() + days);
   return next;
 };
 
-const formatDate = (date) => date.toISOString().slice(0, 10);
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const expandNights = (startDate, endDate) => {
   const dates = [];
-  let current = new Date(startDate);
-  const finalDate = new Date(endDate);
+  let current = normalizeDate(startDate);
+  const finalDate = normalizeDate(endDate);
 
   while (current < finalDate) {
     dates.push(formatDate(current));
@@ -69,34 +94,59 @@ const expandNights = (startDate, endDate) => {
 
 export async function getCabinAvailability(cabinId) {
   const db = getPool();
+  // Fetch ALL bookings for this cabin to show status on calendar (including cancelled/past)
   const { rows } = await db.query(
     `SELECT id, guest_id, cabin_id, start_date, end_date, status
      FROM bookings
      WHERE cabin_id = $1
-       AND status = ANY($2::text[])
      ORDER BY start_date ASC, created_at ASC`,
-    [cabinId, ACTIVE_BOOKING_STATUSES]
+    [cabinId]
   );
 
   const bookedDates = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   for (const booking of rows) {
+    if (booking.status === "cancelled") continue;
+
     const bookingStart = normalizeDate(booking.start_date);
     const bookingEnd = normalizeDate(booking.end_date);
-    bookedDates.push(...expandNights(bookingStart, bookingEnd));
+
+    // REAL-TIME LOGIC: If today >= departure date, it's COMPLETED (auto-transition)
+    const isCompleted = today >= bookingEnd;
+
+    // Only active bookings (booked, checked-in) block dates from being selected
+    // and ONLY IF they are not yet completed according to real-time date logic.
+    if (ACTIVE_BOOKING_STATUSES.includes(booking.status) && !isCompleted) {
+      bookedDates.push(...expandNights(bookingStart, bookingEnd));
+    }
   }
 
   return {
     cabin_id: cabinId,
     booked_dates: Array.from(new Set(bookedDates)).sort(),
-    bookings: rows.map((booking) => ({
-      id: booking.id,
-      guest_id: booking.guest_id,
-      cabin_id: booking.cabin_id,
-      start_date: formatDate(normalizeDate(booking.start_date)),
-      end_date: formatDate(normalizeDate(booking.end_date)),
-      status: booking.status,
-    })),
+    bookings: rows.map((booking) => {
+      const bEnd = normalizeDate(booking.status === "cancelled" ? booking.end_date : booking.end_date);
+      // We also update the returned status for consistency with real-time logic
+      let realStatus = booking.status;
+      if (booking.status !== "cancelled") {
+          const bStart = normalizeDate(booking.start_date);
+          const bEnd = normalizeDate(booking.end_date);
+          if (today < bStart) realStatus = "booked";
+          else if (today >= bStart && today < bEnd) realStatus = "checked-in";
+          else realStatus = "checked-out";
+      }
+
+      return {
+        id: booking.id,
+        guest_id: booking.guest_id,
+        cabin_id: booking.cabin_id,
+        start_date: formatDate(normalizeDate(booking.start_date)),
+        end_date: formatDate(normalizeDate(booking.end_date)),
+        status: realStatus,
+      };
+    }),
   };
 }
 
@@ -182,10 +232,23 @@ export async function createBookingReservation(input) {
     }
 
     const bookingResult = await client.query(
-      `INSERT INTO bookings (guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, payment_status, payment_method, paid_at, transaction_id)
-       VALUES ($1, $2, $3::date, $4::date, $5, 'booked', $6, $7, $8, $9, $10)
-       RETURNING id, guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, payment_status, payment_method, paid_at, transaction_id, created_at`,
-      [guestId, cabinId, startDateValue, endDateValue, totalPrice, hasBreakfast, paymentStatus, paymentMethod, paidAt, transactionId]
+      `INSERT INTO bookings (guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, extra_activities, extra_offers, payment_status, payment_method, paid_at, transaction_id)
+       VALUES ($1, $2, $3::date, $4::date, $5, 'booked', $6, $7, $8, $9, $10, $11, $12)
+       RETURNING id, guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, extra_activities, extra_offers, payment_status, payment_method, paid_at, transaction_id, created_at`,
+      [
+        guestId,
+        cabinId,
+        startDateValue,
+        endDateValue,
+        totalPrice,
+        hasBreakfast,
+        input.extra_activities ? JSON.stringify(input.extra_activities) : '[]',
+        input.extra_offers ? JSON.stringify(input.extra_offers) : '[]',
+        paymentStatus,
+        paymentMethod,
+        paidAt,
+        transactionId
+      ]
     );
 
     await client.query("COMMIT");
@@ -267,11 +330,24 @@ export async function updateBookingReservation(bookingId, input) {
            total_price = $3,
            status = $4,
            has_breakfast = $5,
+           extra_activities = COALESCE($9, extra_activities),
+           extra_offers = COALESCE($10, extra_offers),
            payment_status = COALESCE($7, payment_status),
            payment_method = COALESCE($8, payment_method)
        WHERE id = $6
-       RETURNING id, guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, payment_status, payment_method, created_at`,
-      [startDateValue, endDateValue, totalPrice, status, hasBreakfast, bookingId, paymentStatus, paymentMethod]
+       RETURNING id, guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, extra_activities, extra_offers, payment_status, payment_method, created_at`,
+      [
+        startDateValue,
+        endDateValue,
+        totalPrice,
+        status,
+        hasBreakfast,
+        bookingId,
+        paymentStatus,
+        paymentMethod,
+        input.extra_activities ? JSON.stringify(input.extra_activities) : null,
+        input.extra_offers ? JSON.stringify(input.extra_offers) : null
+      ]
     );
 
     await client.query("COMMIT");
@@ -298,7 +374,7 @@ export async function patchBookingReservation(bookingId, updates) {
     UPDATE bookings
     SET ${setClause}
     WHERE id = $1
-    RETURNING id, guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, created_at
+    RETURNING id, guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, extra_activities, extra_offers, created_at
   `;
 
   const { rows } = await db.query(query, [bookingId, ...values]);

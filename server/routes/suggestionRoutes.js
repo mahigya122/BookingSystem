@@ -6,8 +6,15 @@ const router = express.Router();
 
 router.get("/", async (req, res) => {
     try{
-        const { userId } = req.query;
-        const role = await getUserRole(userId);
+        const { userId, role: queryRole } = req.query;
+        
+        // If a specific role is requested (e.g. from the Guest Chat), use it.
+        // Otherwise, fallback to the user's account role.
+        let role = queryRole;
+        if (!role) {
+            role = await getUserRole(userId);
+        }
+        
         const suggestions = getRandomSuggestions(role);
 
         return res.json({

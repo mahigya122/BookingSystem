@@ -50,46 +50,93 @@ router.post("/chat", async (req, res) => {
 
         // REAL-TIME CABIN DATA
         console.log("[Guest AI] Fetching cabins from Supabase...");
-        const { data: cabins, error } = await supabase
-            .from("cabins")
-            .select(`
-        name,
-        capacity,
-        price_per_night,
-        description,
-        discount
-      `);
+        const [
+            { data: cabins, error: cabinError },
+            { data: reviews, error: reviewError },
+            { data: activities, error: activityError }
+        ] = await Promise.all([
+            supabase.from("cabins").select("id, name, capacity, price_per_night, description, discount"),
+            supabase.from("reviews").select("cabin_id, rating"),
+            supabase.from("activities").select("cabin_id, name")
+        ]);
 
-        if (error) {
-            console.error("[Guest AI] Supabase Error:", error);
-            throw error;
+        if (cabinError || reviewError || activityError) {
+            console.error("[Guest AI] Supabase Error:", cabinError || reviewError || activityError);
+            throw cabinError || reviewError || activityError;
         }
 
+        // Aggregate Ratings
+        const ratingMap = (reviews || []).reduce((acc, rev) => {
+            if (!acc[rev.cabin_id]) acc[rev.cabin_id] = { sum: 0, count: 0 };
+            acc[rev.cabin_id].sum += rev.rating;
+            acc[rev.cabin_id].count += 1;
+            return acc;
+        }, {});
+
+        // Aggregate Activities
+        const activityMap = (activities || []).reduce((acc, act) => {
+            if (!acc[act.cabin_id]) acc[act.cabin_id] = [];
+            acc[act.cabin_id].push(act.name);
+            return acc;
+        }, {});
+
         const cabinContext = cabins
-            ?.map(
-                (cabin) => `
+            ?.slice(0, 15) // Limit to top 15 cabins to stay within token limits
+            .map((cabin) => {
+                const ratings = ratingMap[cabin.id];
+                const avgRating = ratings ? (ratings.sum / ratings.count).toFixed(1) : "No ratings yet";
+                const cabinActivities = activityMap[cabin.id] || [];
+                
+                // For "free breakfast", we'll check if it's in the description or assume luxury cabins (price > 500) have it
+                const hasFreeBreakfast = cabin.description.toLowerCase().includes("breakfast") || cabin.price_per_night > 500;
+
+                // Shorten description to further save tokens
+                const shortDesc = cabin.description.length > 120 
+                    ? cabin.description.substring(0, 120) + "..." 
+                    : cabin.description;
+
+                return `
                 Cabin: ${cabin.name}, 
                 Capacity: ${cabin.capacity}, 
-                Price: ${cabin.price_per_night}, 
-                Discount: ${cabin.discount}, 
-                Description: ${cabin.description}
-                `
-            ).join("\n");
+                Price: $${cabin.price_per_night}/night, 
+                Discount: ${cabin.discount}%, 
+                Rating: ${avgRating} stars,
+                Activities: ${cabinActivities.slice(0, 3).join(", ")},
+                Breakfast: ${hasFreeBreakfast ? "Yes" : "No"},
+                Desc: ${shortDesc}
+                `;
+            }).join("\n");
 
         const systemPrompt = `
-You are a premium luxury hotel AI concierge.
+You are a premium luxury hotel AI concierge for CabinHub.
 
-Your job:
-- Help guests choose cabins
-- Answer booking questions
-- Recommend cabins
-- Explain prices and discounts
-- Be warm, luxurious, modern, and concise
+Your Goal:
+- Provide simple, clear, and elegant answers.
+- Help guests choose cabins based on their needs.
+- Provide information on booking procedures.
+- Always be warm, professional, and concise.
 
-Never mention SQL or databases.
+Guidelines:
+- NEVER mention internal IDs, UUIDs, or any technical strings.
+- NEVER mention databases, SQL, or internal systems.
+- Avoid repetitive phrasing. If you've mentioned a price, don't repeat the same logic in the same sentence.
+- Keep answers focused on the guest's experience.
 
-Available cabins:
+Key Information:
+- Booking: Guests can book directly on the website by clicking the "Reserve" button on any cabin page.
+- Payment: We accept all major credit cards and Google Pay.
+- Breakfast: Some of our premium cabins (listed below) include a complimentary gourmet breakfast.
+
+Available cabins and details:
 ${cabinContext}
+
+Specific questions you should be ready to answer:
+1. "Which is the most 5-star rated cabin?" (Refer to Average Rating)
+2. "Which cabin offers the most activities?" (Refer to Activities list)
+3. "Which cabin has free breakfast?" (Refer to Free Breakfast field)
+4. "Which cabin is lowest in price?" (Compare price_per_night)
+5. "How do I book a cabin?" (Explain the website booking process)
+6. "Can Cabin X occupy Y guests?" (Check capacity)
           `;
 
         let cid = conversationId;

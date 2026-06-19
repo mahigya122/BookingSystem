@@ -2,22 +2,42 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import aiRouter from "./routes/aiRoutes.js";
 import suggestionRoutes from "./routes/suggestionRoutes.js";
 import guestAiRoutes from "./routes/guestAiRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import cabinRoutes from "./routes/cabinRoutes.js";
+import locationsRoutes from "./routes/locationsRoutes.js";
+import offersRoutes from "./routes/offersRoutes.js";
+import activitiesRoutes from "./routes/activitiesRoutes.js";
+import reviewsRoutes from "./routes/reviewsRoutes.js";
 
 import { executeSQL } from "./services/sqlExecutionService.js";
 import { patchBookingReservation } from "./services/bookingService.js";
+import { seedFullData } from "./seed_full.js";
 
 
-dotenv.config({ path: "../.env" });
-dotenv.config({ path: ".env", override: true });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const envCandidates = [
+    path.resolve(process.cwd(), "server/.env"),
+    path.resolve(process.cwd(), ".env"),
+    path.resolve(__dirname, ".env"),
+];
+
+for (const envPath of envCandidates) {
+    if (fs.existsSync(envPath)) {
+        dotenv.config({ path: envPath, override: true });
+    }
+}
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
@@ -33,6 +53,22 @@ app.use("/api/ai/guest", guestAiRoutes); // Move more specific route up
 app.use("/api/ai", aiRouter);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/cabins", cabinRoutes);
+app.use("/api/locations", locationsRoutes);
+app.use("/api/offers", offersRoutes);
+app.use("/api/activities", activitiesRoutes);
+app.use("/api/reviews", reviewsRoutes);
+
+app.post("/api/bootstrap", async (req, res) => {
+    try {
+        await seedFullData();
+        return res.json({ success: true });
+    } catch (error) {
+        console.error("Bootstrap seeding failed:", error);
+        return res.status(500).json({
+            error: error.message || "Failed to bootstrap data",
+        });
+    }
+});
 
 // Global Error Handler
 app.use((err, req, res, next) => {

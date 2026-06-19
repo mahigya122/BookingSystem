@@ -18,19 +18,19 @@ const adminPools = [
 
 const guestPools = [
   [
-    "Which cabins are available?",
-    "Do you offer discounts?",
+    "Which is the most 5-star rated cabin?",
+    "Which cabin offers the most activities?",
+    "Which cabin has free breakfast?",
+  ],
+  [
+    "Which cabin is lowest in price?",
+    "How do I book a cabin?",
+    "Can Cabin 22 occupy 10 guests?",
+  ],
+  [
     "What is your best luxury cabin?",
-  ],
-  [
-    "How many people can fit in a cabin?",
-    "Are there any cabins for 4 people?",
-    "Show me the cheapest cabin available",
-  ],
-  [
-    "Tell me about your luxury suites",
-    "Do you have any cabins with a view?",
-    "What is the price per night for the most expensive cabin?",
+    "Show me cabins with a mountain view.",
+    "Do you offer any discounts for long stays?",
   ],
 ];
 

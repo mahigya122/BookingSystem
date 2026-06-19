@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import { faker } from "@faker-js/faker";
+import { pathToFileURL } from "url";
 
 dotenv.config({ path: "./server/.env" });
 
@@ -9,7 +10,19 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-async function seed() {
+export async function seedFullData() {
+  console.log("Checking if seeding is necessary...");
+  const { count, error: countErr } = await supabase
+    .from("cabins")
+    .select("*", { count: "exact", head: true });
+
+  if (countErr) {
+    console.error("Error checking cabins count:", countErr.message);
+  } else if (count > 0) {
+    console.log(`✅ Database already seeded (${count} cabins found). Skipping.`);
+    return;
+  }
+
   console.log("🚀 Starting comprehensive seeding...");
 
   // 1. CREATE AUTH USERS & GUESTS
@@ -112,40 +125,87 @@ async function seed() {
   else console.log(`✅ Seeded ${activities.length} activities`);
 
   // 5. CABINS
-  const cabinNames = ["Himalayan View", "Phewa Suite", "Forest Cabin", "Riverside Hut", "Everest Loft", "Serene Villa", "Luxury Nest", "Alpine Lodge"];
-  const cabinsToInsert = cabinNames.map(name => ({
-    name,
-    capacity: faker.number.int({ min: 2, max: 8 }),
-    price_per_night: faker.number.int({ min: 100, max: 1000 }),
-    discount: faker.number.int({ min: 0, max: 20 }),
-    image_url: faker.image.url({ category: 'cabin' }),
-    description: faker.lorem.paragraph(),
-    location_id: faker.helpers.arrayElement(locations).id
-  }));
+  const cabinTypes = ["Lodge", "Cabin", "Villa", "Retreat", "Suite", "Hut", "Cottage", "Chalet", "Bungalow", "Loft"];
+  const cabinQualities = ["Luxury", "Serene", "Himalayan", "Riverside", "Alpine", "Forest", "Mountain", "Royal", "Eco", "Wild"];
+  
+  const cabinsToInsert = [];
+  locations.forEach(loc => {
+    let targetCount = 10;
+    if (loc.name.toLowerCase().includes("chitwan")) targetCount = 15;
+    else if (loc.name.toLowerCase().includes("pokhara")) targetCount = 12;
+    else if (loc.name.toLowerCase().includes("everest")) targetCount = 15;
+    else if (loc.name.toLowerCase().includes("annapurna")) targetCount = 12;
+    else if (loc.name.toLowerCase().includes("lumbini")) targetCount = 10;
+    
+    for (let i = 0; i < targetCount; i++) {
+      const type = faker.helpers.arrayElement(cabinTypes);
+      const quality = faker.helpers.arrayElement(cabinQualities);
+      cabinsToInsert.push({
+        name: `${quality} ${type} ${i + 1}`,
+        capacity: faker.number.int({ min: 2, max: 10 }),
+        price_per_night: faker.number.int({ min: 120, max: 1200 }),
+        discount: faker.number.int({ min: 0, max: 25 }),
+        image_url: faker.image.url({ category: 'cabin' }),
+        description: faker.lorem.paragraphs(2),
+        location_id: loc.id
+      });
+    }
+  });
 
   const { data: cabins, error: cErr } = await supabase.from("cabins").insert(cabinsToInsert).select();
   if (cErr) console.error("Error seeding cabins:", cErr.message);
   else console.log(`✅ Seeded ${cabins.length} cabins`);
 
-  // 6. JUNCTION TABLES
-  if (cabins && offers) {
-    const cabinOffers = cabins.flatMap(cabin => {
-      const selected = faker.helpers.arrayElements(offers, { min: 0, max: 2 });
-      return selected.map(offer => ({ cabin_id: cabin.id, offer_id: offer.id }));
-    });
-    const { error: coErr } = await supabase.from("cabin_offers").insert(cabinOffers);
-    if (coErr) console.error("Error seeding cabin_offers:", coErr.message);
-    else console.log(`✅ Seeded cabin_offers associations`);
-  }
+  // 6. CABIN OFFERS & ACTIVITIES (1-to-many relationship)
+  if (cabins) {
+    if (offers && offers.length > 0) {
+      for (const offer of offers) {
+        const randomCabin = faker.helpers.arrayElement(cabins);
+        const { error: uErr } = await supabase
+          .from("offers")
+          .update({ 
+            cabin_id: randomCabin.id,
+            cabin_name: randomCabin.name 
+          })
+          .eq("id", offer.id);
+        if (uErr) console.error(`Error linking offer ${offer.id} to cabin:`, uErr.message);
+      }
+      console.log(`✅ Seeded offers cabin links`);
+    }
 
-  if (cabins && activities) {
-    const cabinActivities = cabins.flatMap(cabin => {
-      const selected = faker.helpers.arrayElements(activities, { min: 1, max: 3 });
-      return selected.map(act => ({ cabin_id: cabin.id, activity_id: act.id }));
-    });
-    const { error: caErr } = await supabase.from("cabin_activities").insert(cabinActivities);
-    if (caErr) console.error("Error seeding cabin_activities:", caErr.message);
-    else console.log(`✅ Seeded cabin_activities associations`);
+    if (activities && activities.length > 0) {
+      for (const activity of activities) {
+        const randomCabin = faker.helpers.arrayElement(cabins);
+        const { error: uErr } = await supabase
+          .from("activities")
+          .update({ 
+            cabin_id: randomCabin.id,
+            cabin_name: randomCabin.name
+          })
+          .eq("id", activity.id);
+        if (uErr) console.error(`Error linking activity ${activity.id} to cabin:`, uErr.message);
+      }
+      console.log(`✅ Seeded activities cabin links`);
+    }
+
+    // NEW: Link locations to a random cabin (or the first one associated with it)
+    if (locations && locations.length > 0) {
+      for (const loc of locations) {
+        // Find a cabin that uses this location
+        const cabinForLoc = cabins.find(c => c.location_id === loc.id);
+        if (cabinForLoc) {
+          const { error: uErr } = await supabase
+            .from("locations")
+            .update({ 
+              cabin_id: cabinForLoc.id,
+              cabin_name: cabinForLoc.name
+            })
+            .eq("id", loc.id);
+          if (uErr) console.error(`Error linking location ${loc.id} to cabin:`, uErr.message);
+        }
+      }
+      console.log(`✅ Seeded locations cabin links`);
+    }
   }
 
   // 7. BOOKINGS
@@ -167,8 +227,8 @@ async function seed() {
         status: faker.helpers.arrayElement(['booked', 'checked-in', 'checked-out', 'cancelled']),
         total_price: cabin.price_per_night * duration,
         has_breakfast: faker.datatype.boolean(),
-        payment_status: faker.helpers.arrayElement(['paid', 'unpaid', 'pending']),
-        payment_method: faker.helpers.arrayElement(['esewa', 'khalti', 'cash', 'card']),
+        payment_status: faker.helpers.arrayElement(['paid', 'pending', 'refunded']),
+        payment_method: faker.helpers.arrayElement(['esewa', 'khalti', 'arrival', 'visa', 'mastercard', 'fonepay']),
         created_by: guest.id,
         is_admin_booking: faker.datatype.boolean(0.1)
       };
@@ -180,12 +240,20 @@ async function seed() {
 
   // 8. REVIEWS
   if (cabins && newGuests) {
-    const reviewsToInsert = Array.from({ length: 40 }).map(() => ({
-      guest_id: faker.helpers.arrayElement(newGuests).id,
-      cabin_id: faker.helpers.arrayElement(cabins).id,
-      rating: faker.number.int({ min: 3, max: 5 }),
-      comment: faker.lorem.sentences(2)
-    }));
+    const reviewsToInsert = Array.from({ length: 40 }).map(() => {
+      const isApproved = faker.helpers.arrayElement([true, true, true, false, null]); // mostly approved/pending, some rejected
+      const isModerated = isApproved !== null;
+      const randomCabin = faker.helpers.arrayElement(cabins);
+      return {
+        guest_id: faker.helpers.arrayElement(newGuests).id,
+        cabin_id: randomCabin.id,
+        cabin_name: randomCabin.name,
+        rating: faker.number.int({ min: 3, max: 5 }),
+        comment: faker.lorem.sentences(2),
+        is_moderated: isModerated,
+        is_approved: isApproved
+      };
+    });
     const { data: reviews, error: rErr } = await supabase.from("reviews").insert(reviewsToInsert).select();
     if (rErr) console.error("Error seeding reviews:", rErr.message);
     else console.log(`✅ Seeded ${reviews.length} reviews`);
@@ -194,4 +262,6 @@ async function seed() {
   console.log("🏁 Seeding complete!");
 }
 
-seed();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  seedFullData();
+}
