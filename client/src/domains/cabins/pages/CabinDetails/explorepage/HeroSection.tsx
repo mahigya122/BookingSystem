@@ -1,7 +1,7 @@
 import { useUser } from "@shared/hooks";
 import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
 import { motion } from "framer-motion";
-import { layoutConfig } from "@shared/utils/spacing";
+import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import { Compass } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -29,6 +29,32 @@ const DashedCircle = ({ className }: { className?: string }) => (
 
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
+const container = {
+    hidden: {},
+    show: {
+        transition: {
+            staggerChildren: 0.08,
+        },
+    },
+};
+
+const wordVariant = () => ({
+    hidden: {
+        opacity: 0,
+        y: 12,
+        filter: "blur(4px)",
+    },
+    show: {
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
+        transition: {
+            duration: 0.5,
+            ease: EASE,
+        },
+    },
+});
+
 const HeroSection = () => {
     const { user } = useUser();
     const { setIsSearching, setSidebarOpen } = useCabinFiltersContext();
@@ -43,7 +69,7 @@ const HeroSection = () => {
     const welcomeTitle = user ? `Welcome back, ${user.email?.split("@")[0]}!` : "Your Next Escape Awaits";
 
     return (
-        <section className={`relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-sky-950/20 py-[52px] md:py-[56px] lg:py-[60px]`}>
+        <section className={`relative overflow-hidden bg-gradient-to-br from-slate-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-sky-950/20 ${pageSpacing.section}`}>
 
             {/* Decorative dashed circle BG */}
             <DashedCircle className="absolute top-0 -right-16 w-96 h-96 pointer-events-none opacity-40" />
@@ -72,48 +98,51 @@ const HeroSection = () => {
                     <div className="space-y-1">
                         {/* Cursive sub-label with Magic Letter animation */}
                         <motion.h2
-                            className="text-sky-500 dark:text-sky-400 text-xl font-bold flex flex-wrap"
+                            className="text-sky-500 dark:text-sky-400 text-xl font-bold flex flex-wrap gap-x-3 gap-y-1"
                             style={{ fontFamily: "'Dancing Script', cursive" }}
+                            variants={container}
                             initial="hidden"
-                            whileInView="show"
-                            viewport={{ once: true }}
+                            animate="show"
                         >
                             {welcomeTitle.split(" ").map((word, wi) => (
-                                <span key={wi} className="flex mr-3 last:mr-0">
-                                    {word.split("").map((char, i) => (
-                                        <motion.span
-                                            key={i}
-                                            className="inline-block"
-                                            initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
-                                            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                                            transition={{
-                                                duration: 0.4,
-                                                delay: wi * 0.1 + i * 0.03,
-                                                ease: EASE
-                                            }}
-                                        >
-                                            {char}
-                                        </motion.span>
-                                    ))}
-                                </span>
+                                <motion.span
+                                    key={wi}
+                                    className="inline-block"
+                                    variants={wordVariant()}
+                                >
+                                    {word}
+                                </motion.span>
                             ))}
                             <motion.span
                                 initial={{ opacity: 0, scale: 0 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 1, type: "spring" }}
+                                transition={{ delay: 0.6, type: "spring" }}
                             >
                                 {user ? " 🎊" : " ✈️"}
                             </motion.span>
                         </motion.h2>
 
                         <motion.h1
-                            className="text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] text-slate-900 dark:text-white tracking-tight"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, ease: EASE, delay: 0.2 }}
+                            className="text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] text-slate-900 dark:text-white tracking-tight flex flex-wrap gap-x-3 gap-y-1"
+                            variants={container}
+                            initial="hidden"
+                            animate="show"
                         >
-                            Discover Your
-                            <span className="block text-sky-500 drop-shadow-sm">Perfect Stay</span>
+                            {"Discover Your".split(" ").map((word, wi) => (
+                                <motion.span
+                                    key={wi}
+                                    className="inline-block"
+                                    variants={wordVariant()}
+                                >
+                                    {word}
+                                </motion.span>
+                            ))}
+                            <motion.span
+                                className="inline-block text-sky-500 drop-shadow-sm w-full"
+                                variants={wordVariant()}
+                            >
+                                Perfect Stay
+                            </motion.span>
                         </motion.h1>
                     </div>
 

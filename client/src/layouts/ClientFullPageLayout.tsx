@@ -29,7 +29,7 @@ const ClientFullPageLayout = () => {
 
     return (
         <ClientAIChatProvider>
-            <div className="h-screen flex flex-col bg-[var(--app-bg)] text-[var(--app-text-main)] relative overflow-x-hidden">
+            <div className="min-h-screen flex flex-col bg-[var(--app-bg)] text-[var(--app-text-main)] relative overflow-x-hidden">
                 {/* NAVIGATION PROGRESS */}
                 <NavigationProgressBar />
 
@@ -39,9 +39,9 @@ const ClientFullPageLayout = () => {
                 {/* FULL WIDTH CONTENT (NO SIDEBAR) */}
                 <div
                     ref={containerRef as React.RefObject<HTMLDivElement>}
-                    className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-50/50 dark:bg-slate-950/50 scroll-smooth flex flex-col w-full"
+                    className="flex-1 bg-slate-50/50 dark:bg-slate-950/50 flex flex-col w-full"
                 >
-                    <div className={`px-0 md:px-8 flex-1 ${isExcepted ? "pb-0" : "py-16"}`}>
+                    <div className={`px-0 md:px-8 flex-1 flex flex-col ${isExcepted ? "pb-0" : "py-16"}`}>
                         <Outlet />
                     </div>
                     <Footer />

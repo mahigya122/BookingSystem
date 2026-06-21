@@ -105,7 +105,7 @@ const InfoPage = () => {
 
     if (!data) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center p-10 bg-slate-50 dark:bg-slate-950">
+            <div className="flex-grow flex flex-col items-center justify-center p-10 bg-transparent">
                 <Mountain className="h-16 w-16 text-sky-500 mb-6" />
                 <h1 className="text-3xl font-black text-slate-900 dark:text-white">Page Not Found</h1>
                 <Link to="/" className="mt-6 text-sky-500 font-bold flex items-center gap-2">
@@ -118,7 +118,7 @@ const InfoPage = () => {
     const Icon = data.icon;
 
     return (
-        <div className="min-h-screen bg-white dark:bg-slate-950">
+        <div className="flex-grow bg-white dark:bg-slate-950">
             {/* HERO SECTION */}
             <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-slate-950">
                 <div className="absolute inset-0 opacity-40">

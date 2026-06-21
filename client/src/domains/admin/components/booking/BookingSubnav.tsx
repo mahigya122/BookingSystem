@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { BookingStatus, SortType } from "@shared/types/booking";
 
 interface Props {
@@ -13,6 +13,16 @@ const BookingSubnav = ({ onFilterChange, onSortChange, onSearchChange, currentSo
   const [sortOpen, setSortOpen] = useState(false);
   const [search, setSearch] = useState("");
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      onSearchChange?.(search);
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [search, onSearchChange]);
+
   const handleFilter = (value: BookingStatus) => {
     setActiveFilter(value);
     onFilterChange?.(value);
@@ -20,7 +30,6 @@ const BookingSubnav = ({ onFilterChange, onSortChange, onSearchChange, currentSo
 
   const handleSearch = (value: string) => {
     setSearch(value);
-    onSearchChange?.(value);
   };
 
   return (

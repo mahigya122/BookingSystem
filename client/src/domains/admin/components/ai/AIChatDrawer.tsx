@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 
-import SQLChat from "./sqlChat";
+import SQLChat from "./SQLChat";
 
 import { useAIChat } from "../../contexts/AIChatContext";
 

@@ -20,7 +20,7 @@ const statusConfig: Record<
     },
     refunded: {
         label: "refunded",
-        className: "bg-rose-100, text-rose-700 border-rose-300",
+        className: "bg-rose-100 text-rose-700 border-rose-300",
     },
 };
 

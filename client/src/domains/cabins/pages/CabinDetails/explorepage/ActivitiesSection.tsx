@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useActivities } from "@shared/hooks/useActivities";
 import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
-import { layoutConfig } from "@shared/utils/spacing";
+import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
 import {
     Mountain,
@@ -79,7 +79,7 @@ const ActivitiesSection = () => {
     };
 
     return (
-        <section id="activities-section" className="py-[52px] md:py-[56px] lg:py-[60px] relative w-full">
+        <section id="activities-section" className={`${pageSpacing.section} relative w-full`}>
             <div className={layoutConfig.container}>
                 <SectionHeader
                     label="Things To Do"

@@ -5,80 +5,97 @@ import {
   Users,
   Percent,
   TrendingUp,
-  History,
-  Loader2
+  History
 } from "lucide-react";
+import { lazy, Suspense, useMemo } from "react";
 
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import StatsCard from "../components/dashboard/StatsCard";
-import SalesChart from "../components/dashboard/SalesChart";
-import StayDurationChart from "../components/dashboard/StayDurationChart";
-import TodayActivity from "../components/dashboard/TodayActivity";
-import TodayList from "../components/dashboard/TodayList";
-import RecentBookings from "../components/dashboard/RecentBookings";
 
-import { useBookings } from "@shared/hooks/booking/useBookings";
-import { useGuests, useDashboardStats } from "@shared/hooks";
+const SalesChart = lazy(
+  () => import("../components/dashboard/SalesChart")
+);
+const StayDurationChart = lazy(
+  () => import("../components/dashboard/StayDurationChart")
+);
+const TodayActivity = lazy(
+  () => import("../components/dashboard/TodayActivity")
+);
 
+const TodayList = lazy(
+  () => import("../components/dashboard/TodayList")
+);
+
+const RecentBookings = lazy(
+  () => import("../components/dashboard/RecentBookings")
+);
+
+import { useDashboardStats } from "@shared/hooks";
 import { useDashboardRange } from "../hooks/useDashboardRange";
-import { useDashboardStats as useFrontendDashboardStats } from "../hooks/useDashboardStats";
-import { useSalesChart } from "../hooks/useSalesChart";
-import { useStayDuration } from "../hooks/useStayDuration";
-import { useTodayActivity } from "../hooks/useTodayActivity";
+import { useDebouncedValue } from "@shared/hooks/useDebouncedValue";
 
 const Dashboard = () => {
-  const { bookings = [], isLoading: isBookingsLoading } = useBookings();
-  const { guests = [], isLoading: isGuestsLoading } = useGuests();
-  const { stats, isLoading: isStatsLoading } = useDashboardStats();
-
   const { range, setRange, rangeStart, rangeEnd } = useDashboardRange();
+
+  // Format dates as YYYY-MM-DD
+  const formatToYYYYMMDD = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const memoRange = useMemo(() => ({ rangeStart, rangeEnd }), [rangeStart, rangeEnd]);
+  const debouncedRange = useDebouncedValue(memoRange, 400);
+
+  const { startDateStr, endDateStr } = useMemo(
+    () => ({
+      startDateStr: formatToYYYYMMDD(debouncedRange.rangeStart),
+      endDateStr: formatToYYYYMMDD(debouncedRange.rangeEnd),
+    }),
+    [debouncedRange]
+  );
+
+  const { stats, isLoading } = useDashboardStats(startDateStr, endDateStr);
 
   const startMs = rangeStart.getTime();
   const endMs = rangeEnd.getTime();
 
   const {
-    filteredBookings,
+    finalTotalBookings,
+    finalTotalGuests,
+    finalRevenue,
+    finalOccupancy,
     cancelledBookings,
-    totalBookings,
-  } = useFrontendDashboardStats({
+    salesData,
+    stayData,
+    arrivals,
+    departures,
+    checkIns,
     bookings,
-    startMs,
-    endMs,
-  });
-
-  const salesData = useSalesChart(filteredBookings);
-  const stayData = useStayDuration(filteredBookings);
-
-  const { arrivals, departures, checkIns } = useTodayActivity({
-    bookings,
-    startMs,
-    endMs,
-  });
-
-  const isLoading = isBookingsLoading || isGuestsLoading || isStatsLoading;
-
-  if (isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center bg-slate-50/10 dark:bg-slate-950/10">
-        <Loader2 className="h-10 w-10 animate-spin text-sky-500" />
-      </div>
-    );
-  }
-
-  // Fallback calculations in case stats hook fails or returns null
-  const allTimeBookingsLocal = bookings.filter((b) => b.status !== "cancelled").length;
-  const totalSalesLocal = bookings.filter((b) => b.status !== "cancelled").reduce((sum, b) => sum + b.total_price, 0);
-
-  const finalTotalBookings = stats ? stats.totalBookings : allTimeBookingsLocal;
-  const finalTotalGuests = stats ? stats.totalGuests : guests.length;
-  const finalRevenue = stats ? stats.revenue : totalSalesLocal;
-  const finalOccupancy = stats ? stats.occupancyRate : (totalBookings > 0 ? Math.round((filteredBookings.filter(b => b.status === "checked-in").length / totalBookings) * 100) : 0);
+    todayBookings,
+  } = useMemo(() => {
+    return {
+      finalTotalBookings: stats?.totalBookings ?? 0,
+      finalTotalGuests: stats?.totalGuests ?? 0,
+      finalRevenue: stats?.revenue ?? 0,
+      finalOccupancy: stats?.occupancyRate ?? 0,
+      cancelledBookings: stats?.cancelledBookingsCount ?? 0,
+      salesData: stats?.salesChartData ?? [],
+      stayData: stats?.stayDurationData ?? [],
+      arrivals: stats?.todayActivity?.arrivals ?? 0,
+      departures: stats?.todayActivity?.departures ?? 0,
+      checkIns: stats?.todayActivity?.checkIns ?? 0,
+      bookings: stats?.recentBookings ?? [],
+      todayBookings: stats?.todayBookings ?? [],
+    };
+  }, [stats]);
 
   return (
     <div className="w-full space-y-12 animate-slide-up pb-12">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
         <div className="space-y-3">
-          <p 
+          <p
             className="text-sky-500 text-2xl font-bold"
             style={{ fontFamily: "'Dancing Script', cursive" }}
           >
@@ -92,10 +109,10 @@ const Dashboard = () => {
           </p>
         </div>
         <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl p-3 rounded-[2rem] shadow-premium border border-sky-100/50 dark:border-sky-900/20">
-            <DashboardHeader
-                range={range}
-                onChangeRange={setRange}
-            />
+          <DashboardHeader
+            range={range}
+            onChangeRange={setRange}
+          />
         </div>
       </div>
 
@@ -106,6 +123,7 @@ const Dashboard = () => {
           value={finalTotalBookings}
           icon={<History size={22} />}
           color="bg-sky-50 dark:bg-sky-900/20"
+          isLoading={isLoading}
         />
 
         <StatsCard
@@ -113,6 +131,7 @@ const Dashboard = () => {
           value={finalTotalGuests}
           icon={<Users size={22} />}
           color="bg-indigo-50 dark:bg-indigo-900/20"
+          isLoading={isLoading}
         />
 
         <StatsCard
@@ -120,6 +139,7 @@ const Dashboard = () => {
           value={`$${finalRevenue.toLocaleString()}`}
           icon={<Banknote size={22} />}
           color="bg-emerald-50 dark:bg-emerald-900/20"
+          isLoading={isLoading}
         />
 
         <StatsCard
@@ -127,6 +147,7 @@ const Dashboard = () => {
           value={`${finalOccupancy}%`}
           icon={<Percent size={20} />}
           color="bg-amber-50 dark:bg-amber-900/20"
+          isLoading={isLoading}
         />
 
         {/* ROW 2: MANAGEMENT INSIGHTS */}
@@ -135,6 +156,7 @@ const Dashboard = () => {
           value={finalTotalBookings}
           icon={<TrendingUp size={22} />}
           color="bg-cyan-50 dark:bg-cyan-900/20"
+          isLoading={isLoading}
         />
 
         <StatsCard
@@ -142,6 +164,7 @@ const Dashboard = () => {
           value={Math.round(finalTotalGuests * 0.4)}
           icon={<div className="font-black text-lg">👤</div>}
           color="bg-violet-50 dark:bg-violet-900/20"
+          isLoading={isLoading}
         />
 
         <StatsCard
@@ -149,38 +172,78 @@ const Dashboard = () => {
           value={`$${finalTotalBookings ? Math.round(finalRevenue / finalTotalBookings).toLocaleString() : "0"}`}
           icon={<LineChart size={22} />}
           color="bg-rose-50 dark:bg-rose-900/20"
+          isLoading={isLoading}
         />
 
         <StatsCard
           title="Cancellation Rate"
-          value={totalBookings ? `${Math.round((cancelledBookings / (totalBookings + cancelledBookings || 1)) * 100)}%` : "0%"}
+          value={finalTotalBookings ? `${Math.round((cancelledBookings / (finalTotalBookings + cancelledBookings || 1)) * 100)}%` : "0%"}
           icon={<LayoutDashboard size={20} />}
           color="bg-slate-50 dark:bg-slate-800/20"
+          isLoading={isLoading}
         />
       </div>
 
-      <TodayActivity
-        arrivals={arrivals}
-        departures={departures}
-        checkIns={checkIns}
-      />
+      {isLoading ? (
+        <div className="h-40 animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+      ) : (
+        <Suspense fallback={<div className="h-40 animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />}>
+          <TodayActivity
+            arrivals={arrivals}
+            departures={departures}
+            checkIns={checkIns}
+          />
+        </Suspense>
+      )}
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <StayDurationChart data={stayData} />
-        <SalesChart
-          title="Revenue Growth"
-          data={salesData}
-        />
-      </div>
+      {isLoading ? (
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <div className="h-[400px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+          <div className="h-[400px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+        </div>
+      ) : (
+        <Suspense
+          fallback={
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <div className="h-[400px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+              <div className="h-[400px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+            </div>
+          }
+        >
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <StayDurationChart data={stayData} />
+            <SalesChart
+              title="Revenue Growth"
+              data={salesData}
+            />
+          </div>
+        </Suspense>
+      )}
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <RecentBookings bookings={bookings} />
-        <TodayList
-            bookings={bookings}
-            windowStart={startMs}
-            windowEnd={endMs}
-        />
-      </div>
+      {isLoading ? (
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <div className="h-[350px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+          <div className="h-[350px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+        </div>
+      ) : (
+        <Suspense
+          fallback={
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <div className="h-[350px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+              <div className="h-[350px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+            </div>
+          }
+        >
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <RecentBookings bookings={bookings} />
+            <TodayList
+              bookings={todayBookings}
+              windowStart={startMs}
+              windowEnd={endMs}
+            />
+          </div>
+        </Suspense>
+      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { Search, CalendarCheck, ThumbsUp } from "lucide-react";
 import { motion } from "framer-motion";
-import { layoutConfig } from "@shared/utils/spacing";
+import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
 
 const steps = [
@@ -27,7 +27,7 @@ const steps = [
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
 const HowItWorks = () => (
-    <section className={`relative bg-slate-50 dark:bg-slate-900/40 py-[52px] md:py-[56px] lg:py-[60px] overflow-hidden w-full`}>
+    <section className={`relative bg-white dark:bg-slate-950 ${pageSpacing.section} overflow-hidden w-full`}>
         {/* Airplane + dashed path */}
         <svg
             className="absolute top-32 left-0 right-0 w-full h-16 pointer-events-none"

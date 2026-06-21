@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import type { Cabin } from "../../types/cabin";
 import { fetchJson } from "../../services/http";
 
@@ -22,6 +22,8 @@ export function useCabins(
       }
       return fetchJson<any>(url);
     },
+    staleTime: 15 * 60 * 1000, // Keep data fresh for 15 minutes (overrides global default)
+    placeholderData: keepPreviousData,
   });
 
   const isPaginated = page !== undefined && pageSize !== undefined;

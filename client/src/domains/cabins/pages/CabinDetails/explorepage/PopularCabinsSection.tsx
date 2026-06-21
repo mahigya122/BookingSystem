@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { MapPin } from "lucide-react";
 import type { Cabin } from "@shared/types/cabin";
-import { layoutConfig } from "@shared/utils/spacing";
+import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
 
 interface PopularCabinsSectionProps {
@@ -13,7 +13,7 @@ const PopularCabinsSection = ({ cabins, filteredCount }: PopularCabinsSectionPro
     const displayed = cabins.slice(0, 6);
 
     return (
-        <section id="popular-cabins" className="py-[52px] md:py-[56px] lg:py-[60px] relative w-full">
+        <section id="popular-cabins" className={`${pageSpacing.section} relative w-full`}>
             <div className={layoutConfig.container}>
                 {/* Airplane deco */}
                 <svg className="absolute top-0 left-0 w-10 h-10 text-slate-300 pointer-events-none" viewBox="0 0 80 80" fill="currentColor">

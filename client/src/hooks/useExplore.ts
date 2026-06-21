@@ -12,9 +12,9 @@ export const useExplore = () => {
   const { user } = useUser();
 
   // Fetch reference data to resolve names from IDs for robust matching across duplicated records
-  const { locations = [] } = useLocations();
-  const { offers = [] } = useOffers();
-  const { activities = [] } = useActivities();
+  const { locations = [], isLoading: isLocationsLoading } = useLocations();
+  const { offers = [], isLoading: isOffersLoading } = useOffers();
+  const { activities = [], isLoading: isActivitiesLoading } = useActivities();
 
   const filteredCabins = useMemo(() => {
     const normalize = (s?: string) => s?.toLowerCase().trim() || "";
@@ -86,7 +86,7 @@ export const useExplore = () => {
 
   return {
     cabins: filteredCabins,
-    isLoading: isCabinsLoading,
+    isLoading: isCabinsLoading || isLocationsLoading || isOffersLoading || isActivitiesLoading,
     totalCount: cabins.length,
     filteredCount: filteredCabins.length,
   };

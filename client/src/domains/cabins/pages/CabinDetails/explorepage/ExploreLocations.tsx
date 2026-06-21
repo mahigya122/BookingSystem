@@ -3,7 +3,7 @@ import { useLocations } from "@shared/hooks/useLocations";
 import type { Cabin } from "@shared/types/cabin";
 import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
 import { motion } from "framer-motion";
-import { layoutConfig } from "@shared/utils/spacing";
+import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
 
 interface ExploreLocationsProps {
@@ -46,7 +46,7 @@ const ExploreLocations = ({ cabins }: ExploreLocationsProps) => {
     };
 
     return (
-        <section id="explore-locations" className="py-[52px] md:py-[56px] lg:py-[60px] relative w-full">
+        <section id="explore-locations" className={`${pageSpacing.section} bg-slate-50/50 dark:bg-slate-900/30 relative w-full`}>
             <div className={layoutConfig.container}>
                 <div className="absolute right-4 top-16 flex flex-col gap-2 pointer-events-none hidden lg:flex">
                     {displayedLocations.slice(0, 2).map((loc, i) => (

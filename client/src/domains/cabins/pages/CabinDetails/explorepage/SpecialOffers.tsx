@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useOffers } from "@shared/hooks/useOffers";
 import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
 import { motion } from "framer-motion";
-import { layoutConfig } from "@shared/utils/spacing";
+import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
 
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
@@ -35,7 +35,7 @@ const SpecialOffers = () => {
     };
 
     return (
-        <section id="special-offers" className="py-[52px] md:py-[56px] lg:py-[60px] relative w-full">
+        <section id="special-offers" className={`${pageSpacing.section} relative w-full`}>
             <div className={layoutConfig.container}>
                 <SectionHeader
                     label="Our Best Offer"

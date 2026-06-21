@@ -54,7 +54,6 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
     const [loading, setLoading] = useState(false);
     const [suggestions, setSuggestions] = useState(FALLBACK_SUGGESTIONS);
     const [conversationId, setConversationId] = useState<string | null>(null);
-    const [isFirstOpen, setIsFirstOpen] = useState(true);
 
     const endRef = useRef<HTMLDivElement | null>(null);
 
@@ -68,10 +67,6 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
     const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
     if (isOpen !== prevIsOpen) {
         setPrevIsOpen(isOpen);
-        // Reset to greeting screen every time it opens
-        if (isOpen) {
-            setIsFirstOpen(true);
-        }
         // Cleanup: Clear messages for public users when closing the drawer
         if (!isOpen && !user?.id) {
             setMessages([]);
@@ -136,7 +131,6 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
 
         const updatedMessages = [...messages, userMessage];
         setMessages(updatedMessages);
-        setIsFirstOpen(false);
 
         setInput("");
         setLoading(true);
@@ -228,7 +222,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
             <Palm className="absolute bottom-0 right-2 w-20 h-28 pointer-events-none opacity-30 scale-x-[-1]" />
 
             <AnimatePresence mode="wait">
-                {isFirstOpen ? (
+                {messages.length === 0 ? (
                     <motion.div
                         key="welcome"
                         initial={{ opacity: 0, y: 20 }}

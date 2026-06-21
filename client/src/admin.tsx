@@ -2,7 +2,6 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import AdminApp from './AdminApp.tsx'
-import { initializeData } from './domains/admin/data/initData'
 
 async function bootstrap() {
   const rootElement = document.getElementById('root');
@@ -14,9 +13,6 @@ async function bootstrap() {
       <AdminApp />
     </StrictMode>,
   )
-
-  // Initialize data in the background
-  void initializeData();
 }
 
 void bootstrap();

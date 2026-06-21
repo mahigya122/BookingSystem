@@ -15,16 +15,16 @@ const container = {
     hidden: {},
     show: {
         transition: {
-            staggerChildren: 0.04,
+            staggerChildren: 0.08,
         },
     },
 };
 
-const letter = () => ({
+const wordVariant = () => ({
     hidden: {
         opacity: 0,
-        y: 16,
-        filter: "blur(6px)",
+        y: 12,
+        filter: "blur(4px)",
     },
     show: {
         opacity: 1,
@@ -62,24 +62,20 @@ const SectionHeader = ({
 
                 {/* Main Title */}
                 <motion.h2
-                    className={`text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tight flex flex-wrap ${center ? "justify-center" : "justify-start"}`}
+                    className={`text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tight flex flex-wrap gap-x-2 gap-y-1 ${center ? "justify-center" : "justify-start"}`}
                     variants={container}
                     initial="hidden"
                     whileInView="show"
                     viewport={{ once: true, amount: 0.3 }}
                 >
                     {title.split(" ").map((word, wi) => (
-                        <span key={wi} className="flex mr-2 last:mr-0">
-                            {word.split("").map((char, i) => (
-                                <motion.span
-                                    key={i}
-                                    className={`inline-block ${wi >= highlightIndex ? "text-sky-500" : ""}`}
-                                    variants={letter()}
-                                >
-                                    {char}
-                                </motion.span>
-                            ))}
-                        </span>
+                        <motion.span
+                            key={wi}
+                            className={`inline-block ${wi >= highlightIndex ? "text-sky-500" : ""}`}
+                            variants={wordVariant()}
+                        >
+                            {word}
+                        </motion.span>
                     ))}
                 </motion.h2>
             </div>

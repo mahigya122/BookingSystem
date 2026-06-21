@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { getActivities, createActivity, updateActivity, deleteActivity } from "../services/activitiesApi";
 import type { Activity } from "../types/activity";
 import toast from "react-hot-toast";
@@ -32,6 +32,8 @@ export function useActivities(
       }
       return getActivities(url);
     },
+    staleTime: 5 * 60 * 1000,
+    placeholderData: keepPreviousData,
   });
 
   const { mutate: addActivity, isPending: isCreating } = useMutation({

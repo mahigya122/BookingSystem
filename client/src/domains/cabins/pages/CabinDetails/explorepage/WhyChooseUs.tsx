@@ -1,6 +1,6 @@
 import { CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { layoutConfig } from "@shared/utils/spacing";
+import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
 
 const advantages = [
@@ -21,7 +21,7 @@ const advantages = [
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
 const WhyChooseUs = () => (
-    <section className={`relative overflow-hidden bg-white dark:bg-slate-950 py-[52px] md:py-[56px] lg:py-[60px] w-full`}>
+    <section className={`relative overflow-hidden bg-slate-50/50 dark:bg-slate-900/30 ${pageSpacing.section} w-full`}>
         {/* Dashed circle decoration top-right */}
         <svg className="absolute -top-12 -right-12 w-64 h-64 pointer-events-none" viewBox="0 0 200 200" fill="none">
             <circle cx="100" cy="100" r="90" stroke="#38bdf8" strokeWidth="2" strokeDasharray="8 6" opacity="0.1" />

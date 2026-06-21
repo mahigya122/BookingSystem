@@ -1,10 +1,10 @@
 export const pageSpacing = {
-  section: "py-20 md:py-28", // Absolute standard: 80px / 112px
-  sectionTop: "pt-20 md:pt-28",
-  sectionBottom: "pb-20 md:pb-28",
+  section: "py-[52px] md:py-16 lg:py-20", 
+  sectionTop: "pt-[52px] md:pt-16 lg:pt-20",
+  sectionBottom: "pb-[52px] md:pb-16 lg:pb-20",
 };
 
 export const layoutConfig = {
-  container: "w-full mx-auto px-4",
+  container: "w-full max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16",
   headerMargin: "mb-12 md:mb-16",
 };

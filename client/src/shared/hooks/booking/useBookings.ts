@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import type { Booking } from "../../types/booking";
 import { fetchJson } from "../../services/http";
 
@@ -37,6 +37,8 @@ export function useBookings(
       }
       return fetchJson<any>(url);
     },
+    staleTime: 60 * 1000, // Keep data fresh for 1 minute (overrides global default)
+    placeholderData: keepPreviousData,
   });
 
   const isPaginated = page !== undefined && pageSize !== undefined;

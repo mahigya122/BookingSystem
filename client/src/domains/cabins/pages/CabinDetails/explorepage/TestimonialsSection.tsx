@@ -2,7 +2,7 @@ import { useReviews } from "@shared/hooks/useReviews";
 import { Loader2, Quote, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { layoutConfig } from "@shared/utils/spacing";
+import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
 
 const Colors = ["text-sky-400", "text-emerald-400", "text-blue-500", "text-indigo-400", "text-cyan-500"];
@@ -64,7 +64,7 @@ const TestimonialsSection = () => {
     if (sortedReviews.length === 0) return null;
 
     return (
-        <section className={`relative py-[52px] md:py-[56px] lg:py-[60px] overflow-hidden bg-white dark:bg-slate-950`}>
+        <section className={`relative ${pageSpacing.section} overflow-hidden bg-slate-50/50 dark:bg-slate-900/30`}>
             {/* DECORATIVE ELEMENTS */}
             <DashedCircle className="absolute top-0 -left-20 w-96 h-96 text-sky-400 pointer-events-none" />
             <DashedCircle className="absolute bottom-0 -right-20 w-[500px] h-[500px] text-emerald-400 pointer-events-none" />

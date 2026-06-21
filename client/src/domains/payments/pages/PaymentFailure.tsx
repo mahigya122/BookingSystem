@@ -3,7 +3,7 @@ import { AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
 
 const PaymentFailure = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-zinc-950 px-4 py-12">
+    <div className="flex-grow flex items-center justify-center bg-transparent px-4 py-12">
       <div className="max-w-md w-full bg-white dark:bg-zinc-900 rounded-3xl shadow-xl border border-sky-100/50 dark:border-zinc-800 p-8 text-center animate-fade-in relative overflow-hidden">
         {/* Decorative background blur */}
         <div className="absolute -top-12 -left-12 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { getLocations, createLocation, updateLocation, deleteLocation } from "../services/locationsApi";
 import type { Location } from "../types/location";
 import toast from "react-hot-toast";
@@ -35,6 +35,8 @@ export function useLocations(
       }
       return getLocations(url);
     },
+    staleTime: 5 * 60 * 1000,
+    placeholderData: keepPreviousData,
   });
 
   const { mutate: addLocation, isPending: isCreating } = useMutation({

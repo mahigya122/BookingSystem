@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { getOffers, createOffer, updateOffer, deleteOffer } from "../services/offersApi";
 import type { Offer } from "../types/offer";
 import toast from "react-hot-toast";
@@ -32,6 +32,8 @@ export function useOffers(
       }
       return getOffers(url);
     },
+    staleTime: 15 * 60 * 1000, // Keep data fresh for 15 minutes (overrides global default)
+    placeholderData: keepPreviousData,
   });
 
   const { mutate: addOffer, isPending: isCreating } = useMutation({

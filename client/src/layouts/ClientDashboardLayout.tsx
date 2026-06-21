@@ -27,7 +27,7 @@ const LayoutBody = () => {
       {shouldShowSidebar && (
         <aside
           className={`
-                    fixed inset-y-0 left-0 z-50 lg:sticky lg:top-0 lg:h-[calc(100vh-80px)]
+                    fixed inset-y-0 left-0 z-50 lg:sticky lg:top-20 lg:h-[calc(100vh-80px)]
                     flex flex-col border-r overflow-y-auto overflow-x-hidden
                     bg-white dark:bg-slate-900 lg:bg-white/60 lg:dark:bg-slate-900/60
                     backdrop-blur-2xl transition-all duration-500 ease-in-out
@@ -74,7 +74,7 @@ const ClientDashboardLayout = () => {
 
   return (
     <ClientAIChatProvider>
-      <div className="h-screen flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-sky-100 selection:text-sky-900 overflow-x-hidden">
+      <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-sky-100 selection:text-sky-900 overflow-x-hidden">
         {/* NAVIGATION PROGRESS */}
         <NavigationProgressBar />
 
@@ -84,7 +84,7 @@ const ClientDashboardLayout = () => {
         {/* SCROLLABLE WRAPPER */}
         <div
           ref={containerRef as React.RefObject<HTMLDivElement>}
-          className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth flex flex-col w-full"
+          className="flex-1 flex flex-col w-full"
         >
           {/* DYNAMIC BODY (SIDEBAR + CONTENT) */}
           <LayoutBody />

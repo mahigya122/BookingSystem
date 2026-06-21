@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { getReviews, deleteReview, updateReviewStatus, createReview } from "../services/reviewsApi";
 import toast from "react-hot-toast";
 
@@ -8,6 +8,7 @@ export function useReviews(approved?: boolean, page?: number, pageSize?: number)
   const { data, isLoading, error } = useQuery({
     queryKey: ["reviews", { approved, page, pageSize }],
     queryFn: () => getReviews(approved, page, pageSize),
+    placeholderData: keepPreviousData,
   });
 
   const { mutate: removeReview, isPending: isDeleting } = useMutation({

@@ -1,15 +1,17 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import ProtectedRoute from "@shared/components/layout/ProtectedRoute";
 import ClientDashboardLayout from "../layouts/ClientDashboardLayout";
-import ClientDashboard from "../domains/cabins/pages/CabinDetails/explorepage/ClientDashboard";
-import ClientProfile from "../domains/guests/pages/ClientProfile";
-import Login from "./LoginWrapper";
-import CabinDetails from "../domains/cabins/pages/CabinDetails/CabinDetails";
 import ClientFullPageLayout from "../layouts/ClientFullPageLayout";
-import MyBookings from "../domains/bookings/pages/MyBookings";
-import PaymentSuccess from "../domains/payments/pages/PaymentSuccess";
-import PaymentFailure from "../domains/payments/pages/PaymentFailure";
-import InfoPage from "../domains/guests/pages/InfoPage";
+import {
+  ClientDashboard,
+  ClientProfile,
+  Login,
+  CabinDetails,
+  MyBookings,
+  PaymentSuccess,
+  PaymentFailure,
+  InfoPage,
+} from "./lazyClientPages";
 
 export const router = createBrowserRouter([
   {

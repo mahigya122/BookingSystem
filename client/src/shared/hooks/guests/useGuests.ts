@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { supabase } from "@shared/services/supabase";
 import type { Guest, GuestSortType } from "../../types/guest";
 
@@ -15,6 +15,7 @@ export function useGuests(
 } {
   const { data, isLoading, error } = useQuery<any>({
     queryKey: ["guests", page, pageSize, search, sort],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
       let query = supabase
         .from("guests")
@@ -55,6 +56,7 @@ export function useGuests(
       }
       return list ?? [];
     },
+    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes (overrides global default)
   });
 
   const isPaginated = page !== undefined && pageSize !== undefined;
