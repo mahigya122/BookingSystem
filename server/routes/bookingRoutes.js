@@ -12,8 +12,46 @@ const router = express.Router();
 // GET all bookings (for admin panel)
 router.get("/", async (req, res) => {
   try {
-    const bookings = await getAllBookings();
-    return res.json(bookings);
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const offset = req.query.offset ? Number(req.query.offset) : undefined;
+    const page = req.query.page ? Number(req.query.page) : undefined;
+    const pageSize = req.query.pageSize ? Number(req.query.pageSize) : undefined;
+    
+    let queryPage = page;
+    let queryPageSize = pageSize;
+    
+    if (limit !== undefined && offset !== undefined) {
+      queryPageSize = limit;
+      queryPage = Math.floor(offset / limit) + 1;
+    }
+
+    const filter = req.query.filter || "all";
+    const sort = req.query.sort || "recent";
+    const search = req.query.search || "";
+    const paymentStatus = req.query.paymentStatus || "all";
+    const guestEmail = req.query.guestEmail || "";
+
+    const result = await getAllBookings(
+      queryPage,
+      queryPageSize,
+      filter,
+      sort,
+      search,
+      paymentStatus,
+      guestEmail
+    );
+
+    const data = result.data !== undefined ? result.data : result;
+    const count = result.count !== undefined ? result.count : data.length;
+    const responseLimit = queryPageSize || limit || data.length;
+    const responseOffset = queryPage && queryPageSize ? (queryPage - 1) * queryPageSize : offset || 0;
+
+    return res.json({
+      data,
+      count,
+      limit: responseLimit,
+      offset: responseOffset
+    });
   } catch (error) {
     console.error("❌ CRITICAL ERROR in GET /api/bookings:", {
       message: error.message,

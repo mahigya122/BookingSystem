@@ -7,8 +7,56 @@ const router = express.Router();
 // GET all cabins
 router.get("/", async (req, res) => {
   try {
-    const cabins = await getAllCabins();
-    return res.json(cabins);
+    const limit = req.query.limit ? Number(req.query.limit) : undefined;
+    const offset = req.query.offset ? Number(req.query.offset) : undefined;
+    const page = req.query.page ? Number(req.query.page) : undefined;
+    const pageSize = req.query.pageSize ? Number(req.query.pageSize) : undefined;
+    
+    let queryPage = page;
+    let queryPageSize = pageSize;
+    
+    if (limit !== undefined && offset !== undefined) {
+      queryPageSize = limit;
+      queryPage = Math.floor(offset / limit) + 1;
+    }
+
+    const filter = req.query.filter || "all";
+    const sort = req.query.sort || "recent";
+    const locationId = req.query.locationId || undefined;
+    const activityId = req.query.activityId || undefined;
+    const offerId = req.query.offerId || undefined;
+    const minPrice = req.query.minPrice ? Number(req.query.minPrice) : undefined;
+    const maxPrice = req.query.maxPrice ? Number(req.query.maxPrice) : undefined;
+    const capacity = req.query.capacity ? Number(req.query.capacity) : undefined;
+    const startDate = req.query.startDate || undefined;
+    const endDate = req.query.endDate || undefined;
+
+    const result = await getAllCabins({
+      page: queryPage,
+      pageSize: queryPageSize,
+      filter,
+      sort,
+      locationId,
+      activityId,
+      offerId,
+      minPrice,
+      maxPrice,
+      capacity,
+      startDate,
+      endDate
+    });
+
+    const data = result.data !== undefined ? result.data : result;
+    const count = result.count !== undefined ? result.count : data.length;
+    const responseLimit = queryPageSize || limit || data.length;
+    const responseOffset = queryPage && queryPageSize ? (queryPage - 1) * queryPageSize : offset || 0;
+
+    return res.json({
+      data,
+      count,
+      limit: responseLimit,
+      offset: responseOffset
+    });
   } catch (error) {
     return res.status(500).json({
       error: error.message || "Failed to load cabins",

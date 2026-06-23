@@ -3,10 +3,19 @@ import { getPool } from "./dbPool.js";
 
 const ACTIVE_BOOKING_STATUSES = ["booked", "checked-in"];
 
-export async function getAllBookings() {
-  const { data, error } = await supabase
+export async function getAllBookings(
+  page,
+  pageSize,
+  filter = "all",
+  sort = "recent",
+  search = "",
+  paymentStatus = "all",
+  guestEmail = ""
+) {
+  let query = supabase
     .from("bookings")
-    .select(`
+    .select(
+      `
       id,
       created_at,
       cabin_id,
@@ -19,16 +28,68 @@ export async function getAllBookings() {
       extra_offers,
       payment_status,
       payment_method,
-      guests (full_name, email),
+      guests!inner (full_name, email),
       cabins (name, price_per_night, image_url)
-    `)
-    .order("start_date", { ascending: true })
-    .order("created_at", { ascending: true });
+    `,
+      { count: "exact" }
+    );
+
+  if (filter && filter !== "all") {
+    if (filter === "upcoming") {
+      query = query.in("status", ["booked", "checked-in"]);
+    } else if (filter === "completed") {
+      query = query.eq("status", "checked-out");
+    } else {
+      query = query.eq("status", filter);
+    }
+  }
+
+  if (paymentStatus && paymentStatus !== "all") {
+    query = query.eq("payment_status", paymentStatus);
+  }
+
+  if (guestEmail && guestEmail.trim()) {
+    query = query.ilike("guests.email", guestEmail.trim());
+  }
+
+  if (search && search.trim()) {
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(search.trim());
+    if (isUuid) {
+      query = query.eq("id", search.trim());
+    } else {
+      query = query.or(`full_name.ilike.%${search.trim()}%,email.ilike.%${search.trim()}%`, { referencedTable: "guests" });
+    }
+  }
+
+  // Sort
+  if (sort === "recent") {
+    query = query.order("created_at", { ascending: false });
+  } else if (sort === "earlier") {
+    query = query.order("start_date", { ascending: true });
+  } else if (sort === "price-high") {
+    query = query.order("total_price", { ascending: false });
+  } else if (sort === "price-low") {
+    query = query.order("total_price", { ascending: true });
+  } else {
+    query = query.order("start_date", { ascending: true })
+                 .order("created_at", { ascending: true });
+  }
+
+  if (page !== undefined && pageSize !== undefined) {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+    query = query.range(from, to);
+  }
+
+  const { data, count, error } = await query;
 
   if (error) {
     throw new Error(error.message || "Failed to fetch bookings from Supabase");
   }
 
+  if (page !== undefined && pageSize !== undefined) {
+    return { data, count };
+  }
   return data;
 }
 
@@ -131,11 +192,11 @@ export async function getCabinAvailability(cabinId) {
       // We also update the returned status for consistency with real-time logic
       let realStatus = booking.status;
       if (booking.status !== "cancelled") {
-          const bStart = normalizeDate(booking.start_date);
-          const bEnd = normalizeDate(booking.end_date);
-          if (today < bStart) realStatus = "booked";
-          else if (today >= bStart && today < bEnd) realStatus = "checked-in";
-          else realStatus = "checked-out";
+        const bStart = normalizeDate(booking.start_date);
+        const bEnd = normalizeDate(booking.end_date);
+        if (today < bStart) realStatus = "booked";
+        else if (today >= bStart && today < bEnd) realStatus = "checked-in";
+        else realStatus = "checked-out";
       }
 
       return {
@@ -209,7 +270,52 @@ export async function createBookingReservation(input) {
 
     let guestId = guestIdInput;
 
-    if (!guestId) {
+    if (guestId) {
+      // Check if guest exists by ID in the guests table
+      const guestResult = await client.query(
+        `SELECT id FROM guests WHERE id = $1 LIMIT 1`,
+        [guestId]
+      );
+      
+      if (guestResult.rowCount === 0) {
+        // If not found by ID, check if a guest with the same email exists
+        const emailResult = await client.query(
+          `SELECT id FROM guests WHERE lower(email) = lower($1) LIMIT 1`,
+          [guestEmail]
+        );
+        
+        if (emailResult.rowCount > 0) {
+          // If a guest exists with the same email, update their ID to align with their auth ID
+          const existingId = emailResult.rows[0].id;
+          await client.query(
+            `UPDATE guests 
+             SET id = $1, 
+                 full_name = COALESCE(NULLIF($2, ''), full_name), 
+                 phone = COALESCE(NULLIF($3, ''), phone) 
+             WHERE id = $4`,
+            [guestId, guestFullName, guestPhone, existingId]
+          );
+        } else {
+          // Otherwise, create a new guest record using the auth ID
+          await client.query(
+            `INSERT INTO guests (id, full_name, email, phone)
+             VALUES ($1, $2, $3, $4)`,
+            [guestId, guestFullName, guestEmail, guestPhone]
+          );
+        }
+      } else {
+        // If they already exist, update their details to keep them fresh
+        await client.query(
+          `UPDATE guests 
+           SET full_name = COALESCE(NULLIF($2, ''), full_name),
+               phone = COALESCE(NULLIF($3, ''), phone),
+               email = COALESCE(NULLIF($4, ''), email)
+           WHERE id = $1`,
+          [guestId, guestFullName, guestPhone, guestEmail]
+        );
+      }
+    } else {
+      // If no guestId was provided, resolve by email or insert a new one
       const guestResult = await client.query(
         `SELECT id
          FROM guests

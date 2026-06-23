@@ -15,6 +15,7 @@ import locationsRoutes from "./routes/locationsRoutes.js";
 import offersRoutes from "./routes/offersRoutes.js";
 import activitiesRoutes from "./routes/activitiesRoutes.js";
 import reviewsRoutes from "./routes/reviewsRoutes.js";
+import dashboardRoutes from "./routes/dashboardRoutes.js";
 
 import { executeSQL } from "./services/sqlExecutionService.js";
 import { patchBookingReservation } from "./services/bookingService.js";
@@ -57,6 +58,7 @@ app.use("/api/locations", locationsRoutes);
 app.use("/api/offers", offersRoutes);
 app.use("/api/activities", activitiesRoutes);
 app.use("/api/reviews", reviewsRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.post("/api/bootstrap", async (req, res) => {
     try {
