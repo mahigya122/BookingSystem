@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Range, getTrackBackground } from "react-range";
 import { useFilterActions } from "../../../hooks/useFilterActions";
 import { useLocations } from "@shared/hooks/useLocations";
@@ -23,6 +23,15 @@ const ExploreFilters = () => {
         applyFilters,
         isSearching
     } = useFilterActions();
+
+    const [localPrice, setLocalPrice] = useState<[number, number]>(filters?.price || [MIN, MAX]);
+    const [prevPrice, setPrevPrice] = useState<[number, number] | null>(null);
+
+    // Synchronize localPrice with external filters.price (e.g. on reset) without useEffect to avoid cascading renders.
+    if (filters?.price && (prevPrice === null || prevPrice[0] !== filters.price[0] || prevPrice[1] !== filters.price[1])) {
+        setPrevPrice(filters.price);
+        setLocalPrice(filters.price);
+    }
 
     const { locations: rawLocations = [] } = useLocations();
     const { activities: rawActivities = [] } = useActivities();
@@ -50,7 +59,7 @@ const ExploreFilters = () => {
     }, [rawActivities]);
 
     return (
-        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="flex items-center justify-between px-1">
                 <div className="flex flex-col">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-sky-600 dark:text-sky-400 mb-1">Filter Your Stay</span>
@@ -65,7 +74,7 @@ const ExploreFilters = () => {
             </div>
 
             {/* LOCATION FILTER */}
-            <div className="space-y-4">
+            <div className="space-y-2">
                 <div className="flex items-center gap-2">
                     <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-sky-600 dark:text-sky-400">
                         <MapPin size={16} />
@@ -90,7 +99,7 @@ const ExploreFilters = () => {
             </div>
 
             {/* ACTIVITY FILTER */}
-            <div className="space-y-4">
+            <div className="space-y-2">
                 <div className="flex items-center gap-2">
                     <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-sky-600 dark:text-sky-400">
                         <Star size={16} />
@@ -115,7 +124,7 @@ const ExploreFilters = () => {
             </div>
 
             {/* CAPACITY (GUESTS) */}
-            <div className="space-y-6">
+            <div className="space-y-3">
                 <div className="flex items-center gap-2">
                     <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-sky-600 dark:text-sky-400">
                         <Users size={16} />
@@ -150,7 +159,7 @@ const ExploreFilters = () => {
             </div>
 
             {/* PRICE RANGE */}
-            <div className="space-y-4">
+            <div className="space-y-2">
                 <div className="flex items-center gap-2">
                     <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-sky-600 dark:text-sky-400">
                         <DollarSign size={16} />
@@ -161,11 +170,11 @@ const ExploreFilters = () => {
                 <div className="flex justify-between items-end mb-2 px-1">
                     <div className="flex flex-col">
                         <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Min</span>
-                        <span className="text-base font-black text-slate-900 dark:text-white">${filters?.price?.[0] ?? 0}</span>
+                        <span className="text-base font-black text-slate-900 dark:text-white">${localPrice[0]}</span>
                     </div>
                     <div className="flex flex-col text-right">
                         <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Max</span>
-                        <span className="text-base font-black text-slate-900 dark:text-white">${filters?.price?.[1] ?? 1000}</span>
+                        <span className="text-base font-black text-slate-900 dark:text-white">${localPrice[1]}</span>
                     </div>
                 </div>
 
@@ -174,8 +183,9 @@ const ExploreFilters = () => {
                         step={STEP}
                         min={MIN}
                         max={MAX}
-                        values={filters?.price || [MIN, MAX]}
-                        onChange={handlePriceChange}
+                        values={localPrice}
+                        onChange={(values) => setLocalPrice([values[0], values[1]])}
+                        onFinalChange={(values) => handlePriceChange([values[0], values[1]])}
                         renderTrack={({ props, children }) => (
                             <div
                                 onMouseDown={props.onMouseDown}
@@ -187,7 +197,7 @@ const ExploreFilters = () => {
                                     className="h-1.5 w-full rounded-full self-center"
                                     style={{
                                         background: getTrackBackground({
-                                            values: filters?.price || [MIN, MAX],
+                                            values: localPrice,
                                             colors: ["#e2e8f0", "#0284c7", "#e2e8f0"],
                                             min: MIN,
                                             max: MAX,
@@ -215,16 +225,18 @@ const ExploreFilters = () => {
                 </div>
             </div>
 
-            <button
-                onClick={() => applyFilters()}
-                className="
-                    w-full rounded-lg bg-slate-900 dark:bg-sky-600 py-4 text-white font-black text-[10px] uppercase tracking-[0.2em]
-                    hover:bg-sky-500 transition-all duration-300
-                    flex items-center justify-center gap-2
-                "
-            >
-                {isSearching ? "Update Results" : "Search Cabins"}
-            </button>
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button
+                    onClick={() => applyFilters()}
+                    className="
+                        w-full rounded-lg bg-slate-900 dark:bg-sky-600 py-4 text-white font-black text-[10px] uppercase tracking-[0.2em]
+                        hover:bg-sky-500 transition-all duration-300
+                        flex items-center justify-center gap-2 cursor-pointer
+                    "
+                >
+                    {isSearching ? "Update Results" : "Search Cabins"}
+                </button>
+            </div>
         </div >
     );
 };

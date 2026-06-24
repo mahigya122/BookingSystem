@@ -1,11 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useLogout } from "@shared/hooks";
 import ThemeToggle from "@shared/components/ui/ThemeToggle";
-import { Mountain, LogOut } from "lucide-react";
+import { Mountain, LogOut, Menu } from "lucide-react";
+import { useAdminSidebar } from "../domains/admin/contexts/AdminSidebarContext";
 
 const Navbar = () => {
     const { logout } = useLogout();
     const navigate = useNavigate();
+    const { toggle } = useAdminSidebar();
 
     const handleLogout = () => {
         logout();
@@ -13,16 +15,24 @@ const Navbar = () => {
 
     return (
         <header className="sticky top-0 z-40 flex h-16 md:h-20 items-center justify-between px-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-4 md:gap-6 cursor-pointer group" onClick={() => navigate("/dashboard")}>
-                <div className="flex items-center gap-2">
-                    <Mountain className="h-6 w-6 text-sky-600 group-hover:scale-110 transition-transform duration-300" />
-                    <div className="flex flex-col">
-                        <span className="text-lg font-black tracking-tight text-slate-900 dark:text-white leading-none">
-                            Cabin<span className="text-sky-600">Admin</span>
-                        </span>
-                        <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-1 leading-none">
-                            System Control
-                        </span>
+            <div className="flex items-center gap-3">
+                <button
+                    onClick={toggle}
+                    className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-colors"
+                >
+                    <Menu size={20} />
+                </button>
+                <div className="flex items-center gap-4 md:gap-6 cursor-pointer group" onClick={() => navigate("/dashboard")}>
+                    <div className="flex items-center gap-2">
+                        <Mountain className="h-6 w-6 text-sky-600 group-hover:scale-110 transition-transform duration-300" />
+                        <div className="flex flex-col">
+                            <span className="text-lg font-black tracking-tight text-slate-900 dark:text-white leading-none">
+                                Cabin<span className="text-sky-600">Admin</span>
+                            </span>
+                            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-1 leading-none">
+                                System Control
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>

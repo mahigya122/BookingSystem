@@ -5,6 +5,22 @@ import { useAIChat } from "../../../domains/admin/contexts/AIChatContext";
 const AdminAIFloatButton = () => {
   const { open, setOpen } = useAIChat();
   const [showBubble, setShowBubble] = useState(false);
+  const [constraints, setConstraints] = useState({ left: 0, right: 0, top: 0, bottom: 0 });
+
+  useEffect(() => {
+    const updateConstraints = () => {
+      setConstraints({
+        left: -window.innerWidth + 120,
+        right: 20,
+        top: -window.innerHeight + 120,
+        bottom: 20,
+      });
+    };
+
+    updateConstraints();
+    window.addEventListener("resize", updateConstraints);
+    return () => window.removeEventListener("resize", updateConstraints);
+  }, []);
 
   useEffect(() => {
     const showTimer = setTimeout(() => {
@@ -24,7 +40,12 @@ const AdminAIFloatButton = () => {
   if (open) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3">
+    <motion.div
+      drag
+      dragConstraints={constraints}
+      dragMomentum={false}
+      className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3 cursor-grab active:cursor-grabbing select-none"
+    >
 
       {/* ===================== */}
       {/* 💭 COMIC THOUGHT BUBBLE */}
@@ -108,7 +129,7 @@ const AdminAIFloatButton = () => {
           "
         />
       </button>
-    </div>
+    </motion.div>
   );
 };
 

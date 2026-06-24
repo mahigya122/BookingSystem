@@ -8,7 +8,8 @@ export function useBookings(
   filter = "all",
   sort = "recent",
   search = "",
-  paymentStatus = "all"
+  paymentStatus = "all",
+  guestEmail = ""
 ): {
   bookings: Booking[];
   totalCount: number;
@@ -28,10 +29,14 @@ export function useBookings(
       sort,
       search,
       paymentStatus,
+      guestEmail,
     ],
 
     queryFn: () => {
       let url = `/bookings?filter=${filter}&sort=${sort}&search=${encodeURIComponent(search)}&paymentStatus=${paymentStatus}`;
+      if (guestEmail) {
+        url += `&guestEmail=${encodeURIComponent(guestEmail)}`;
+      }
       if (page !== undefined && pageSize !== undefined) {
         url += `&page=${page}&pageSize=${pageSize}`;
       }
@@ -41,9 +46,8 @@ export function useBookings(
     placeholderData: keepPreviousData,
   });
 
-  const isPaginated = page !== undefined && pageSize !== undefined;
-  const bookingsList = isPaginated ? data?.data ?? [] : data ?? [];
-  const total = isPaginated ? data?.count ?? 0 : bookingsList.length;
+  const bookingsList = (data as any)?.data ?? (data as any) ?? [];
+  const total = (data as any)?.count ?? bookingsList.length;
 
   return {
     bookings: bookingsList as Booking[],

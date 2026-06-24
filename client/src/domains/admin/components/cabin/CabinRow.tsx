@@ -1,7 +1,9 @@
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import type { Cabin } from "@shared/types/cabin";
 import type { Booking } from "@shared/types/booking";
+import { memo } from "react";
 import type { ReactNode } from "react";
+import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 
 export type CabinDetailSection = "overview" | "location" | "offers" | "activities" | "reviews";
 
@@ -42,19 +44,22 @@ const CabinRow = ({
 
     return (
         <tr className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-            <td className="px-8 py-5">
+            <td className="px-8 py-5 w-20 text-left">
                 <img
-                    src={cabin.image_url}
-                    alt= {cabin.name}
+                    src={getOptimizedImageUrl(cabin.image_url, 'avatar')}
+                    alt={cabin.name}
+                    loading="lazy"
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-lg object-cover border border-slate-200 dark:border-slate-800 shadow-sm"
                 />
             </td>
 
-            <td className="px-8 py-5">
+            <td className="px-8 py-5 text-left">
                 <span className="font-bold text-slate-900 dark:text-slate-100">{cabin.name}</span>
             </td>
 
-            <td className="px-8 py-5">
+            <td className="px-8 py-5 text-left">
                 <button
                     type="button"
                     onClick={() => onView(cabin, "location")}
@@ -64,17 +69,17 @@ const CabinRow = ({
                 </button>
             </td>
 
-            <td className="px-8 py-5">
+            <td className="px-8 py-5 text-left">
                 <span className="text-sm font-medium text-slate-600 dark:text-slate-400">
                     {cabin.capacity} Guest{cabin.capacity > 1 ? 's' : ''}
                 </span>
             </td>
 
-            <td className="px-8 py-5 font-black text-slate-900 dark:text-white">
+            <td className="px-8 py-5 text-left font-black text-slate-900 dark:text-white">
                 ${cabin.price_per_night.toLocaleString()}
             </td>
 
-            <td className="px-8 py-5">
+            <td className="px-8 py-5 text-left">
                 {cabin.discount > 0 ? (
                     <span className="badge badge-success">{cabin.discount}%</span>
                 ) : (
@@ -82,20 +87,20 @@ const CabinRow = ({
                 )}
             </td>
 
-            <td className="px-8 py-5">
+            <td className="px-8 py-5 text-left">
                 {renderCountButton(cabin.offers?.length || 0, "offers", "badge-primary", "offers")}
             </td>
 
-            <td className="px-8 py-5">
+            <td className="px-8 py-5 text-left">
                 {renderCountButton(cabin.activities?.length || 0, "activities", "badge-secondary", "activities")}
             </td>
 
-            <td className="px-8 py-5">
+            <td className="px-8 py-5 text-left">
                 {renderCountButton(cabin.reviews?.length || 0, "reviews", "badge-warning", "reviews")}
             </td>
 
 
-            <td className="px-8 py-5">
+            <td className="px-8 py-5 text-right w-60">
                 <div className="flex items-center justify-end gap-2 transition-all duration-300">
                     <button
                         type="button"
@@ -129,4 +134,4 @@ const CabinRow = ({
         </tr>
     );
 };
-export default CabinRow;
+export default memo(CabinRow);

@@ -38,7 +38,7 @@ const FlippingBook = ({ role, onRoleChange, onLoginSuccess, hideToggle }: Props)
       />
       <div className="pointer-events-none absolute inset-y-0 left-1/2 hidden w-px bg-linear-to-b from-transparent via-sky-200/40 to-transparent lg:block" />
 
-      <div className="relative mx-auto flex min-h-screen w-full flex-col justify-center px-0 py-0">
+      <div className="relative mx-auto flex min-h-screen w-full flex-col justify-center px-4 sm:px-6 md:px-8 lg:px-0">
         <div className="hidden items-center justify-center lg:flex h-screen w-full">
           <div className="relative w-full h-full overflow-hidden border-none bg-white/40 backdrop-blur-3xl dark:bg-slate-950/40 shadow-none">
             <div

@@ -1,5 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import type { Offer } from "@shared/types/offer";
 import { useCabins, useOffers, useUpdateCabin } from "@shared/hooks";
+import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { useState, useMemo, useEffect } from "react";
 import { Pencil, Plus, Tag, Trash2, Home, Search, Loader2, ChevronLeft, ChevronRight, Eye, X } from "lucide-react";
 import toast from "react-hot-toast";
@@ -7,7 +9,15 @@ import type { Cabin } from "@shared/types/cabin";
 
 const Offers = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchTerm(searchInput);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchInput]);
 
   const {
     offers = [],
@@ -147,14 +157,6 @@ const Offers = () => {
 
   const isLoading = isOffersLoading || isCabinsLoading;
 
-  if (isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-sky-500" />
-      </div>
-    );
-  }
-
   // Find cabins with current offer
   const cabinsWithOffer = viewingOffer ? cabins.filter(c => c.offers?.some(o => o.id === viewingOffer.id)) : [];
   const cabinsWithoutOffer = viewingOffer ? cabins.filter(c => !c.offers?.some(o => o.id === viewingOffer.id)) : [];
@@ -172,8 +174,8 @@ const Offers = () => {
                 <input 
                     type="text" 
                     placeholder="Search offers..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
                     className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-sky-500/20 outline-none transition-all w-64"
                 />
             </div>
@@ -249,63 +251,90 @@ const Offers = () => {
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Applied To</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Discount</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Badge</th>
-              <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
+              <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 w-44">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {offers.map((offer) => (
-              <tr key={offer.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <td className="px-8 py-5">
-                  <div className="flex flex-col">
-                    <span className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <Tag size={14} className="text-emerald-500" />
-                        {offer.title || offer.name || "Untitled offer"}
-                    </span>
-                    <span className="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{offer.description || "No description provided."}</span>
-                  </div>
-                </td>
-                <td className="px-8 py-5">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
-                      <Home size={12} />
-                      <span className="text-[11px] font-black uppercase tracking-wider">{getOfferCount(offer) || 0} Cabins</span>
-                    </div>
-                </td>
-                <td className="px-8 py-5">
-                  <span className="font-black text-emerald-600 dark:text-emerald-400 text-sm">{(offer.discount_percent ?? (offer as any).discount_pct ?? 0)}% OFF</span>
-                </td>
-                <td className="px-8 py-5">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                        {offer.badge || "Default"}
-                    </span>
-                </td>
-                <td className="px-8 py-5">
-                  <div className="flex items-center justify-end gap-2 transition-all duration-300">
-                    <button 
-                        onClick={() => setViewingOffer(offer)} 
-                        className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 dark:hover:border-sky-900 shadow-sm transition-all"
-                        title="View Cabins"
-                    >
-                      <Eye size={18} />
-                    </button>
-                    <button 
-                        onClick={() => openEdit(offer)} 
-                        className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-200 dark:hover:border-amber-900 shadow-sm transition-all"
-                        title="Edit Offer"
-                    >
-                      <Pencil size={18} />
-                    </button>
-                    <button 
-                        onClick={() => handleDelete(offer.id, offer)} 
-                        disabled={isDeleting} 
-                        className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-500 hover:border-rose-200 dark:hover:border-rose-900 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                        title="Delete Offer"
-                    >
-                      {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {isLoading
+              ? Array.from({ length: 10 }).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-8 py-5 text-left">
+                      <div className="space-y-2">
+                        <div className="h-4 w-32 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                        <div className="h-3 w-48 rounded bg-slate-100 dark:bg-slate-900/50 animate-pulse" />
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-left">
+                      <div className="h-6 w-20 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                    </td>
+                    <td className="px-8 py-5 text-left">
+                      <div className="h-4 w-16 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                    </td>
+                    <td className="px-8 py-5 text-left">
+                      <div className="h-5 w-12 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                    </td>
+                    <td className="px-8 py-5 text-right w-44">
+                      <div className="flex justify-end gap-2">
+                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              : offers.map((offer) => (
+                  <tr key={offer.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="px-8 py-5 text-left">
+                      <div className="flex flex-col">
+                        <span className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <Tag size={14} className="text-emerald-500" />
+                            {offer.title || offer.name || "Untitled offer"}
+                        </span>
+                        <span className="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{offer.description || "No description provided."}</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-left">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
+                          <Home size={12} />
+                          <span className="text-[11px] font-black uppercase tracking-wider">{getOfferCount(offer) || 0} Cabins</span>
+                        </div>
+                    </td>
+                    <td className="px-8 py-5 text-left">
+                      <span className="font-black text-emerald-600 dark:text-emerald-400 text-sm">{(offer.discount_percent ?? (offer as any).discount_pct ?? 0)}% OFF</span>
+                    </td>
+                    <td className="px-8 py-5 text-left">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                            {offer.badge || "Default"}
+                        </span>
+                    </td>
+                    <td className="px-8 py-5 text-right w-44">
+                      <div className="flex items-center justify-end gap-2 transition-all duration-300">
+                        <button 
+                            onClick={() => setViewingOffer(offer)} 
+                            className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 dark:hover:border-sky-900 shadow-sm transition-all"
+                            title="View Cabins"
+                        >
+                          <Eye size={18} />
+                        </button>
+                        <button 
+                            onClick={() => openEdit(offer)} 
+                            className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-200 dark:hover:border-amber-900 shadow-sm transition-all"
+                            title="Edit Offer"
+                        >
+                          <Pencil size={18} />
+                        </button>
+                        <button 
+                            onClick={() => handleDelete(offer.id, offer)} 
+                            disabled={isDeleting} 
+                            className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-500 hover:border-rose-200 dark:hover:border-rose-900 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                            title="Delete Offer"
+                        >
+                          {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
           </tbody>
         </table>
         {offers.length === 0 && (
@@ -443,7 +472,7 @@ const Offers = () => {
                     cabinsWithOffer.map(cabin => (
                       <div key={cabin.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl group">
                         <div className="flex items-center gap-3">
-                          <img src={cabin.image_url} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover" />
+                          <img src={getOptimizedImageUrl(cabin.image_url, 'thumbnail')} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover" />
                           <div>
                             <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
                             <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.location?.name || "No Location"}</p>
@@ -468,7 +497,7 @@ const Offers = () => {
                   {cabinsWithoutOffer.map(cabin => (
                     <div key={cabin.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl">
                       <div className="flex items-center gap-3">
-                        <img src={cabin.image_url} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover opacity-60" />
+                        <img src={getOptimizedImageUrl(cabin.image_url, 'thumbnail')} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover opacity-60" />
                         <div>
                           <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
                           <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.location?.name || "No Location"}</p>

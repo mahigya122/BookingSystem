@@ -1,5 +1,7 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { MapPin } from "lucide-react";
+import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import type { Cabin } from "@shared/types/cabin";
 import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
@@ -7,10 +9,43 @@ import SectionHeader from "@shared/components/ui/SectionHeader";
 interface PopularCabinsSectionProps {
     cabins: Cabin[];
     filteredCount: number;
+    isLoading?: boolean;
 }
 
-const PopularCabinsSection = ({ cabins, filteredCount }: PopularCabinsSectionProps) => {
+const PopularCabinsSection = ({ cabins, filteredCount, isLoading }: PopularCabinsSectionProps) => {
     const displayed = cabins.slice(0, 6);
+
+    if (isLoading) {
+        return (
+            <section id="popular-cabins" className={`${pageSpacing.section} relative w-full`}>
+                <div className={layoutConfig.container}>
+                    {/* Airplane deco */}
+                    <svg className="absolute top-0 left-0 w-10 h-10 text-slate-300 pointer-events-none" viewBox="0 0 80 80" fill="currentColor">
+                        <path d="M8 40 L72 12 L62 40 L72 68 Z" opacity="0.3" />
+                        <path d="M62 40 L28 52 L34 40 L28 28 Z" opacity="0.4" />
+                    </svg>
+
+                    <SectionHeader
+                        label="Featured Cabins"
+                        title="Discover Your Perfect Stay"
+                        subtitle="Showing ... available cabins hand picked for your perfect getaway."
+                        highlightIndex={2}
+                        className={layoutConfig.headerMargin}
+                    />
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-4 md:h-[400px]">
+                        <div className="row-span-2 rounded-2xl md:rounded-3xl bg-slate-200 dark:bg-slate-800 animate-pulse aspect-[4/5] md:aspect-auto" />
+                        {[0, 1, 2, 3].map((_, idx) => (
+                            <div
+                                key={idx}
+                                className={`rounded-2xl md:rounded-3xl bg-slate-200 dark:bg-slate-800 animate-pulse ${idx >= 2 ? "hidden md:block" : ""}`}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section id="popular-cabins" className={`${pageSpacing.section} relative w-full`}>
@@ -38,9 +73,14 @@ const PopularCabinsSection = ({ cabins, filteredCount }: PopularCabinsSectionPro
                                 className="row-span-2 group relative overflow-hidden rounded-2xl md:rounded-3xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-400 aspect-[4/5] md:aspect-auto"
                             >
                                 <img
-                                    src={displayed[0].image_url}
+                                    src={getOptimizedImageUrl(displayed[0].image_url, 'featured')}
                                     alt={displayed[0].name}
+                                    loading="lazy"
                                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    onError={(e) => {
+                                        e.currentTarget.onerror = null;
+                                        e.currentTarget.src = "https://images.unsplash.com/photo-1542718610-a1d656d1884c?w=600&q=80";
+                                    }}
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
 
@@ -72,9 +112,14 @@ const PopularCabinsSection = ({ cabins, filteredCount }: PopularCabinsSectionPro
                                 className={`group relative overflow-hidden rounded-2xl md:rounded-3xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-400 ${idx >= 2 ? "hidden md:block" : ""}`}
                             >
                                 <img
-                                    src={cabin.image_url}
+                                    src={getOptimizedImageUrl(cabin.image_url, 'card')}
                                     alt={cabin.name}
+                                    loading="lazy"
                                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    onError={(e) => {
+                                        e.currentTarget.onerror = null;
+                                        e.currentTarget.src = "https://images.unsplash.com/photo-1542718610-a1d656d1884c?w=600&q=80";
+                                    }}
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
@@ -107,5 +152,5 @@ const PopularCabinsSection = ({ cabins, filteredCount }: PopularCabinsSectionPro
     );
 };
 
-export default PopularCabinsSection;
+export default React.memo(PopularCabinsSection);
 

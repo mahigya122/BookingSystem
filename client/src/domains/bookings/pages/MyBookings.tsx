@@ -1,126 +1,173 @@
 import { useBookings, useUser } from "@shared/hooks";
 import { useCabinsData } from "../../cabins/hooks/useCabinsData";
 import { useCabinFiltersContext } from "../../cabins/contexts/CabinFiltersContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getBookingRealStatus } from "@shared/utils/bookingUtils";
-import { usePagination } from "@shared/hooks/usePagination";
 import Pagination from "@shared/components/ui/Pagination";
-import { Compass, ArrowRight, Loader2, Clock, CheckCircle2, XCircle, ListFilter } from "lucide-react";
-import { useEffect } from "react";
+import { Compass, ArrowRight, Clock, CheckCircle2, XCircle, ListFilter, ChevronDown } from "lucide-react";
+import { useMemo, useState } from "react";
 import CabinCard from "../../cabins/components/CabinCard";
-import { useFilterActions } from "../../../hooks/useFilterActions";
 
 const MyBookings = () => {
-  const { bookings = [], isLoading: loadingBookings } = useBookings();
-  const { cabins = [], isLoading: loadingCabins } = useCabinsData();
   const { user } = useUser();
-  const { filters, setIsSearching } = useCabinFiltersContext();
-  const { handleStatusChange } = useFilterActions();
+  const { setIsSearching } = useCabinFiltersContext();
   const navigate = useNavigate();
+  const params = useParams();
+  const [searchParams] = useSearchParams();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  // 1. Get status filter from URL query param
+  const urlStatus = searchParams.get("status");
+  const currentStatus = (urlStatus && ["all", "upcoming", "completed", "cancelled"].includes(urlStatus))
+    ? (urlStatus as "all" | "upcoming" | "completed" | "cancelled")
+    : "all";
+
+  // 2. Get current page from URL path or query params
+  const currentPage = useMemo(() => {
+    let page = 1;
+    if (params.pageParam) {
+      const match = params.pageParam.match(/^page(\d+)$/i) || params.pageParam.match(/^(\d+)$/);
+      if (match) page = Number(match[1]);
+    } else if ((params as any).pageSuffix) {
+      const match = (params as any).pageSuffix.match(/^\.page(\d+)$/i) || (params as any).pageSuffix.match(/^page(\d+)$/i) || (params as any).pageSuffix.match(/^\.(\d+)$/);
+      if (match) page = Number(match[1]);
+    } else {
+      const pageQuery = searchParams.get("page");
+      if (pageQuery) page = Number(pageQuery);
+    }
+    return isNaN(page) || page < 1 ? 1 : page;
+  }, [params, searchParams]);
+
+  const { bookings = [], totalCount = 0, isLoading: loadingBookings } = useBookings(
+    currentPage,
+    8,
+    currentStatus,
+    "recent",
+    "",
+    "all",
+    user?.email || ""
+  );
+  const { cabins = [], isLoading: loadingCabins } = useCabinsData();
 
   const isLoading = loadingBookings || loadingCabins;
+  const totalPages = Math.ceil(totalCount / 8);
 
-  // Filter bookings belonging to the logged-in user
-  const userBookings = bookings.filter((b) => b.guests?.email === user?.email);
+  const handlePageChange = (newPage: number) => {
+    const qParams = new URLSearchParams(searchParams);
+    const path = newPage > 1 ? `/bookings/page${newPage}` : `/bookings`;
+    const queryStr = qParams.toString();
+    navigate(queryStr ? `${path}?${queryStr}` : path);
+  };
 
-  // Apply booking status filters
-  const filteredBookings = userBookings.filter((b) => {
-    const realStatus = getBookingRealStatus(b);
-    if (filters.bookingStatus === "all") return true;
-    if (filters.bookingStatus === "upcoming") {
-      return realStatus === "booked" || realStatus === "checked-in";
+  const handleStatusClick = (newStatus: string) => {
+    const qParams = new URLSearchParams(searchParams);
+    if (newStatus !== "all") {
+      qParams.set("status", newStatus);
+    } else {
+      qParams.delete("status");
     }
-    if (filters.bookingStatus === "completed") {
-      return realStatus === "checked-out";
-    }
-    if (filters.bookingStatus === "cancelled") {
-      return realStatus === "cancelled";
-    }
-    return true;
-  });
-
-  // Sort bookings so that the newest or most upcoming stays are at the top
-  const sortedBookings = [...filteredBookings].sort(
-    (a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
-  );
-
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData,
-  } = usePagination(sortedBookings, 8);
-
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filters.bookingStatus, setCurrentPage]);
+    navigate(qParams.toString() ? `/bookings?${qParams.toString()}` : `/bookings`);
+  };
 
   const handleExploreCabins = () => {
     setIsSearching(true);
-    navigate("/");
+    navigate("/explorepage");
   };
 
-  const statuses: { label: string; value: typeof filters.bookingStatus; icon: any }[] = [
+  const statuses: { label: string; value: typeof currentStatus; icon: any }[] = [
     { label: "All Stays", value: "all", icon: ListFilter },
     { label: "Upcoming", value: "upcoming", icon: Clock },
     { label: "Completed", value: "completed", icon: CheckCircle2 },
     { label: "Cancelled", value: "cancelled", icon: XCircle },
   ];
 
-  if (isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center bg-slate-50/10 dark:bg-slate-950/10">
-        <Loader2 className="h-10 w-10 animate-spin text-sky-500" />
-      </div>
-    );
-  }
+
 
   return (
-    <div className="px-4 md:px-0 space-y-12 pb-12">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-100 dark:border-slate-800 pb-12">
-        <div className="space-y-2">
+    <div className="px-4 md:px-0 space-y-8 pb-8">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-100 dark:border-slate-800 pb-6">
+        <div className="space-y-0 pt-4">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-sky-600 dark:text-sky-400">
             Itinerary Management
           </p>
-          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl md:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
             My Reservations
           </h1>
-          <p className="text-sm font-bold text-slate-500 dark:text-slate-400 max-w-md">
-            You have {userBookings.length} total stays booked under {user?.email}. Filter by status to manage your upcoming or past journeys.
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 max-w-md pt-1">
+            You have {totalCount} total stays booked under {user?.email}. Filter by status to manage your upcoming or past journeys.
           </p>
         </div>
 
-        {/* INLINE STATUS FILTERS */}
-        <div className="flex flex-wrap items-center bg-slate-50 dark:bg-slate-800/50 p-1.5 rounded-xl border border-slate-100 dark:border-slate-800">
-          {statuses.map((s) => {
-            const active = filters.bookingStatus === s.value;
-            const Icon = s.icon;
-            return (
+        {/* DROPDOWN STATUS FILTER */}
+        {(() => {
+          const currentStatusObj = statuses.find(s => s.value === currentStatus) || statuses[0];
+          const CurrentIcon = currentStatusObj.icon;
+          return (
+            <div className="relative shrink-0 w-full md:w-auto">
               <button
-                key={s.value}
-                onClick={() => handleStatusChange(s.value)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${
-                  active 
-                    ? "bg-white dark:bg-slate-700 text-sky-600 shadow-sm border border-slate-100 dark:border-slate-600" 
-                    : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                }`}
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-black uppercase tracking-widest text-slate-800 dark:text-sky-400 shadow-sm hover:border-sky-500/55 hover:text-sky-600 dark:hover:text-sky-300 transition duration-300 cursor-pointer min-w-[200px] w-full"
               >
-                <Icon size={14} className={active ? "text-sky-600" : "text-slate-400"} />
-                {s.label}
+                <div className="flex items-center gap-2">
+                  <CurrentIcon size={14} className="text-sky-500" />
+                  <span>{currentStatusObj.label}</span>
+                </div>
+                <ChevronDown size={14} className={`text-slate-400 transition-transform duration-300 ${isDropdownOpen ? "rotate-180" : ""}`} />
               </button>
-            );
-          })}
-        </div>
+
+              {isDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-full min-w-[200px] bg-white dark:bg-slate-700 border border-slate-200/60 dark:border-slate-600 rounded-2xl shadow-xl py-2 z-20 animate-in fade-in slide-in-from-top-1 duration-200">
+                    {statuses.map((s) => {
+                      const active = currentStatus === s.value;
+                      const Icon = s.icon;
+                      return (
+                        <button
+                          key={s.value}
+                          onClick={() => {
+                            handleStatusClick(s.value);
+                            setIsDropdownOpen(false);
+                          }}
+                          className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-left text-xs font-black uppercase tracking-widest transition-colors cursor-pointer ${active
+                            ? "bg-sky-50/50 dark:bg-sky-950/20 text-sky-600 dark:text-sky-400"
+                            : "text-slate-600 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white"
+                            }`}
+                        >
+                          <Icon size={14} className={active ? "text-sky-600 dark:text-sky-400" : "text-slate-400"} />
+                          <span>{s.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+          );
+        })()}
       </header>
 
-      {sortedBookings.length === 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex flex-col space-y-3 animate-pulse">
+              {/* Card Image matching CabinCard aspect ratio and rounding */}
+              <div className="aspect-[4/3] w-full rounded-2xl md:rounded-3xl bg-slate-200 dark:bg-slate-800" />
+              {/* Replicated action buttons block placeholder */}
+              <div className="flex gap-2">
+                <div className="flex-1 h-[38px] rounded-xl bg-slate-200 dark:bg-slate-800" />
+                <div className="flex-1 h-[38px] rounded-xl bg-slate-200 dark:bg-slate-800" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : bookings.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-16 text-center max-w-xl mx-auto">
           <Compass className="h-14 w-14 mx-auto text-slate-400 dark:text-slate-600 mb-4" />
           <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">No stays found</h3>
           <p className="mt-2 text-sm font-bold text-slate-500 dark:text-slate-400 leading-relaxed">
-            {filters.bookingStatus !== "all"
-              ? `You don't have any bookings matching the "${filters.bookingStatus}" filter. Try adjusting your filter or explore new stays.`
+            {currentStatus !== "all"
+              ? `You don't have any bookings matching the "${currentStatus}" filter. Try adjusting your filter or explore new stays.`
               : "You haven't reserved any retreats yet. Explore our selection of cabins and find your perfect stay!"}
           </p>
           <button
@@ -132,15 +179,15 @@ const MyBookings = () => {
         </div>
       ) : (
         <div className="space-y-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {paginatedData.map((booking: any) => {
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {bookings.map((booking: any) => {
               // Find corresponding cabin to resolve thumbnail
               const cabinInfo = cabins.find((c) => c.id === booking.cabin_id);
               if (!cabinInfo) return null;
               const realStatus = getBookingRealStatus(booking);
 
               return (
-                <CabinCard 
+                <CabinCard
                   key={booking.id}
                   cabin={cabinInfo}
                   variant="small"
@@ -155,10 +202,10 @@ const MyBookings = () => {
               );
             })}
           </div>
-          <Pagination 
+          <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={handlePageChange}
           />
         </div>
       )}

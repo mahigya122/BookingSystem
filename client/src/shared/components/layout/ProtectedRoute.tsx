@@ -21,10 +21,25 @@ const ProtectedRoute = ({
   // 1. still loading auth session
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-sky-500 border-t-transparent" />
-          <p className="text-sm font-bold text-slate-500 animate-pulse">Verifying Session...</p>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-8 space-y-8 animate-pulse">
+        {/* Header Skeleton */}
+        <div className="flex justify-between items-center">
+          <div className="space-y-2">
+            <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+            <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+          </div>
+          <div className="h-10 w-24 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+        </div>
+        {/* Stats Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-28 bg-slate-200 dark:bg-slate-800 rounded-3xl" />
+          ))}
+        </div>
+        {/* Main Content Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 h-[350px] bg-slate-200 dark:bg-slate-800 rounded-3xl" />
+          <div className="h-[350px] bg-slate-200 dark:bg-slate-800 rounded-3xl" />
         </div>
       </div>
     );

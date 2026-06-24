@@ -50,7 +50,7 @@ const SectionHeader = ({
             <div className={`flex flex-col ${center ? "items-center" : "items-start"} space-y-1`}>
                 {/* Sub heading (Label) */}
                 <motion.p
-                    className="text-sky-500 text-lg font-bold"
+                    className="text-sky-500 text-sm md:text-lg font-bold"
                     style={{ fontFamily: "'Dancing Script', cursive" }}
                     initial={{ opacity: 0, y: 10 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -62,7 +62,7 @@ const SectionHeader = ({
 
                 {/* Main Title */}
                 <motion.h2
-                    className={`text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tight flex flex-wrap gap-x-2 gap-y-1 ${center ? "justify-center" : "justify-start"}`}
+                    className={`text-xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white leading-tight tracking-tight flex flex-wrap gap-x-2 gap-y-1 ${center ? "justify-center" : "justify-start"}`}
                     variants={container}
                     initial="hidden"
                     whileInView="show"

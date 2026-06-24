@@ -20,7 +20,7 @@ const ClientAIChatDrawer = () => {
 
             {/* DRAWER */}
             <div
-                className={`fixed right-0 top-0 z-50 h-screen w-full sm:w-[440px] transform border-l shadow-2xl transition-transform duration-300 ${open
+                className={`fixed right-0 top-0 z-50 h-[100dvh] w-full sm:w-[440px] transform border-l shadow-2xl transition-transform duration-300 ${open
                         ? "translate-x-0"
                         : "translate-x-full"
                     }`}
@@ -33,7 +33,7 @@ const ClientAIChatDrawer = () => {
                 }}
             >
                 {/* CHAT BODY (FULL SCREEN) */}
-                <div className="h-screen relative overflow-hidden">
+                <div className="h-full relative overflow-hidden">
                     <GuestChat isOpen={open} onClose={() => setOpen(false)} />
                 </div>
             </div>

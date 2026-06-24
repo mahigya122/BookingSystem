@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useActivities } from "@shared/hooks/useActivities";
 import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
+import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
 import {
@@ -59,14 +60,39 @@ const ActivitiesSection = () => {
         });
     }, [activities]);
 
-    if (isLoading || uniqueActivities.length === 0) return null;
+    if (isLoading) {
+        return (
+            <section id="activities-section" className={`${pageSpacing.section} relative w-full`}>
+                <div className={layoutConfig.container}>
+                    <SectionHeader
+                        label="Things To Do"
+                        title="Activities for Every Traveller"
+                        subtitle="Filter cabins by the activities you love and make every moment an adventure."
+                        highlightIndex={2}
+                        className={layoutConfig.headerMargin}
+                    />
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 md:h-[400px]">
+                        <div className="row-span-2 rounded-2xl md:rounded-3xl bg-slate-200 dark:bg-slate-800 animate-pulse aspect-[4/5] md:aspect-auto" />
+                        {[0, 1, 2, 3].map((_, idx) => (
+                            <div
+                                key={idx}
+                                className={`rounded-2xl md:rounded-3xl bg-slate-200 dark:bg-slate-800 animate-pulse ${idx >= 2 ? "hidden md:block" : ""}`}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    if (!isLoading && uniqueActivities.length === 0) return null;
 
     const getActivityImage = (activity: any) => {
         if (activity.image_url && !activity.image_url.includes("faker"))
-            return activity.image_url;
+            return getOptimizedImageUrl(activity.image_url, 'card');
 
         const name = activity.name.toLowerCase();
-        return activityImages[name] || fallbackActivityImage;
+        return getOptimizedImageUrl(activityImages[name] || fallbackActivityImage, 'card');
     };
 
     const handleActivityClick = (actId: string) => {
@@ -121,7 +147,12 @@ const ActivitiesSection = () => {
                             <img
                                 src={img}
                                 alt={activity.name}
+                                loading="lazy"
                                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?w=600&q=80";
+                                }}
                             />
 
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
@@ -186,7 +217,12 @@ const ActivitiesSection = () => {
                             <img
                                 src={img}
                                 alt={activity.name}
+                                loading="lazy"
                                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?w=600&q=80";
+                                }}
                             />
 
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
@@ -211,4 +247,4 @@ const ActivitiesSection = () => {
     );
 };
 
-export default ActivitiesSection;
+export default React.memo(ActivitiesSection);

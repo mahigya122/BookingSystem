@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useOffers } from "@shared/hooks/useOffers";
 import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
+import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { motion } from "framer-motion";
 import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
@@ -21,7 +22,32 @@ const SpecialOffers = () => {
         });
     }, [offers]);
 
-    if (isLoading || uniqueOffers.length === 0) return null;
+    if (isLoading) {
+        return (
+            <section id="special-offers" className={`${pageSpacing.section} relative w-full`}>
+                <div className={layoutConfig.container}>
+                    <SectionHeader
+                        label="Our Best Offer"
+                        title="Offers To Inspire You"
+                        subtitle="Discover exclusive deals and special offers that will spark your wanderlust."
+                        highlightIndex={2}
+                        className={layoutConfig.headerMargin}
+                    />
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 md:h-[400px]">
+                        <div className="row-span-2 rounded-2xl md:rounded-3xl bg-slate-200 dark:bg-slate-800 animate-pulse aspect-[4/5] md:aspect-auto" />
+                        {[0, 1, 2, 3].map((_, idx) => (
+                            <div
+                                key={idx}
+                                className={`rounded-2xl md:rounded-3xl bg-slate-200 dark:bg-slate-800 animate-pulse ${idx >= 2 ? "hidden md:block" : ""}`}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    if (!isLoading && uniqueOffers.length === 0) return null;
 
     const fallbackImage = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80";
 
@@ -65,7 +91,16 @@ const SpecialOffers = () => {
                             }}
                             viewport={{ once: true }}
                         >
-                            <img src={offer.image_url || fallbackImage} alt={offerTitle} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <img
+                                src={getOptimizedImageUrl(offer.image_url || fallbackImage, 'featured')}
+                                alt={offerTitle}
+                                loading="lazy"
+                                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&q=80";
+                                }}
+                            />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                             <div className="absolute bottom-0 left-0 p-4 md:p-6 w-full space-y-1 md:space-y-2">
                                 <div className="inline-flex items-center px-2 py-0.5 md:py-1 rounded-lg bg-sky-500 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest">
@@ -110,7 +145,16 @@ const SpecialOffers = () => {
                             }}
                             viewport={{ once: true, amount: 0.2 }}
                         >
-                            <img src={offer.image_url || fallbackImage} alt={offerTitle} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-100" />
+                            <img
+                                src={getOptimizedImageUrl(offer.image_url || fallbackImage, 'card')}
+                                alt={offerTitle}
+                                loading="lazy"
+                                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-100"
+                                onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&q=80";
+                                }}
+                            />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                             <div className="absolute bottom-0 left-0 p-3 md:p-4 w-full flex items-end justify-between">
                                 <div>
@@ -130,4 +174,4 @@ const SpecialOffers = () => {
     );
 };
 
-export default SpecialOffers;
+export default React.memo(SpecialOffers);

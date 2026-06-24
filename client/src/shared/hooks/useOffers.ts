@@ -63,9 +63,8 @@ export function useOffers(
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const isPaginated = page !== undefined && pageSize !== undefined;
-  const offersList = isPaginated ? (data as any)?.data ?? [] : (data as any) ?? [];
-  const total = isPaginated ? (data as any)?.count ?? 0 : offersList.length;
+  const offersList = (data as any)?.data ?? (data as any) ?? [];
+  const total = (data as any)?.count ?? offersList.length;
 
   return {
     offers: offersList as Offer[],

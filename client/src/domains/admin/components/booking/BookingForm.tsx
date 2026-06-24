@@ -371,7 +371,7 @@ const BookingForm = () => {
                 </button>
               </div>
 
-              <PaymentSelector onSelect={(method) => setForm(f => ({ ...f, payment_method: method }))} />
+              <PaymentSelector selectedMethod={form.payment_method} onSelect={(method) => setForm(f => ({ ...f, payment_method: method }))} />
             </div>
           </section>
 

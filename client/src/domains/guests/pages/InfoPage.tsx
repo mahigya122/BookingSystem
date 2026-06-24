@@ -134,10 +134,10 @@ const InfoPage = () => {
                     <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-500 shadow-2xl shadow-sky-500/40 mb-2">
                         <Icon className="h-8 w-8 text-white" strokeWidth={2.5} />
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-black text-white tracking-tight">
+                    <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white tracking-tight">
                         {data.title}
                     </h1>
-                    <p className="text-xl md:text-2xl text-sky-400 font-bold italic" style={{ fontFamily: "'Dancing Script', cursive" }}>
+                    <p className="text-lg md:text-2xl text-sky-400 font-bold italic" style={{ fontFamily: "'Dancing Script', cursive" }}>
                         {data.subtitle}
                     </p>
                 </div>

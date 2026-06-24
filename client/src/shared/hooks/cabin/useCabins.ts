@@ -26,9 +26,8 @@ export function useCabins(
     placeholderData: keepPreviousData,
   });
 
-  const isPaginated = page !== undefined && pageSize !== undefined;
-  const cabinsList = isPaginated ? data?.data ?? [] : data ?? [];
-  const total = isPaginated ? data?.count ?? 0 : cabinsList.length;
+  const cabinsList = (data as any)?.data ?? (data as any) ?? [];
+  const total = (data as any)?.count ?? cabinsList.length;
 
   return {
     cabins: cabinsList as Cabin[],

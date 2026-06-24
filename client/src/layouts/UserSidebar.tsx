@@ -1,4 +1,5 @@
-import { SlidersHorizontal, X } from "lucide-react";
+import { useRef, useEffect } from "react";
+import { SlidersHorizontal } from "lucide-react";
 import ExploreFilters from "../domains/cabins/components/ExploreFilters";
 import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
 
@@ -6,18 +7,46 @@ const UserSidebar = () => {
     const {
         sidebarOpen,
         setSidebarOpen,
-        activeFilterCount,
-        isSearching
+        activeFilterCount
     } = useCabinFiltersContext();
+
+    const sidebarRef = useRef<HTMLDivElement>(null);
+
+    // Close sidebar when clicking outside of it
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (!sidebarOpen) return;
+
+            // If click is inside sidebar, do nothing
+            if (sidebarRef.current && sidebarRef.current.contains(event.target as Node)) {
+                return;
+            }
+
+            // If click is on a sidebar toggle button or its children, do nothing
+            const target = event.target as HTMLElement;
+            if (target.closest("[data-sidebar-toggle]") || target.closest(".sidebar-toggle-btn")) {
+                return;
+            }
+
+            setSidebarOpen(false);
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [sidebarOpen, setSidebarOpen]);
 
     // COLLAPSED STATE
     if (!sidebarOpen) {
         return (
-            <div className="h-full flex flex-col items-center pt-10 space-y-8 relative bg-slate-50/50 dark:bg-slate-900/50 border-r border-slate-100 dark:border-slate-800">
+            <div className="h-full flex flex-col items-center pt-10 space-y-8 relative bg-slate-50/50 dark:bg-slate-900/50">
                 <button
+                    data-sidebar-toggle="true"
                     title="Open Preferences"
                     onClick={() => setSidebarOpen(true)}
                     className="
+                        sidebar-toggle-btn
                         relative
                         flex
                         items-center
@@ -26,10 +55,10 @@ const UserSidebar = () => {
                         h-12
                         rounded-xl
                         bg-white
-                        dark:bg-slate-800
+                        dark:bg-slate-850
                         border
                         border-slate-100
-                        dark:border-slate-700
+                        dark:border-slate-800
                         hover:border-sky-500
                         hover:text-sky-600
                         transition-all
@@ -68,38 +97,14 @@ const UserSidebar = () => {
         );
     }
 
-    // EXPANDED STATE
     return (
-        <div className="flex flex-col h-full bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 animate-in slide-in-from-left-4 duration-500 relative">
-            {/* HEADER */}
-            <div className="flex items-center justify-between px-8 py-6 border-b border-slate-50 dark:border-slate-800 relative z-10">
-                <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                        <SlidersHorizontal size={16} className="text-sky-600 dark:text-sky-400" />
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none mb-1">
-                            {isSearching ? "Refine" : "Search"}
-                        </span>
-                        <span className="text-sm font-black text-slate-900 dark:text-white tracking-tight">
-                            Preferences
-                        </span>
-                    </div>
-                </div>
-
-                <button
-                    onClick={() => setSidebarOpen(false)}
-                    className="p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-300 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                >
-                    <X size={18} />
-                </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar-hide space-y-10 relative z-10">
+        <div
+            ref={sidebarRef}
+            className="flex flex-col animate-in slide-in-from-left-4 duration-500 relative"
+        >
+            <div className="p-5 relative z-12">
                 {/* DYNAMIC FILTERS */}
-                <div className="space-y-10">
-                    <ExploreFilters />
-                </div>
+                <ExploreFilters />
             </div>
         </div>
     );

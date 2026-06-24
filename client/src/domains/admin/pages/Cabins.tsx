@@ -71,10 +71,6 @@ const Cabins = () => {
     removeCabin(id);
   };
 
-  if (isLoading || isBookingsLoading) {
-    return <p>Loading Cabins.....</p>
-  }
-
   return (
     <div className="px-6 md:px-0 space-y-8 animate-slide-up">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -101,6 +97,7 @@ const Cabins = () => {
             setSelectedSection(section);
           }}
           activeBookingByCabinId={activeBookingByCabinId}
+          isLoading={isLoading || isBookingsLoading}
         />
 
         <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">

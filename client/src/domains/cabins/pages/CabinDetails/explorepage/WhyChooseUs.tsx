@@ -1,3 +1,4 @@
+import React from "react";
 import { CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
@@ -83,8 +84,16 @@ const WhyChooseUs = () => (
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                 </div>
+                {/* Middle connector image */}
+                <div className="absolute left-20 top-28 w-55 h-56 lg:w-48 lg:h-64 rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white dark:border-slate-800 rotate-12 z-15 group">
+                    <img
+                        src="https://images.unsplash.com/photo-1510798831971-661eb04b3739?w=500&q=80"
+                        alt="Cozy cabin atmosphere"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                </div>
                 {/* Overlapping front image */}
-                <div className="absolute left-0 bottom-16 w-52 h-64 lg:w-60 lg:h-72 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white dark:border-slate-800 -rotate-6 z-20 group">
+                <div className="absolute left-10 bottom-16 w-52 h-64 lg:w-60 lg:h-72 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white dark:border-slate-800 -rotate-6 z-20 group">
                     <img
                         src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=500&q=80"
                         alt="Guests enjoying cabin"
@@ -102,4 +111,4 @@ const WhyChooseUs = () => (
     </section>
 );
 
-export default WhyChooseUs;
+export default React.memo(WhyChooseUs);

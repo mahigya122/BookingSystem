@@ -1,12 +1,8 @@
-import { Check } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import type { Cabin } from "@shared/types";
-import type { Activity } from "@shared/types/activity";
-import type { Offer } from "@shared/types/offer";
+import { useState, useEffect } from "react";
+import type { Cabin, Offer, Activity } from "@shared/types";
 
 interface BookingCardProps {
     cabin: Cabin;
-    hasUserReservation: boolean;
     userBookingStatus?: string;
     isBookedByOthers: boolean;
     startDate: Date | null;
@@ -15,23 +11,22 @@ interface BookingCardProps {
     totalNights: number;
     baseAccommodationPrice: number;
     breakfastTotal: number;
-    activitiesTotal: number;
-    discountFromOffers: number;
-    selectedActivities: Activity[];
-    selectedOffers: Offer[];
     cleaningFee: number;
     serviceTax: number;
     totalPrice: number;
     guestCount: number;
     onBreakfastChange: (checked: boolean) => void;
     onOpenBookingModal: () => void;
-    onEnterUpdateMode: () => void;
     isUpdateMode?: boolean;
+    hasFreeBreakfast?: boolean;
+    discountFromOffers?: number;
+    selectedOffers?: Offer[];
+    activitiesTotal?: number;
+    selectedActivities?: Activity[];
 }
 
 const BookingCard = ({
     cabin,
-    hasUserReservation,
     userBookingStatus,
     isBookedByOthers,
     startDate,
@@ -40,56 +35,58 @@ const BookingCard = ({
     totalNights,
     baseAccommodationPrice,
     breakfastTotal,
-    activitiesTotal,
-    discountFromOffers,
-    selectedActivities,
-    selectedOffers,
     cleaningFee,
     serviceTax,
     totalPrice,
     guestCount,
     onBreakfastChange,
     onOpenBookingModal,
-    onEnterUpdateMode,
     isUpdateMode = false,
+    hasFreeBreakfast = false,
+    discountFromOffers = 0,
+    selectedOffers = [],
+    activitiesTotal = 0,
+    selectedActivities = [],
 }: BookingCardProps) => {
-    const navigate = useNavigate();
-
     const isCancelled = userBookingStatus === "cancelled";
 
+    const [shouldAnimate, setShouldAnimate] = useState(false);
+
+    useEffect(() => {
+        const triggerAnimation = () => {
+            setShouldAnimate(true);
+            const timer = setTimeout(() => {
+                setShouldAnimate(false);
+            }, 1800);
+            return timer;
+        };
+
+        let animTimer = triggerAnimation();
+
+        const interval = setInterval(() => {
+            animTimer = triggerAnimation();
+        }, 6000);
+
+        return () => {
+            clearInterval(interval);
+            clearTimeout(animTimer);
+        };
+    }, []);
+
+
+    const handleBookButtonClick = () => {
+        if (!startDate || !endDate) {
+            document.getElementById("selection-theatre")?.scrollIntoView({ behavior: "smooth" });
+            return;
+        }
+        onOpenBookingModal();
+    };
+
+
+
     return (
-        <div className="rounded-2xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-6 space-y-6 max-h-[calc(100vh-120px)] overflow-y-auto">
-            {hasUserReservation && !isUpdateMode ? (
-                <div className="rounded-2xl border border-sky-150 dark:border-sky-900/30 bg-sky-50/20 dark:bg-sky-950/10 p-8 text-center space-y-6 animate-fade-in ring-1 ring-sky-500/10 backdrop-blur-sm">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400">
-                        <Check className="h-7 w-7 stroke-[3]" />
-                    </div>
-                    <div className="space-y-4">
-                        <p className="text-base font-extrabold text-slate-900 dark:text-white leading-snug">
-                            You have an active reservation for this cabin.
-                        </p>
-                        
-                        <div className="flex flex-col gap-3">
-                            <button
-                                onClick={onEnterUpdateMode}
-                                className="w-full py-3 px-6 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-black text-sm transition cursor-pointer"
-                            >
-                                UPDATE BOOKING
-                            </button>
-                            
-                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                                or manage it from{" "}
-                                <button
-                                    onClick={() => navigate("/bookings")}
-                                    className="text-sky-600 dark:text-sky-400 hover:text-sky-700 dark:hover:text-sky-300 font-extrabold underline transition cursor-pointer"
-                                >
-                                    My Bookings
-                                </button>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            ) : isBookedByOthers ? (
+        <div className="rounded-2xl border border-slate-100 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-6 space-y-6">
+            {isBookedByOthers ? (
                 <div className="rounded-2xl border border-rose-100 dark:border-rose-900/30 bg-rose-50/20 dark:bg-rose-950/10 p-8 text-center space-y-6 animate-fade-in ring-1 ring-rose-500/10 backdrop-blur-sm">
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400">
                         <svg className="h-7 w-7 stroke-[3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -110,7 +107,7 @@ const BookingCard = ({
                     {/* Price header */}
                     <div className="flex items-baseline justify-between">
                         <div>
-                            <span className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                            <span className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                                 ${cabin.price_per_night}
                             </span>
                             <span className="text-slate-400 text-sm font-bold ml-1">/ night</span>
@@ -147,20 +144,22 @@ const BookingCard = ({
                     </div>
 
                     {/* Breakfast toggle */}
-                    <label className="flex items-center gap-3.5 p-4 rounded-xl bg-sky-500/5 dark:bg-sky-500/10 border border-sky-500/20 cursor-pointer group hover:bg-sky-500/10 transition">
-                        <input
-                            type="checkbox"
-                            checked={breakfast}
-                            onChange={(e) => onBreakfastChange(e.target.checked)}
-                            className="h-5 w-5 rounded-md text-sky-600 border-slate-350 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-sky-500"
-                        />
-                        <div className="space-y-0.5">
-                            <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200 block group-hover:text-sky-600 dark:group-hover:text-sky-400 transition">
-                                Premium Breakfast (+ $15/night)
-                            </span>
-                            <span className="text-xs font-bold text-slate-550">Fresh organic locally sourced ingredients</span>
-                        </div>
-                    </label>
+                    {!hasFreeBreakfast && (
+                        <label className="flex items-center gap-3.5 p-4 rounded-xl bg-sky-500/5 dark:bg-sky-500/10 border border-sky-500/20 cursor-pointer group hover:bg-sky-500/10 transition">
+                            <input
+                                type="checkbox"
+                                checked={breakfast}
+                                onChange={(e) => onBreakfastChange(e.target.checked)}
+                                className="h-5 w-5 rounded-md text-sky-600 border-slate-350 dark:border-slate-700 bg-white dark:bg-slate-950 focus:ring-sky-500"
+                            />
+                            <div className="space-y-0.5">
+                                <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200 block group-hover:text-sky-600 dark:group-hover:text-sky-400 transition">
+                                    Premium Breakfast (+ $15/night)
+                                </span>
+                                <span className="text-xs font-bold text-slate-550">Fresh organic locally sourced ingredients</span>
+                            </div>
+                        </label>
+                    )}
 
                     {/* Price breakdown */}
                     {totalNights > 0 && (
@@ -180,12 +179,12 @@ const BookingCard = ({
                             {activitiesTotal > 0 && (
                                 <div className="space-y-1">
                                     <div className="flex justify-between">
-                                        <span>Extra activities</span>
+                                        <span>Extra Activities</span>
                                         <span className="text-slate-900 dark:text-white font-extrabold">${activitiesTotal}</span>
                                     </div>
-                                    <div className="flex flex-wrap gap-1 px-1">
-                                        {selectedActivities.map((a: Activity) => (
-                                            <span key={a.id} className="text-[10px] bg-sky-50 dark:bg-sky-950/30 text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded-full border border-sky-100 dark:border-sky-900/30">
+                                    <div className="flex flex-wrap gap-1">
+                                        {selectedActivities.map((a) => (
+                                            <span key={a.id} className="text-[9px] bg-sky-50 dark:bg-sky-950/40 text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded-full border border-sky-100 dark:border-sky-900/30 font-black uppercase tracking-wider">
                                                 {a.name}
                                             </span>
                                         ))}
@@ -194,13 +193,13 @@ const BookingCard = ({
                             )}
                             {discountFromOffers > 0 && (
                                 <div className="space-y-1">
-                                    <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
-                                        <span>Special offers discount</span>
-                                        <span className="font-extrabold">-${discountFromOffers.toFixed(0)}</span>
+                                    <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-extrabold">
+                                        <span>Perks Discount</span>
+                                        <span>-${discountFromOffers.toFixed(0)}</span>
                                     </div>
-                                    <div className="flex flex-wrap gap-1 px-1">
-                                        {selectedOffers.map((o: Offer) => (
-                                            <span key={o.id} className="text-[10px] bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/30">
+                                    <div className="flex flex-wrap gap-1">
+                                        {selectedOffers.map((o) => (
+                                            <span key={o.id} className="text-[9px] bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/30 font-black uppercase tracking-wider">
                                                 {o.name || o.title}
                                             </span>
                                         ))}
@@ -223,16 +222,18 @@ const BookingCard = ({
                     )}
 
                     {/* Book button */}
-                    <div className="sticky bottom-0 pt-4 bg-white dark:bg-slate-900">
+                    <div className="pt-4 space-y-3">
                         <button
-                            onClick={onOpenBookingModal}
-                            className="w-full rounded-xl bg-sky-600 hover:bg-sky-500 text-white py-4 font-black transition-all duration-300 cursor-pointer"
+                            onClick={handleBookButtonClick}
+                            className={`w-full rounded-xl bg-sky-600 hover:bg-sky-500 text-white py-4 font-black transition-all duration-300 cursor-pointer ${shouldAnimate ? "animate-playful-attention" : ""}`}
                         >
                             {isUpdateMode 
                                 ? "UPDATE BOOKING" 
-                                : isCancelled 
-                                    ? "BOOK AGAIN" 
-                                    : "BOOK NOW"}
+                                : !startDate || !endDate
+                                    ? "SELECT DATES"
+                                    : isCancelled 
+                                        ? "BOOK AGAIN" 
+                                        : "BOOK NOW"}
                         </button>
                     </div>
 

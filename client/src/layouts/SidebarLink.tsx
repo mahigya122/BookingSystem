@@ -96,11 +96,9 @@ const SidebarLink = ({ to, icon, label, end = false, open }: SidebarLinkProps) =
             {icon}
           </div>
           
-          {open && (
-            <span className="text-sm tracking-tight whitespace-nowrap overflow-hidden">
-              {label}
-            </span>
-          )}
+          <span className={`text-sm tracking-tight whitespace-nowrap overflow-hidden ${open ? "block" : "block lg:hidden"}`}>
+            {label}
+          </span>
         </div>
       )}
     </NavLink>

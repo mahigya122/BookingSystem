@@ -5,6 +5,22 @@ import { useClientAIChat } from "../../../domains/guests/contexts/ClientAIChatCo
 const AIFloatButton = () => {
   const { open, setOpen } = useClientAIChat();
   const [showBubble, setShowBubble] = useState(false);
+  const [constraints, setConstraints] = useState({ left: 0, right: 0, top: 0, bottom: 0 });
+
+  useEffect(() => {
+    const updateConstraints = () => {
+      setConstraints({
+        left: -window.innerWidth + 120,
+        right: 20,
+        top: -window.innerHeight + 120,
+        bottom: 20,
+      });
+    };
+
+    updateConstraints();
+    window.addEventListener("resize", updateConstraints);
+    return () => window.removeEventListener("resize", updateConstraints);
+  }, []);
 
   useEffect(() => {
     const showTimer = setTimeout(() => {
@@ -24,7 +40,12 @@ const AIFloatButton = () => {
   if (open) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3">
+    <motion.div
+      drag
+      dragConstraints={constraints}
+      dragMomentum={false}
+      className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3 cursor-grab active:cursor-grabbing select-none"
+    >
 
       {/* ===================== */}
       {/* 💭 COMIC THOUGHT BUBBLE */}
@@ -63,7 +84,7 @@ const AIFloatButton = () => {
       </AnimatePresence>
 
       {/* ===================== */}
-      {/* 🤖 FLOATING AI BUTTON */}
+      {/* FLOATING AI BUTTON */}
       {/* ===================== */}
       <button
         onClick={() => {
@@ -81,7 +102,7 @@ const AIFloatButton = () => {
         "
         title="Chat with AI"
       >
-        {/* 🤖 Cute Chatbot icon */}
+        {/* Cute Chatbot icon */}
         <img
           src="https://cdn-icons-png.flaticon.com/512/8943/8943377.png"
           alt="AI Assistant"
@@ -99,16 +120,16 @@ const AIFloatButton = () => {
         {/*  Online dot */}
         <div
           className="
-            absolute top-1 right-1 z-20
-            h-3.5 w-3.5
-            rounded-full
-            bg-emerald-400
-            border-2 border-white dark:border-slate-900
-            animate-pulse
-          "
+          absolute top-1 right-1 z-20
+          h-3.5 w-3.5
+        rounded-full
+        bg-emerald-400
+        border-2 border-white dark:border-slate-900
+        animate-pulse
+        "
         />
       </button>
-    </div>
+    </motion.div>
   );
 };
 

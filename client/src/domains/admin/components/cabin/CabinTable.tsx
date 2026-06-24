@@ -9,6 +9,7 @@ interface Props{
     onDelete: (id: string) => void;
     onView: (cabin: Cabin, section?: CabinDetailSection) => void;
     activeBookingByCabinId: Record<string, Booking>;
+    isLoading?: boolean;
 }
 
 const CabinTable = ({
@@ -17,6 +18,7 @@ const CabinTable = ({
     onDelete,
     onView,
     activeBookingByCabinId,
+    isLoading,
 }: Props) => {
 
 return(
@@ -24,30 +26,46 @@ return(
         <table>
             <thead>
                 <tr>
-                    <th className="w-20">Media</th>
-                    <th>Unit Name</th>
-                    <th>Location</th>
-                    <th>Max Cap.</th>
-                    <th>Base Price</th>
-                    <th>Discount</th>
-                    <th>Offers</th>
-                    <th>Activities</th>
-                    <th>Reviews</th>
-                    <th className="text-right" style={{ width: "15rem" }}>Manage</th>
+                    <th className="px-8 py-5 w-20 text-left">Media</th>
+                    <th className="px-8 py-5 text-left">Unit Name</th>
+                    <th className="px-8 py-5 text-left">Location</th>
+                    <th className="px-8 py-5 text-left">Max Cap.</th>
+                    <th className="px-8 py-5 text-left">Base Price</th>
+                    <th className="px-8 py-5 text-left">Discount</th>
+                    <th className="px-8 py-5 text-left">Offers</th>
+                    <th className="px-8 py-5 text-left">Activities</th>
+                    <th className="px-8 py-5 text-left">Reviews</th>
+                    <th className="px-8 py-5 text-right w-60">Manage</th>
                 </tr>
             </thead>
 
             <tbody>    
-                {cabins.map((cabin) => (
-                    <CabinRow
-                    key= {cabin.id}
-                    cabin= {cabin}
-                    onEdit= {onEdit}
-                    onDelete= {onDelete}
-                    onView= {onView}
-                    activeBooking={activeBookingByCabinId[cabin.id] ?? null}
-                    />
-                ))}
+                {isLoading
+                    ? Array.from({ length: 10 }).map((_, i) => (
+                        <tr key={i}>
+                            <td className="px-8 py-5 w-20 text-left"><div className="h-12 w-16 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" /></td>
+                            <td className="px-8 py-5 text-left"><div className="h-4 w-28 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" /></td>
+                            <td className="px-8 py-5 text-left"><div className="h-4 w-24 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" /></td>
+                            <td className="px-8 py-5 text-left"><div className="h-4 w-12 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" /></td>
+                            <td className="px-8 py-5 text-left"><div className="h-4 w-16 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" /></td>
+                            <td className="px-8 py-5 text-left"><div className="h-4 w-12 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" /></td>
+                            <td className="px-8 py-5 text-left"><div className="h-6 w-20 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" /></td>
+                            <td className="px-8 py-5 text-left"><div className="h-6 w-20 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" /></td>
+                            <td className="px-8 py-5 text-left"><div className="h-6 w-16 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" /></td>
+                            <td className="px-8 py-5 text-right w-60"><div className="h-8 w-24 rounded bg-slate-200 dark:bg-slate-800 animate-pulse ml-auto" /></td>
+                        </tr>
+                    ))
+                    : cabins.map((cabin) => (
+                        <CabinRow
+                        key= {cabin.id}
+                        cabin= {cabin}
+                        onEdit= {onEdit}
+                        onDelete= {onDelete}
+                        onView= {onView}
+                        activeBooking={activeBookingByCabinId[cabin.id] ?? null}
+                        />
+                    ))
+                }
             </tbody>
         </table>
     </div>

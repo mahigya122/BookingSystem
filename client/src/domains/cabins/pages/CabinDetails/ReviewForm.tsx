@@ -7,9 +7,10 @@ interface ReviewFormProps {
     cabinId: string;
     guestId: string;
     onSuccess?: () => void;
+    isEmbedded?: boolean;
 }
 
-const ReviewForm = ({ cabinId, guestId, onSuccess }: ReviewFormProps) => {
+const ReviewForm = ({ cabinId, guestId, onSuccess, isEmbedded = false }: ReviewFormProps) => {
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState("");
     const [hoveredRating, setHoveredRating] = useState(0);
@@ -34,8 +35,8 @@ const ReviewForm = ({ cabinId, guestId, onSuccess }: ReviewFormProps) => {
         );
     };
 
-    return (
-        <div className="p-8 rounded-[2.5rem] border border-sky-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl space-y-6 animate-fade-in">
+    const formContent = (
+        <div className="space-y-6 animate-fade-in">
             <div className="space-y-1">
                 <h3 className="text-xl font-black text-slate-900 dark:text-white">Share Your Experience</h3>
                 <p className="text-sm font-bold text-slate-500">How was your stay at this sanctuary?</p>
@@ -55,11 +56,10 @@ const ReviewForm = ({ cabinId, guestId, onSuccess }: ReviewFormProps) => {
                                 className="transition-transform active:scale-90"
                             >
                                 <Star
-                                    className={`h-8 w-8 transition-colors ${
-                                        star <= (hoveredRating || rating)
-                                            ? "fill-amber-400 text-amber-400"
-                                            : "text-slate-200 dark:text-slate-700"
-                                    }`}
+                                    className={`h-6 w-6 transition-colors ${star <= (hoveredRating || rating)
+                                        ? "fill-amber-400 text-amber-400"
+                                        : "text-slate-200 dark:text-slate-700"
+                                        }`}
                                 />
                             </button>
                         ))}
@@ -91,6 +91,16 @@ const ReviewForm = ({ cabinId, guestId, onSuccess }: ReviewFormProps) => {
                     )}
                 </button>
             </form>
+        </div>
+    );
+
+    if (isEmbedded) {
+        return formContent;
+    }
+
+    return (
+        <div className="p-8 rounded-[2.5rem] border border-sky-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl space-y-6 animate-fade-in">
+            {formContent}
         </div>
     );
 };

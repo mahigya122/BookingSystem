@@ -1,4 +1,5 @@
 import type { Booking } from "@shared/types/booking";
+import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import {
   X,
   User,
@@ -93,7 +94,13 @@ const BookingDetailModal = ({
                 </div>
                 <div className="surface-panel p-6 rounded-3xl group">
                   <div className="relative h-40 rounded-2xl overflow-hidden mb-4">
-                    <img src={booking.cabins?.image_url} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                    <img
+                      src={getOptimizedImageUrl(booking.cabins?.image_url, "preview")}
+                      alt={booking.cabins?.name ?? "Cabin"}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
                     <div className="absolute bottom-4 left-4">
                       <p className="text-lg font-black text-white">{booking.cabins?.name}</p>

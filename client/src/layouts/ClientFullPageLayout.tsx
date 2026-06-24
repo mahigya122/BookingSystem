@@ -6,26 +6,13 @@ import Footer from "@shared/components/layout/Footer";
 import NavigationProgressBar from "@shared/components/layout/NavigationProgressBar";
 import { useScrollToTop } from "@shared/hooks/useScrollToTop";
 import AIFloatButton from "@shared/components/ui/AIFloatButton";
-import { useCabinsData } from "../domains/cabins/hooks/useCabinsData";
 
 const ClientFullPageLayout = () => {
     const containerRef = useScrollToTop();
     const { pathname } = useLocation();
-    const { isLoading } = useCabinsData();
-
-    if (isLoading) {
-        return (
-            <div className="h-screen w-full flex items-center justify-center bg-white dark:bg-slate-950">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-sky-500 border-t-transparent" />
-                    <p className="text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] animate-pulse">Loading...</p>
-                </div>
-            </div>
-        );
-    }
 
     // Pages accessed by footer or explore page are excluded from the standardized py-16 gap
-    const isExcepted = pathname === "/" || pathname.startsWith("/info/");
+    const isExcepted = pathname === "/" || pathname.startsWith("/info/") || pathname.startsWith("/cabin/");
 
     return (
         <ClientAIChatProvider>
@@ -41,7 +28,7 @@ const ClientFullPageLayout = () => {
                     ref={containerRef as React.RefObject<HTMLDivElement>}
                     className="flex-1 bg-slate-50/50 dark:bg-slate-950/50 flex flex-col w-full"
                 >
-                    <div className={`px-0 md:px-8 flex-1 flex flex-col ${isExcepted ? "pb-0" : "py-16"}`}>
+                    <div className={`px-0 md:px-8 flex-1 flex flex-col ${isExcepted ? "pb-0" : "pt-[2px] pb-[2px]"}`}>
                         <Outlet />
                     </div>
                     <Footer />

@@ -8,7 +8,7 @@ const Reviews = () => {
 
   const totalPages = Math.ceil(totalCount / 6);
 
-  if (isLoading) return <p>Loading Reviews...</p>;
+
 
   return (
     <div className="px-6 md:px-0 space-y-8 animate-slide-up pb-12">
@@ -20,87 +20,119 @@ const Reviews = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {reviews.map((review: any) => (
-          <div key={review.id} className="card p-6 flex flex-col justify-between">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold">
-                    {review.guest?.full_name?.charAt(0) || "G"}
-                  </div>
-                  <div>
-                    <p className="font-black text-slate-900 dark:text-white leading-none">{review.guest?.full_name || "Guest"}</p>
-                    <p className="text-[10px] font-bold text-sky-500 uppercase mt-1">{review.cabin?.name || "Unknown Cabin"}</p>
-                    <div className="flex mt-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star 
-                          key={i} 
-                          size={12} 
-                          className={i < review.rating ? "text-amber-400 fill-amber-400" : "text-slate-200"} 
-                        />
-                      ))}
+        {isLoading
+          ? Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="card p-6 flex flex-col justify-between space-y-4">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                      <div className="space-y-2">
+                        <div className="h-4 w-28 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                        <div className="h-3 w-20 rounded bg-slate-100 dark:bg-slate-900/50 animate-pulse" />
+                        <div className="h-3 w-16 rounded bg-slate-100 dark:bg-slate-900/50 animate-pulse" />
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="h-3 w-16 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                      <div className="h-4 w-12 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
                     </div>
                   </div>
+                  <div className="space-y-2 pt-2">
+                    <div className="h-3 w-full rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                    <div className="h-3 w-5/6 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                  </div>
                 </div>
-                <div className="flex flex-col items-end gap-1.5">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    {new Date(review.created_at!).toLocaleDateString()}
-                  </span>
-                  {review.is_moderated ? (
-                    review.is_approved ? (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50">
-                        Approved
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-450 border border-rose-100 dark:border-rose-900/50">
-                        Rejected
-                      </span>
-                    )
-                  ) : (
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-100 dark:border-amber-900/50">
-                      Pending
-                    </span>
-                  )}
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div className="flex gap-2">
+                    <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                    <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                  </div>
+                  <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
                 </div>
               </div>
-              <p className="text-sm text-slate-650 dark:text-slate-350 italic">"{review.comment}"</p>
-            </div>
+            ))
+          : reviews.map((review: any) => (
+              <div key={review.id} className="card p-6 flex flex-col justify-between">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold">
+                        {review.guest?.full_name?.charAt(0) || "G"}
+                      </div>
+                      <div>
+                        <p className="font-black text-slate-900 dark:text-white leading-none">{review.guest?.full_name || "Guest"}</p>
+                        <p className="text-[10px] font-bold text-sky-500 uppercase mt-1">{review.cabin?.name || "Unknown Cabin"}</p>
+                        <div className="flex mt-1">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star 
+                              key={i} 
+                              size={12} 
+                              className={i < review.rating ? "text-amber-400 fill-amber-400" : "text-slate-200"} 
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        {new Date(review.created_at!).toLocaleDateString()}
+                      </span>
+                      {review.is_moderated ? (
+                        review.is_approved ? (
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50">
+                            Approved
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-450 border border-rose-100 dark:border-rose-900/50">
+                            Rejected
+                          </span>
+                        )
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400 border border-amber-100 dark:border-amber-900/50">
+                          Pending
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-650 dark:text-slate-350 italic">"{review.comment}"</p>
+                </div>
 
-            <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => moderateReview({ id: review.id, is_moderated: true, is_approved: true })}
-                  className={`p-2 rounded-lg border transition-all ${
-                    review.is_moderated && review.is_approved
-                      ? "text-emerald-600 border-emerald-250 bg-emerald-50/50 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900"
-                      : "text-slate-400 border-slate-200 dark:border-slate-800 hover:text-emerald-500 hover:border-emerald-100"
-                  }`}
-                  title="Approve Review"
-                >
-                  <CheckCircle size={18} />
-                </button>
-                <button 
-                  onClick={() => moderateReview({ id: review.id, is_moderated: true, is_approved: false })}
-                  className={`p-2 rounded-lg border transition-all ${
-                    review.is_moderated && review.is_approved === false
-                      ? "text-rose-600 border-rose-250 bg-rose-50/50 dark:bg-rose-950/20 dark:text-rose-450 dark:border-rose-900"
-                      : "text-slate-400 border-slate-200 dark:border-slate-800 hover:text-rose-500 hover:border-rose-100"
-                  }`}
-                  title="Reject Review"
-                >
-                  <XCircle size={18} />
-                </button>
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => moderateReview({ id: review.id, is_moderated: true, is_approved: true })}
+                      className={`p-2 rounded-lg border transition-all ${
+                        review.is_moderated && review.is_approved
+                          ? "text-emerald-600 border-emerald-250 bg-emerald-50/50 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900"
+                          : "text-slate-400 border-slate-200 dark:border-slate-800 hover:text-emerald-500 hover:border-emerald-100"
+                      }`}
+                      title="Approve Review"
+                    >
+                      <CheckCircle size={18} />
+                    </button>
+                    <button 
+                      onClick={() => moderateReview({ id: review.id, is_moderated: true, is_approved: false })}
+                      className={`p-2 rounded-lg border transition-all ${
+                        review.is_moderated && review.is_approved === false
+                          ? "text-rose-600 border-rose-250 bg-rose-50/50 dark:bg-rose-950/20 dark:text-rose-450 dark:border-rose-900"
+                          : "text-slate-400 border-slate-200 dark:border-slate-800 hover:text-rose-500 hover:border-rose-100"
+                      }`}
+                      title="Reject Review"
+                    >
+                      <XCircle size={18} />
+                    </button>
+                  </div>
+                  <button 
+                    onClick={() => removeReview(review.id)}
+                    className="p-2 rounded-lg text-slate-400 hover:text-rose-500 transition-colors"
+                    title="Delete Review"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
-              <button 
-                onClick={() => removeReview(review.id)}
-                className="p-2 rounded-lg text-slate-400 hover:text-rose-500 transition-colors"
-                title="Delete Review"
-              >
-                <Trash2 size={18} />
-              </button>
-            </div>
-          </div>
-        ))}
+            ))}
       </div>
 
       {/* PAGINATION */}

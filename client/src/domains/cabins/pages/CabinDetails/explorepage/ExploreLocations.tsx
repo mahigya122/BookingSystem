@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import { useLocations } from "@shared/hooks/useLocations";
 import type { Cabin } from "@shared/types/cabin";
 import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
+import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { motion } from "framer-motion";
 import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
@@ -26,7 +27,30 @@ const ExploreLocations = ({ cabins }: ExploreLocationsProps) => {
         });
     }, [locations]);
 
-    if (isLoading) return null;
+    if (isLoading) {
+        return (
+            <section id="explore-locations" className={`${pageSpacing.section} bg-slate-50/50 dark:bg-slate-900/30 relative w-full`}>
+                <div className={layoutConfig.container}>
+                    <SectionHeader
+                        label="Explore Destinations"
+                        title="Browse by Location"
+                        subtitle="From snowy peaks to forest hideaways, find the landscape that calls to you."
+                        highlightIndex={2}
+                        className={`relative z-10 ${layoutConfig.headerMargin}`}
+                    />
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 md:h-[400px]">
+                        <div className="row-span-2 rounded-2xl md:rounded-3xl bg-slate-200 dark:bg-slate-800 animate-pulse aspect-[4/5] md:aspect-auto" />
+                        {[0, 1, 2, 3].map((_, idx) => (
+                            <div
+                                key={idx}
+                                className={`rounded-2xl md:rounded-3xl bg-slate-200 dark:bg-slate-800 animate-pulse ${idx >= 2 ? "hidden md:block" : ""}`}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     // Filter locations that have at least one cabin or just show top 6
     const displayedLocations = uniqueLocations.slice(0, 6).map(loc => ({
@@ -58,7 +82,16 @@ const ExploreLocations = ({ cabins }: ExploreLocationsProps) => {
                             viewport={{ once: true }}
                             className={`w-12 h-14 bg-white rounded-lg shadow-lg border-2 border-white overflow-hidden`}
                         >
-                            <img src={loc.image_url} alt="" className="w-full h-full object-cover" />
+                            <img
+                                src={getOptimizedImageUrl(loc.image_url, 'thumbnail')}
+                                alt=""
+                                loading="lazy"
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=150&q=80";
+                                }}
+                            />
                         </motion.div>
                     ))}
                 </div>
@@ -88,7 +121,16 @@ const ExploreLocations = ({ cabins }: ExploreLocationsProps) => {
                             }}
                             viewport={{ once: true }}
                         >
-                            <img src={displayedLocations[0].image_url} alt={displayedLocations[0].name} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <img
+                                src={getOptimizedImageUrl(displayedLocations[0].image_url, 'featured')}
+                                alt={displayedLocations[0].name}
+                                loading="lazy"
+                                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80";
+                                }}
+                            />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                             <div className="absolute bottom-0 left-0 p-4 md:p-5 w-full flex items-end justify-between">
                                 <div>
@@ -129,7 +171,16 @@ const ExploreLocations = ({ cabins }: ExploreLocationsProps) => {
                             }}
                             viewport={{ once: true, amount: 0.2 }}
                         >
-                            <img src={loc.image_url} alt={loc.name} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <img
+                                src={getOptimizedImageUrl(loc.image_url, 'card')}
+                                alt={loc.name}
+                                loading="lazy"
+                                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                onError={(e) => {
+                                    e.currentTarget.onerror = null;
+                                    e.currentTarget.src = "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80";
+                                }}
+                            />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                             <div className="absolute bottom-0 left-0 p-3 md:p-4 w-full flex items-end justify-between">
                                 <div>
@@ -149,4 +200,4 @@ const ExploreLocations = ({ cabins }: ExploreLocationsProps) => {
     );
 };
 
-export default ExploreLocations;
+export default React.memo(ExploreLocations);

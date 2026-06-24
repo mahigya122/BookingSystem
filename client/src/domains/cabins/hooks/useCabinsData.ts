@@ -1,12 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { getCabinsWithBookings } from "../../../shared/services/cabinWithBookings";
-import type { CabinWithBookings } from "../../../shared/services/cabinWithBookings";
+import type { CabinWithBookings, ExploreFilters, PaginatedCabins } from "../../../shared/services/cabinWithBookings";
 
-export const useCabinsData = () => {
-  const { data: cabins, isLoading, error } = useQuery<CabinWithBookings[]>({
-    queryKey: ["cabins-with-bookings"],
-    queryFn: getCabinsWithBookings,
+export const useCabinsData = (filters?: ExploreFilters, page?: number, pageSize?: number) => {
+  const { data, isLoading, error } = useQuery<CabinWithBookings[] | PaginatedCabins, Error>({
+    queryKey: ["cabins-with-bookings", filters, page, pageSize],
+    queryFn: () => getCabinsWithBookings(filters, page, pageSize),
   });
 
-  return { cabins, isLoading, error };
+  const isPaginated = page !== undefined && pageSize !== undefined;
+  const cabins = isPaginated ? (data as PaginatedCabins)?.data ?? [] : (data as CabinWithBookings[] ?? []);
+
+  return { cabins, data, isLoading, error };
 };

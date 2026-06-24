@@ -13,6 +13,3 @@ export const Locations = lazy(() => import("../domains/admin/pages/Locations"));
 export const Offers = lazy(() => import("../domains/admin/pages/Offers"));
 export const Activities = lazy(() => import("../domains/admin/pages/Activities"));
 export const Reviews = lazy(() => import("../domains/admin/pages/Reviews"));
-
-// Trigger background preload for the primary entry Dashboard page
-import("../domains/admin/pages/Home").catch(() => {});

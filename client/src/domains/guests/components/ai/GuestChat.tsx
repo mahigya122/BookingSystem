@@ -56,6 +56,17 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
     const [conversationId, setConversationId] = useState<string | null>(null);
 
     const endRef = useRef<HTMLDivElement | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            const timer = setTimeout(() => {
+                inputRef.current?.focus();
+                inputRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [isOpen]);
 
     const scrollToBottom = () => {
         endRef.current?.scrollIntoView({
@@ -234,7 +245,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
                         <div className="space-y-6">
                             <div className="space-y-2">
                                 <motion.p
-                                    className="text-sky-500 text-2xl font-bold"
+                                    className="text-sky-500 text-xl md:text-2xl font-bold"
                                     style={{ fontFamily: "'Dancing Script', cursive" }}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -243,7 +254,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
                                     Welcome to HotelFlow
                                 </motion.p>
                                 <motion.h2
-                                    className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tight"
+                                    className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tight"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.8, ease: EASE, delay: 0.2 }}
@@ -253,7 +264,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
                             </div>
 
                             <motion.p
-                                className="text-slate-500 dark:text-slate-400 font-medium max-w-[300px] mx-auto text-lg leading-relaxed"
+                                className="text-slate-500 dark:text-slate-400 font-medium max-w-[300px] mx-auto text-sm md:text-lg leading-relaxed"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, ease: EASE, delay: 0.3 }}
@@ -324,6 +335,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
 
                 <div className="rounded-[2rem] border border-sky-100 dark:border-sky-800/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl p-2 shadow-2xl shadow-sky-500/10">
                     <GuestInput
+                        inputRef={inputRef}
                         value={input}
                         onChange={(val) => {
                             setInput(val);

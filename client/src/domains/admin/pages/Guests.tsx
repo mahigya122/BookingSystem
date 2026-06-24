@@ -34,10 +34,6 @@ const Guests = () => {
     removeGuest(id);
   };
 
-  if (isLoading) {
-    return <p>Loading guests.....</p>;
-  }
-
   return (
     <div className="px-6 md:px-0 space-y-8 animate-slide-up">
       <div>
@@ -56,6 +52,7 @@ const Guests = () => {
           guests={guests}
           onDelete={handleDelete}
           onEdit={setEditingGuest}
+          isLoading={isLoading}
         />
 
         <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">

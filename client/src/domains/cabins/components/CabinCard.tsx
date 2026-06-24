@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, CheckCircle2, Clock, ShieldCheck, Compass, XCircle, ArrowRight } from "lucide-react";
+import { MapPin, Calendar, CheckCircle2, Clock, ShieldCheck, Compass } from "lucide-react";
 import type { Cabin } from "@shared/types/cabin";
-import { useCancelBooking } from "@shared/hooks";
+import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
+import { useCancelBooking, useUser } from "@shared/hooks";
+import ReviewForm from "../pages/CabinDetails/ReviewForm";
 
 interface CabinCardProps {
   cabin: Cabin & {
@@ -23,7 +26,18 @@ interface CabinCardProps {
 
 const CabinCard = ({ cabin, variant = "default", className = "", booking }: CabinCardProps) => {
   const { isBookedByUser, isBookedByOthers } = cabin;
+
+  const { user } = useUser();
   const { cancel, isCancelling } = useCancelBooking();
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+
+  const handleCancelBooking = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (booking && window.confirm("Are you sure you want to cancel this reservation?")) {
+      cancel(booking.id);
+    }
+  };
 
   let glowClass = "";
   let badge = null;
@@ -81,27 +95,27 @@ const CabinCard = ({ cabin, variant = "default", className = "", booking }: Cabi
 
   const displayPrice = booking ? booking.total_price : cabin.price_per_night;
 
-  const handleCancel = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (booking) cancel(booking.id);
-  };
-
   return (
     <div className={`group relative flex flex-col ${isTall ? "row-span-2" : ""} ${className}`}>
       <Link
         to={`/cabin/${cabin.id}${booking ? `?bookingId=${booking.id}` : ""}`}
-        className={`relative overflow-hidden rounded-2xl md:rounded-3xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-500 ease-out flex-1 ${
-          isTall ? "aspect-[4/5] md:aspect-auto" : "aspect-[4/3]"
-        } ${glowClass}`}
+        className={`relative overflow-hidden rounded-2xl md:rounded-3xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-500 ease-out flex-1 ${isTall ? "aspect-[4/5] md:aspect-auto" : "aspect-[4/3]"
+          } ${glowClass}`}
       >
         <img
-          src={cabin.image_url}
+          src={getOptimizedImageUrl(cabin.image_url, isSmall ? 'preview' : isTall ? 'medium' : 'featured')}
           alt={cabin.name}
+          loading="lazy"
+          width={isSmall ? 300 : isTall ? 500 : 600}
+          height={isSmall ? 225 : isTall ? 625 : 450}
           className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = "https://images.unsplash.com/photo-1542718610-a1d656d1884c?w=600&q=80";
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-500" />
-        
+
         {badge}
 
         {/* Price tag */}
@@ -113,16 +127,14 @@ const CabinCard = ({ cabin, variant = "default", className = "", booking }: Cabi
 
         <div className={`absolute bottom-0 left-0 ${isSmall ? "p-3" : "p-4 md:p-6"} w-full space-y-2`}>
           <div>
-            <h3 className={`text-white font-black leading-tight group-hover:text-sky-400 transition-colors ${
-              isSmall ? "text-xs" : "text-sm md:text-xl"
-            }`}>
+            <h3 className={`text-white font-black leading-tight group-hover:text-sky-400 transition-colors ${isSmall ? "text-xs" : "text-sm md:text-xl"
+              }`}>
               {cabin.name}
             </h3>
             <div className={`flex items-center gap-1.5 ${isSmall ? "mt-0.5" : "mt-1"}`}>
               <MapPin size={isSmall ? 10 : 12} className="text-sky-400 shrink-0" />
-              <p className={`text-white/70 font-medium truncate ${
-                isSmall ? "text-[9px]" : "text-[10px] md:text-sm"
-              }`}>
+              <p className={`text-white/70 font-medium truncate ${isSmall ? "text-[9px]" : "text-[10px] md:text-sm"
+                }`}>
                 {cabin.location?.name || "Private Location"}
               </p>
             </div>
@@ -139,24 +151,56 @@ const CabinCard = ({ cabin, variant = "default", className = "", booking }: Cabi
         </div>
       </Link>
 
-      {/* Booking Actions */}
-      {booking && booking.realStatus === "booked" && (
-        <div className="flex gap-2 mt-3 animate-in slide-in-from-top-2 duration-500">
-           <button
-            onClick={handleCancel}
-            disabled={isCancelling}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white dark:bg-rose-950/30 dark:hover:bg-rose-600 dark:text-rose-400 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all duration-300 border border-rose-100 dark:border-rose-900/50 hover:border-rose-600 disabled:opacity-50 cursor-pointer"
-          >
-            <XCircle size={14} />
-            Cancel
-          </button>
-          <Link
-            to={`/cabin/${cabin.id}?bookingId=${booking.id}`}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-sky-600 text-white py-2.5 text-[10px] font-black uppercase tracking-widest hover:bg-sky-500 transition-all duration-300 shadow-lg shadow-sky-500/10 cursor-pointer"
-          >
-            Details
-            <ArrowRight size={14} />
-          </Link>
+      {/* Action Buttons for Booking (My Trip Section) */}
+      {booking && (
+        <div className="flex gap-2.5 mt-3 w-full shrink-0">
+          {booking.realStatus === "booked" && (
+            <button
+              onClick={handleCancelBooking}
+              disabled={isCancelling}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white dark:bg-rose-950/30 dark:hover:bg-rose-600 dark:text-rose-400 font-extrabold text-[11px] uppercase tracking-wider transition-all border border-rose-100 dark:border-rose-900/50 hover:border-rose-600 disabled:opacity-50 cursor-pointer"
+            >
+              {isCancelling ? "Cancelling..." : "Cancel Stay"}
+            </button>
+          )}
+          {(booking.realStatus === "checked-in" || booking.realStatus === "checked-out") && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsReviewModalOpen(true);
+              }}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-sky-50/50 hover:bg-sky-600 border border-sky-100 dark:border-sky-900/30 text-sky-700 hover:text-white dark:bg-sky-950/30 dark:hover:bg-sky-600 dark:text-sky-400 font-extrabold text-[11px] uppercase tracking-wider transition-all cursor-pointer"
+            >
+              Share Experience
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Review Dialog Modal */}
+      {isReviewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-955/70 backdrop-blur-sm p-4" onClick={(e) => e.stopPropagation()}>
+          <div className="relative rounded-[2rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl p-6 w-full max-w-md">
+            <button
+              onClick={() => setIsReviewModalOpen(false)}
+              className="absolute top-4 right-5 text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 text-2xl font-black cursor-pointer leading-none"
+            >
+              &times;
+            </button>
+            <div className="mb-4">
+              <h3 className="text-lg font-black text-slate-900 dark:text-white">Share Your Stay</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Let others know how your stay at {cabin.name} was!</p>
+            </div>
+            <ReviewForm
+              cabinId={cabin.id}
+              guestId={user?.id || ""}
+              onSuccess={() => {
+                setIsReviewModalOpen(false);
+              }}
+              isEmbedded={true}
+            />
+          </div>
         </div>
       )}
     </div>

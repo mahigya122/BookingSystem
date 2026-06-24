@@ -1,5 +1,7 @@
 import SidebarLink from "./SidebarLink";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { useAdminSidebar } from "../domains/admin/contexts/AdminSidebarContext";
 import {
   Pin,
   PinOff,
@@ -22,6 +24,12 @@ import {
 const Sidebar = () => {
   const [open, setOpen] = useState(false);
   const [pinned, setPinned] = useState(false);
+  const { open: mobileOpen, setOpen: setMobileOpen } = useAdminSidebar();
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname, setMobileOpen]);
 
   const isExpanded = pinned || open;
 
@@ -34,18 +42,25 @@ const Sidebar = () => {
   };
 
   return (
-    <aside
-      onMouseEnter={() => {
-        if (!pinned) setOpen(true);
-      }}
-      onMouseLeave={() => {
-        if (!pinned) setOpen(false);
-      }}
-      className="sidebar-panel flex flex-col bg-white dark:bg-slate-900 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] border-r border-slate-100 dark:border-slate-800 relative z-50 shadow-sm"
-      style={{
-        width: isExpanded ? "280px" : "100px",
-      }}
-    >
+    <>
+      {/* MOBILE BACKDROP */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 bg-slate-950/20 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-300"
+        />
+      )}
+      <aside
+        onMouseEnter={() => {
+          if (!pinned) setOpen(true);
+        }}
+        onMouseLeave={() => {
+          if (!pinned) setOpen(false);
+        }}
+        className={`sidebar-panel flex flex-col bg-white dark:bg-slate-900 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] border-r border-slate-100 dark:border-slate-800 relative z-50 shadow-lg lg:shadow-sm fixed inset-y-0 left-0 lg:static lg:h-auto ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        } w-[280px] ${isExpanded ? "lg:w-[280px]" : "lg:w-[100px]"}`}
+      >
       {/* HEADER */}
       <div className="flex items-center justify-between p-6 border-b border-slate-50 dark:border-slate-800 relative z-10">
         {isExpanded ? (
@@ -119,6 +134,7 @@ const Sidebar = () => {
         )}
       </div>
     </aside>
+  </>
   );
 };
 

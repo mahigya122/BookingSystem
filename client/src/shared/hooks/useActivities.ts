@@ -63,9 +63,8 @@ export function useActivities(
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const isPaginated = page !== undefined && pageSize !== undefined;
-  const activitiesList = isPaginated ? (data as any)?.data ?? [] : (data as any) ?? [];
-  const total = isPaginated ? (data as any)?.count ?? 0 : activitiesList.length;
+  const activitiesList = (data as any)?.data ?? (data as any) ?? [];
+  const total = (data as any)?.count ?? activitiesList.length;
 
   return {
     activities: activitiesList as Activity[],

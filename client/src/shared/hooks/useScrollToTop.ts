@@ -3,15 +3,35 @@ import { useLocation } from "react-router-dom";
 import { CabinFiltersContext } from "../../domains/cabins/contexts/CabinFiltersContext";
 
 /**
- * Utility to find the nearest scrollable parent and scroll it to top
+ * Utility to find and scroll the main page elements or actual scrollable containers to the top
  */
 export const scrollToTop = (element?: HTMLElement | null, behavior: ScrollBehavior = "smooth") => {
-  const scrollable = element || document.querySelector("main") || document.querySelector(".overflow-y-auto") || window;
-  scrollable.scrollTo({ top: 0, behavior });
+  let scrolled = false;
+  
+  // If an element is passed and is scrollable, scroll it
+  if (element && element.scrollHeight > element.clientHeight) {
+    element.scrollTo({ top: 0, behavior });
+    scrolled = true;
+  }
+  
+  // If no element was scrolled (or none was passed), scroll the main page elements
+  if (!scrolled) {
+    window.scrollTo({ top: 0, behavior });
+    document.documentElement.scrollTo({ top: 0, behavior });
+    document.body.scrollTo({ top: 0, behavior });
+    
+    // Fallback: search for any actual scrollable container in the viewport and scroll it
+    const scrollables = document.querySelectorAll("main, .overflow-y-auto, [class*='overflow-y-']");
+    scrollables.forEach((el) => {
+      if (el.scrollHeight > el.clientHeight) {
+        el.scrollTo({ top: 0, behavior });
+      }
+    });
+  }
 };
 
 /**
- * Hook to scroll a container to top on navigation or filter changes
+ * Hook to scroll a container or the page to top on navigation or filter changes
  * @param extraDeps Optional extra dependencies to trigger a scroll to top (e.g. pagination)
  */
 export const useScrollToTop = (extraDeps: any[] = []) => {
@@ -22,14 +42,10 @@ export const useScrollToTop = (extraDeps: any[] = []) => {
   const containerRef = useRef<HTMLElement | HTMLDivElement>(null);
 
   useEffect(() => {
-    // For navigation, we use "auto" (instant) to avoid seeing the jump
-    if (containerRef.current) {
-      containerRef.current.scrollTo({ top: 0, behavior: "auto" });
-    } else {
-        // Fallback to searching for the main scrollable element
-        scrollToTop(null, "auto");
-    }
+    // Scroll layout container or page viewport to top
+    scrollToTop(containerRef.current, "auto");
   }, [pathname, search, appliedFilters, ...extraDeps]);
 
   return containerRef;
 };
+

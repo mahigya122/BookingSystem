@@ -41,11 +41,12 @@ export function useReviews(approved?: boolean, page?: number, pageSize?: number)
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const isPaginated = page !== undefined && pageSize !== undefined;
+  const reviewsList = (data as any)?.data ?? (data as any) ?? [];
+  const total = (data as any)?.count ?? reviewsList.length;
 
   return {
-    reviews: isPaginated ? (data as any)?.data ?? [] : (data as any) ?? [],
-    totalCount: isPaginated ? (data as any)?.count ?? 0 : ((data as any)?.length ?? 0),
+    reviews: reviewsList,
+    totalCount: total,
     isLoading,
     error,
     removeReview,

@@ -44,10 +44,6 @@ const BookingPage = () => {
     removeBooking(id);
   };
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
-
   return (
     <div className="px-6 md:px-0 space-y-6 animate-slide-up">
       <div className="flex flex-col">
@@ -70,6 +66,7 @@ const BookingPage = () => {
           onDelete={handleDelete}
           onEdit={setEditingBooking}
           onDetails={setDetailBooking}
+          isLoading={isLoading}
         />
 
         <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">

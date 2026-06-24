@@ -126,12 +126,32 @@ const LoginWrapper = ({ forcedRole }: Props) => {
 
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-sky-500 border-t-transparent" />
-          <p className="text-sm font-bold text-slate-500 animate-pulse">Checking authentication...</p>
+      <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-sky-50 via-white to-cyan-50 text-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center">
+        {/* Skeleton Card Container */}
+        <div className="w-full max-w-5xl h-[600px] grid grid-cols-1 lg:grid-cols-2 rounded-[2rem] border border-sky-100/30 bg-white/60 dark:border-slate-800/30 dark:bg-slate-950/60 shadow-2xl overflow-hidden animate-pulse">
+          {/* Form Side Skeleton */}
+          <div className="flex flex-col justify-center p-8 lg:p-20 space-y-6">
+            <div className="h-6 w-24 bg-slate-200 dark:bg-slate-800 rounded-full" />
+            <div className="space-y-2">
+              <div className="h-8 w-48 bg-slate-200 dark:bg-slate-800 rounded" />
+              <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+            </div>
+            <div className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-12 w-full bg-slate-200 dark:bg-slate-800 rounded-2xl" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-12 w-full bg-slate-200 dark:bg-slate-800 rounded-2xl" />
+              </div>
+              <div className="h-12 w-full bg-slate-200 dark:bg-slate-800 rounded-full pt-2" />
+            </div>
+          </div>
+          {/* Hero Side Skeleton */}
+          <div className="hidden lg:block bg-sky-50/10 dark:bg-slate-900/10 h-full relative" />
         </div>
-      </div>
+      </section>
     );
   }
 

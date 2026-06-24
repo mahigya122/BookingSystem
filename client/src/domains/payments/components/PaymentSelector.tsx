@@ -1,8 +1,8 @@
-import { useState } from "react";
 import PaymentMethodCard from "./PaymentMethodCard";
 import type { PaymentMethod } from "./PaymentMethodCard";
 
 interface Props {
+    selectedMethod?: string | null;
     onSelect: (method: PaymentMethod) => void;
 }
 
@@ -11,17 +11,10 @@ const Methods: PaymentMethod[] = [
     "esewa",
 ];
 
-const PaymentSelector = ({ onSelect }: Props) => {
-    const [selected, setSelected] = useState<PaymentMethod | null>(null);
-
-    const handleSelect = (method: PaymentMethod) => {
-        setSelected(method);
-        onSelect(method);
-    };
-
+const PaymentSelector = ({ selectedMethod = null, onSelect }: Props) => {
     return (
         <div className="space-y-3">
-            <h3 className="text-sm font-bold uppercase traking-wider text-slate-500">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">
                 Choose Payment Method
             </h3>
 
@@ -30,8 +23,8 @@ const PaymentSelector = ({ onSelect }: Props) => {
                     <PaymentMethodCard
                         key={m}
                         method={m}
-                        selected={selected === m}
-                        onClick={() => handleSelect(m)}
+                        selected={selectedMethod === m}
+                        onClick={() => onSelect(m)}
                     />
                 ))}
             </div>

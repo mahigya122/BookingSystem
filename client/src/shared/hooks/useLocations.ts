@@ -66,9 +66,8 @@ export function useLocations(
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const isPaginated = page !== undefined && pageSize !== undefined;
-  const locationsList = isPaginated ? (data as any)?.data ?? [] : (data as any) ?? [];
-  const total = isPaginated ? (data as any)?.count ?? 0 : locationsList.length;
+  const locationsList = (data as any)?.data ?? (data as any) ?? [];
+  const total = (data as any)?.count ?? locationsList.length;
 
   return {
     locations: locationsList as Location[],

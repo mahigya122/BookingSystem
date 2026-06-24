@@ -1,5 +1,7 @@
 import { useActivities } from "@shared/hooks/useActivities";
 import { useCabins, useUpdateCabin } from "@shared/hooks";
+import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
+/* eslint-disable react-hooks/set-state-in-effect */
 import type { Activity } from "@shared/types/activity";
 import { useState, useMemo, useEffect } from "react";
 import { Pencil, Plus, Trash2, Zap, Home, Search, Loader2, X, Save, ChevronLeft, ChevronRight, Eye } from "lucide-react";
@@ -8,7 +10,15 @@ import type { Cabin } from "@shared/types/cabin";
 
 const Activities = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearchTerm(searchInput);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchInput]);
 
   const {
     activities = [],
@@ -148,13 +158,7 @@ const Activities = () => {
   const inputBaseClass = "w-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-3 text-sm font-bold focus:border-sky-500 focus:ring-8 focus:ring-sky-500/5 outline-none transition-all dark:text-white";
   const modalInputBaseClass = "w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-3 text-sm font-bold focus:border-sky-500 focus:ring-8 focus:ring-sky-500/5 outline-none transition-all dark:text-white";
 
-  if (isLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-sky-500" />
-      </div>
-    );
-  }
+
 
   // Find cabins with current activity
   const cabinsWithActivity = viewingActivity 
@@ -177,8 +181,8 @@ const Activities = () => {
                 <input 
                     type="text" 
                     placeholder="Search activities..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
                     className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-sky-500/20 outline-none transition-all w-64"
                 />
             </div>
@@ -251,24 +255,51 @@ const Activities = () => {
         <table className="w-full">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Image</th>
+              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400 w-28">Image</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Activity</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Applied To</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Price</th>
-              <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Actions</th>
+              <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 w-44">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {activities.map((activity) => (
+            {isLoading
+              ? Array.from({ length: 10 }).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-8 py-5 text-left w-28">
+                      <div className="h-10 w-16 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                    </td>
+                    <td className="px-8 py-5 text-left">
+                      <div className="space-y-2">
+                        <div className="h-4 w-32 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                        <div className="h-3 w-48 rounded bg-slate-100 dark:bg-slate-900/50 animate-pulse" />
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-left">
+                      <div className="h-6 w-20 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                    </td>
+                    <td className="px-8 py-5 text-left">
+                      <div className="h-4 w-12 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                    </td>
+                    <td className="px-8 py-5 text-right w-44">
+                      <div className="flex justify-end gap-2">
+                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              : activities.map((activity) => (
               <tr key={activity.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <td className="px-8 py-5">
+                <td className="px-8 py-5 text-left w-28">
                     {activity.image_url ? (
-                        <img src={activity.image_url} className="h-10 w-16 object-cover rounded-lg shadow-sm" alt={activity.name} />
+                        <img src={getOptimizedImageUrl(activity.image_url, 'thumbnail')} className="h-10 w-16 object-cover rounded-lg shadow-sm" alt={activity.name} />
                     ) : (
                         <div className="h-10 w-16 bg-slate-100 dark:bg-slate-800 rounded-lg" />
                     )}
                 </td>
-                <td className="px-8 py-5">
+                <td className="px-8 py-5 text-left">
                   <div className="flex flex-col">
                     <span className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
                         <Zap size={14} className="text-sky-500" />
@@ -277,16 +308,16 @@ const Activities = () => {
                     <span className="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{activity.description || "No description provided."}</span>
                   </div>
                 </td>
-                <td className="px-8 py-5">
+                <td className="px-8 py-5 text-left">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
                       <Home size={12} />
                       <span className="text-[11px] font-black uppercase tracking-wider">{getActivityCount(activity) || 0} Cabins</span>
                     </div>
                 </td>
-                <td className="px-8 py-5">
+                <td className="px-8 py-5 text-left">
                   <span className="font-black text-sky-600 dark:text-sky-400 text-sm">${activity.price}</span>
                 </td>
-                <td className="px-8 py-5">
+                <td className="px-8 py-5 text-right w-44">
                   <div className="flex items-center justify-end gap-2 transition-all duration-300">
                     <button 
                         onClick={() => setViewingActivity(activity)} 
@@ -441,7 +472,7 @@ const Activities = () => {
                     cabinsWithActivity.map(cabin => (
                       <div key={cabin.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl group">
                         <div className="flex items-center gap-3">
-                          <img src={cabin.image_url} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover" />
+                          <img src={getOptimizedImageUrl(cabin.image_url, 'thumbnail')} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover" />
                           <div>
                             <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
                             <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.location?.name || "No Location"}</p>
@@ -466,7 +497,7 @@ const Activities = () => {
                   {cabinsWithoutActivity.map(cabin => (
                     <div key={cabin.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl group">
                       <div className="flex items-center gap-3">
-                        <img src={cabin.image_url} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+                        <img src={getOptimizedImageUrl(cabin.image_url, 'thumbnail')} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
                         <div>
                           <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
                           <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.location?.name || "No Location"}</p>
