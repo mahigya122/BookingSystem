@@ -17,6 +17,10 @@ const ratingCategories = [
 ];
 
 const CabinReviews = ({ reviews = [] }: CabinReviewsProps) => {
+    if (!reviews || reviews.length === 0) {
+        return null;
+    }
+
     const [showAll, setShowAll] = useState(false);
 
     // Sort by latest first

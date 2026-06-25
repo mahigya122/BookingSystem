@@ -82,11 +82,11 @@ export async function getAllCabins(options = {}) {
       .in("status", ["booked", "checked-in"])
       .lt("start_date", endDate)
       .gt("end_date", startDate);
-      
+
     if (bookingsErr) {
       throw new Error("Failed to filter by availability: " + bookingsErr.message);
     }
-    
+
     if (bookedCabins && bookedCabins.length > 0) {
       const bookedIds = bookedCabins.map(b => b.cabin_id).filter(Boolean);
       if (bookedIds.length > 0) {
@@ -119,11 +119,11 @@ export async function getAllCabins(options = {}) {
       .from("cabin_activities")
       .select("cabin_id")
       .eq("activity_id", activityId);
-      
+
     if (actErr) {
       throw new Error("Failed to filter by activity: " + actErr.message);
     }
-    
+
     const actCabinIds = actCabins?.map(c => c.cabin_id).filter(Boolean) || [];
     if (actCabinIds.length > 0) {
       query = query.in("id", actCabinIds);
@@ -138,11 +138,11 @@ export async function getAllCabins(options = {}) {
       .from("cabin_offers")
       .select("cabin_id")
       .eq("offer_id", offerId);
-      
+
     if (offErr) {
       throw new Error("Failed to filter by offer: " + offErr.message);
     }
-    
+
     const offerCabinIds = offerCabins?.map(c => c.cabin_id).filter(Boolean) || [];
     if (offerCabinIds.length > 0) {
       query = query.in("id", offerCabinIds);
@@ -242,8 +242,8 @@ export async function updateCabin(cabinId, updateData) {
   if (offer_ids !== undefined) {
     await supabase.from("cabin_offers").delete().eq("cabin_id", cabinId);
     if (offer_ids.length > 0) {
-        const links = offer_ids.map(id => ({ cabin_id: cabinId, offer_id: id }));
-        await supabase.from("cabin_offers").insert(links);
+      const links = offer_ids.map(id => ({ cabin_id: cabinId, offer_id: id }));
+      await supabase.from("cabin_offers").insert(links);
     }
   }
 
@@ -251,8 +251,8 @@ export async function updateCabin(cabinId, updateData) {
   if (activity_ids !== undefined) {
     await supabase.from("cabin_activities").delete().eq("cabin_id", cabinId);
     if (activity_ids.length > 0) {
-        const links = activity_ids.map(id => ({ cabin_id: cabinId, activity_id: id }));
-        await supabase.from("cabin_activities").insert(links);
+      const links = activity_ids.map(id => ({ cabin_id: cabinId, activity_id: id }));
+      await supabase.from("cabin_activities").insert(links);
     }
   }
 

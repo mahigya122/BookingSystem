@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase.js";
 export async function getAllActivities(page, pageSize, search = "") {
   let query = supabase
     .from("activities")
-    .select("id, name, image_url, description", { count: "exact" })
+    .select("id, name, image_url, price, description", { count: "exact" })
     .order("name", { ascending: true });
 
   if (search && search.trim()) {

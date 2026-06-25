@@ -862,7 +862,9 @@ const CabinDetails = () => {
                         />
                     </div>
 
-                    <CabinReviews reviews={cabin.reviews} />
+                    {cabin.reviews && cabin.reviews.length > 0 && (
+                        <CabinReviews reviews={cabin.reviews} />
+                    )}
                 </div>
 
                 {/* RIGHT: booking card + recently viewed + modals */}
