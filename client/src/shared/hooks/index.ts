@@ -3,6 +3,7 @@ export { useUser } from "./auth/useAuthUser";
 export { useLogin } from "./auth/useLogin";
 export { useLogout } from "./auth/useLogout";
 export { useGoogleLogin } from "./auth/useGoogleLogin";
+export { useSignup } from "./auth/useSignup";
 
 // Booking Hooks
 export { useBookings } from "./booking/useBookings";

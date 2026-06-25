@@ -60,6 +60,39 @@ export const updatePassword = async (password: string) => {
   return data;
 };
 
+export const signup = async (credentials: {
+  email: string;
+  password: string;
+}) => {
+  const { data, error } = await supabase.auth.signUp({
+    email: credentials.email,
+    password: credentials.password,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!data.user) {
+    throw new Error("No user returned from Supabase after signup");
+  }
+
+  // Create a matching profile row with default role "guest"
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .insert({
+      id: data.user.id,
+      email: data.user.email,
+      role: "guest",
+    });
+
+  if (profileError) {
+    throw new Error(profileError.message);
+  }
+
+  return data;
+};
+
 export const login = async (credentials: {
   email: string;
   password: string;

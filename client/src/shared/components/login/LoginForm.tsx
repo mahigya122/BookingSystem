@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLogin, useGoogleLogin } from "../../hooks";
+import { useLogin, useGoogleLogin, useSignup } from "../../hooks";
 
 import type { AuthUser } from "../../types/auth";
 
@@ -11,32 +11,63 @@ type Props = {
 const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
     const { login, isPending } = useLogin();
     const { googleLogin, isGooglePending } = useGoogleLogin();
+    const { signup, isPending: isSignupPending } = useSignup();
+    const [isSignUp, setIsSignUp] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+        setSuccessMessage("");
 
         if (!email.trim() || !password.trim()) {
             setError("Please enter both email and password");
             return;
         }
 
-        login(
-            { email, password },
-            {
-                onError: (err: unknown) => {
-                    setError(err instanceof Error ? err.message : "Login failed");
-                },
-                onSuccess: (data) => {
-                    // Delegate redirect to parent via callback so routing decisions
-                    // (admin vs guest) live in the page component. Pass the full login result.
-                    onLoginSuccess?.(data);
-                },
+        if (isSignUp) {
+            if (password !== confirmPassword) {
+                setError("Passwords do not match");
+                return;
             }
-        );
+            if (password.length < 6) {
+                setError("Password must be at least 6 characters long");
+                return;
+            }
+
+            signup(
+                { email, password },
+                {
+                    onError: (err: unknown) => {
+                        setError(err instanceof Error ? err.message : "Signup failed");
+                    },
+                    onSuccess: () => {
+                        setSuccessMessage("Account created successfully! You can now sign in.");
+                        setIsSignUp(false);
+                        setPassword("");
+                        setConfirmPassword("");
+                    },
+                }
+            );
+        } else {
+            login(
+                { email, password },
+                {
+                    onError: (err: unknown) => {
+                        setError(err instanceof Error ? err.message : "Login failed");
+                    },
+                    onSuccess: (data) => {
+                        // Delegate redirect to parent via callback so routing decisions
+                        // (admin vs guest) live in the page component. Pass the full login result.
+                        onLoginSuccess?.(data);
+                    },
+                }
+            );
+        }
     };
 
     const isUser = role === 'user';
@@ -52,7 +83,7 @@ const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
                         {isUser ? 'Your sanctuary awaits...' : 'Welcome back, operator'}
                     </p>
                     <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white mt-1">
-                        {isUser ? 'Sign In' : 'Dashboard Control'}
+                        {isSignUp ? 'Create Account' : isUser ? 'Sign In' : 'Dashboard Control'}
                     </h2>
                 </div>
             </div>
@@ -61,6 +92,12 @@ const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
                 {error && (
                     <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-700 shadow-sm dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300 animate-shake">
                         {error}
+                    </div>
+                )}
+
+                {successMessage && (
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-700 shadow-sm dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
+                        {successMessage}
                     </div>
                 )}
 
@@ -84,13 +121,15 @@ const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
                             Password
                         </label>
 
-                        <button
-                            type="button"
-                            className="text-[11px] font-bold text-sky-500 hover:text-sky-600 transition"
-                            onClick={() => setError('')}
-                        >
-                            Forgot password?
-                        </button>
+                        {!isSignUp && (
+                            <button
+                                type="button"
+                                className="text-[11px] font-bold text-sky-500 hover:text-sky-600 transition"
+                                onClick={() => setError('')}
+                            >
+                                Forgot password?
+                            </button>
+                        )}
                     </div>
 
                     <input
@@ -102,13 +141,32 @@ const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
                     />
                 </div>
 
+                {isSignUp && (
+                    <div className="space-y-1.5">
+                        <label className="ml-0.5 text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">
+                            Confirm Password
+                        </label>
+
+                        <input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Confirm password"
+                            className="w-full rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 px-5 py-3.5 text-sm font-semibold outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-50 dark:focus:ring-sky-950/20 transition-all duration-200"
+                        />
+                    </div>
+                )}
+
                 <div className="space-y-4">
                     <button
                         type="submit"
-                        disabled={isPending || isGooglePending}
+                        disabled={isPending || isGooglePending || isSignupPending}
                         className="w-full rounded-full bg-gradient-to-r from-sky-400 to-sky-500 py-3.5 font-bold text-white shadow-lg shadow-sky-200 dark:shadow-none hover:-translate-y-0.5 transition-all duration-300 hover:shadow-xl hover:shadow-sky-300/40 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
                     >
-                        {isPending ? "Signing you in..." : isUser ? 'Sign In' : 'Enter Dashboard'}
+                        {isSignUp 
+                            ? (isSignupPending ? "Creating account..." : "Sign Up") 
+                            : (isPending ? "Signing you in..." : isUser ? 'Sign In' : 'Enter Dashboard')
+                        }
                     </button>
 
                     {isUser && (
@@ -123,7 +181,7 @@ const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
                             <button
                                 type="button"
                                 onClick={() => googleLogin()}
-                                disabled={isPending || isGooglePending}
+                                disabled={isPending || isGooglePending || isSignupPending}
                                 className="flex w-full items-center justify-center gap-3 rounded-full border-2 border-slate-100 bg-white py-3.5 px-5 text-sm font-black text-slate-600 transition-all duration-300 hover:-translate-y-0.5 hover:border-sky-100 hover:bg-sky-50/30 hover:text-sky-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:border-sky-900/50 dark:hover:bg-sky-900/10 dark:hover:text-sky-400 disabled:opacity-50 cursor-pointer"
                             >
                                 <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -146,6 +204,22 @@ const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
                                 </svg>
                                 {isGooglePending ? "Connecting..." : "Google Account"}
                             </button>
+
+                            <div className="text-center pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsSignUp(!isSignUp);
+                                        setError("");
+                                        setSuccessMessage("");
+                                        setPassword("");
+                                        setConfirmPassword("");
+                                    }}
+                                    className="text-xs font-bold text-sky-500 hover:text-sky-600 transition"
+                                >
+                                    {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>
@@ -153,7 +227,7 @@ const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
 
             <div className="mt-8 border-t border-slate-200/50 pt-6 text-center dark:border-slate-800">
                 <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 tracking-wide">
-                    {isUser ? 'Need help? Contact support or create an account.' : 'Admin access is restricted to authorized staff.'}
+                    {isUser ? 'Need help? Contact support.' : 'Admin access is restricted to authorized staff.'}
                 </p>
             </div>
         </div>

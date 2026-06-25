@@ -158,9 +158,9 @@ const LoginWrapper = ({ forcedRole }: Props) => {
   return (
     <div className="relative min-h-screen">
       <FlippingBook role={role} onRoleChange={handleRoleChange} onLoginSuccess={handleLoginSuccess} hideToggle={!!forcedRole} />
-      
+
       {/* Session Recovery Tool - Hidden unless manually triggered or for troubleshooting */}
-      <button 
+      <button
         onClick={async () => {
           localStorage.clear();
           await supabase.auth.signOut();
