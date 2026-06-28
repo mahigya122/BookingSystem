@@ -46,7 +46,7 @@ const LoginForm = ({ role = 'admin', onLoginSuccess }: Props) => {
                         setError(err instanceof Error ? err.message : "Signup failed");
                     },
                     onSuccess: () => {
-                        setSuccessMessage("Account created successfully! You can now sign in.");
+                        setSuccessMessage(`Account created successfully! Please check and confirm the email (${email}) you used to sign up. You must confirm this email before you can log in.`);
                         setIsSignUp(false);
                         setPassword("");
                         setConfirmPassword("");
