@@ -14,6 +14,7 @@ interface CabinCalendarProps {
     currentMonth: Date;
     bookedDatesSet: Set<string>;
     userBookingsByDate: Map<string, string>; // date string -> status
+    otherSelectionsByDate?: Set<string>;
     onDayClick: (date: Date) => void;
     onPrevMonth: () => void;
     onNextMonth: () => void;
@@ -26,6 +27,7 @@ const CabinCalendar = ({
     currentMonth,
     bookedDatesSet,
     userBookingsByDate,
+    otherSelectionsByDate,
     onDayClick,
     onPrevMonth,
     onNextMonth,
@@ -115,6 +117,7 @@ const CabinCalendar = ({
                         const isEnd = endStr && dateStr === endStr;
                         const isWithinRange =
                             startDate && endDate && dateStr > startStr && dateStr < endStr;
+                        const isOtherSelected = otherSelectionsByDate?.has(dateStr);
 
                         let cellClass =
                             "h-12 sm:h-14 flex flex-col items-center justify-center rounded-[0.75rem] text-sm font-black transition-all duration-300 relative group ";
@@ -125,6 +128,9 @@ const CabinCalendar = ({
                         } else if (isWithinRange) {
                             // SELECTION RANGE - Transparent Blue
                             cellClass += "bg-sky-500/10 dark:bg-sky-500/20 text-sky-600 dark:text-sky-400 border-sky-300/30 ";
+                        } else if (isOtherSelected) {
+                            // SELECTED BY OTHERS IN REAL-TIME - Violet/Purple
+                            cellClass += "bg-violet-500 text-white border-violet-600 scale-[1.05] z-10 ";
                         } else if (isMine && (userBookingStatus === "booked" || userBookingStatus === "checked-in") && !isPast) {
                             // YOUR ACTIVE/UPCOMING STAY - Green
                             cellClass += "bg-emerald-500 text-white ring-2 ring-emerald-300 animate-pulse-slow scale-[1.02] z-10 ";
@@ -182,6 +188,10 @@ const CabinCalendar = ({
                     <div className="flex items-center gap-1.5 md:gap-2.5">
                         <div className="h-3.5 w-3.5 md:h-5 md:w-5 rounded bg-sky-500 border-b-2 md:border-b-[3px] border-sky-600" />
                         <span className="text-[9px] md:text-[10px] font-black uppercase tracking-wider md:tracking-widest text-slate-500">Selected</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 md:gap-2.5">
+                        <div className="h-3.5 w-3.5 md:h-5 md:w-5 rounded bg-violet-500 border border-violet-650" />
+                        <span className="text-[9px] md:text-[10px] font-black uppercase tracking-wider md:tracking-widest text-slate-500">Choosing (Real-time)</span>
                     </div>
                     <div className="flex items-center gap-1.5 md:gap-2.5">
                         <div className="h-3.5 w-3.5 md:h-5 md:w-5 rounded bg-emerald-500 relative">

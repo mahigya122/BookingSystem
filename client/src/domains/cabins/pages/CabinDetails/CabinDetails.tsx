@@ -90,6 +90,82 @@ const CabinDetails = () => {
         return filters?.dateRange?.endDate ? new Date(filters.dateRange.endDate) : null
     });
 
+    const [socket, setSocket] = useState<WebSocket | null>(null);
+    const [clientId] = useState(() => Math.random().toString(36).substring(2, 15));
+    const [otherSelections, setOtherSelections] = useState<Set<string>>(new Set());
+
+    useEffect(() => {
+        if (!cabin?.id) return;
+
+        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const wsUrl = `${protocol}//${window.location.host}/api/ws`;
+        
+        const ws = new WebSocket(wsUrl);
+        
+        ws.onopen = () => {
+            ws.send(JSON.stringify({
+                type: "subscribe",
+                cabinId: cabin.id,
+                clientId
+            }));
+        };
+        
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.type === "update") {
+                    const dates = new Set<string>();
+                    Object.entries(data.selections).forEach(([cid, sel]: [string, any]) => {
+                        if (cid === clientId) return;
+                        if (sel.startDate) {
+                            const start = parseDateString(sel.startDate);
+                            const end = sel.endDate ? parseDateString(sel.endDate) : start;
+                            const temp = new Date(start);
+                            while (temp <= end) {
+                                dates.add(formatDateString(temp));
+                                temp.setDate(temp.getDate() + 1);
+                            }
+                        }
+                    });
+                    setOtherSelections(dates);
+                } else if (data.type === "conflict") {
+                    toast.error(data.message || "Conflict: Please choose another date.");
+                    setStartDate(null);
+                    setEndDate(null);
+                    setFilters({ ...filters, dateRange: { startDate: null, endDate: null } });
+                }
+            } catch (err) {
+                console.error("Error parsing WS message:", err);
+            }
+        };
+
+        ws.onclose = () => {
+            console.log("WebSocket disconnected");
+        };
+
+        setSocket(ws);
+
+        return () => {
+            ws.close();
+        };
+    }, [cabin?.id, clientId]);
+
+    useEffect(() => {
+        if (!socket || !cabin?.id) return;
+        
+        const payload = {
+            type: "select_dates",
+            cabinId: cabin.id,
+            clientId,
+            startDate: startDate ? formatDateString(startDate) : null,
+            endDate: endDate ? formatDateString(endDate) : null
+        };
+        
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify(payload));
+        }
+    }, [startDate, endDate, cabin?.id, socket, clientId]);
+
     const [breakfast, setBreakfast] = useState(existingBooking?.has_breakfast || false);
 
     const [selectedOffers, setSelectedOffers] = useState<Offer[]>(() => {
@@ -855,6 +931,7 @@ const CabinDetails = () => {
                             currentMonth={currentMonth}
                             bookedDatesSet={bookedDatesSet}
                             userBookingsByDate={userBookingsByDate}
+                            otherSelectionsByDate={otherSelections}
                             onDayClick={handleDayClick}
                             onPrevMonth={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
                             onNextMonth={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}

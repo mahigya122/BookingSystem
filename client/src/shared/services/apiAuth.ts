@@ -69,26 +69,8 @@ export const signup = async (credentials: {
     password: credentials.password,
   });
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  if (!data.user) {
-    throw new Error("No user returned from Supabase after signup");
-  }
-
-  // Create a matching profile row with default role "guest"
-  const { error: profileError } = await supabase
-    .from("profiles")
-    .insert({
-      id: data.user.id,
-      email: data.user.email,
-      role: "guest",
-    });
-
-  if (profileError) {
-    throw new Error(profileError.message);
-  }
+  if (error) throw new Error(error.message);
+  if (!data.user) throw new Error("No user returned from Supabase after signup");
 
   return data;
 };
