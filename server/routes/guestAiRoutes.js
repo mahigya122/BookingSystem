@@ -48,21 +48,54 @@ router.post("/chat", async (req, res) => {
             });
         }
 
-        // REAL-TIME CABIN DATA
-        console.log("[Guest AI] Fetching cabins from Supabase...");
+        // REAL-TIME DATA (CABINS, REVIEWS, ACTIVITIES, AND GUEST CONTEXT IF LOGGED IN)
+        console.log("[Guest AI] Fetching real-time context from Supabase...");
+        
+        let guestQuery = Promise.resolve({ data: null });
+        let bookingsQuery = Promise.resolve({ data: null });
+        
+        if (userId && userId !== "anonymous") {
+            guestQuery = supabase.from("guests").select("full_name, email, phone").eq("id", userId).maybeSingle();
+            bookingsQuery = supabase.from("bookings")
+                .select("id, start_date, end_date, status, total_price, cabins(name)")
+                .eq("guest_id", userId)
+                .order("start_date", { ascending: true });
+        }
+
         const [
             { data: cabins, error: cabinError },
             { data: reviews, error: reviewError },
-            { data: activities, error: activityError }
+            { data: activities, error: activityError },
+            guestRes,
+            bookingsRes
         ] = await Promise.all([
             supabase.from("cabins").select("id, name, capacity, price_per_night, description, discount"),
             supabase.from("reviews").select("cabin_id, rating"),
-            supabase.from("activities").select("cabin_id, name")
+            supabase.from("activities").select("cabin_id, name"),
+            guestQuery,
+            bookingsQuery
         ]);
 
         if (cabinError || reviewError || activityError) {
             console.error("[Guest AI] Supabase Error:", cabinError || reviewError || activityError);
             throw cabinError || reviewError || activityError;
+        }
+
+        let guestContext = "The user is browsing anonymously. No guest profile details are available.";
+        let bookingContext = "No bookings found.";
+
+        if (guestRes && guestRes.data) {
+            const g = guestRes.data;
+            guestContext = `Logged-in User/Guest Profile:\n- Name: ${g.full_name}\n- Email: ${g.email}\n- Phone: ${g.phone || "Not provided"}`;
+        }
+        
+        if (bookingsRes && bookingsRes.data && bookingsRes.data.length > 0) {
+            bookingContext = bookingsRes.data.map((b, i) => {
+                const cabinName = b.cabins?.name || "Unknown Cabin";
+                return `${i + 1}. Booking ID: ${b.id}, Cabin: ${cabinName}, Status: ${b.status}, Dates: ${b.start_date} to ${b.end_date}, Total Price: $${b.total_price}`;
+            }).join("\n");
+        } else if (userId && userId !== "anonymous") {
+            bookingContext = "No previous or current bookings found in history for this guest.";
         }
 
         // Aggregate Ratings
@@ -130,6 +163,12 @@ Key Information:
 Available cabins and details:
 ${cabinContext}
 
+Current Client/Guest Information:
+${guestContext}
+
+Current Client/Guest Bookings:
+${bookingContext}
+
 Specific questions you should be ready to answer:
 1. "Which is the most 5-star rated cabin?" (Refer to Average Rating)
 2. "Which cabin offers the most activities?" (Refer to Activities list)
@@ -137,6 +176,7 @@ Specific questions you should be ready to answer:
 4. "Which cabin is lowest in price?" (Compare price_per_night)
 5. "How do I book a cabin?" (Explain the website booking process)
 6. "Can Cabin X occupy Y guests?" (Check capacity)
+7. "When is my next booked date?" or "How many cabins have I booked?" (Refer to the "Current Client/Guest Information" and "Current Client/Guest Bookings" sections. If browsing anonymously, ask them to log in to view personal bookings.)
           `;
 
         let cid = conversationId;
