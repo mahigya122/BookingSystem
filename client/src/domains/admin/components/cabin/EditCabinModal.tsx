@@ -32,9 +32,12 @@ const EditCabinModal = ({
     onClose
 }: Props) => {
     const { editCabin, isPending } = useUpdateCabin();
-    const { locations = [] } = useLocations();
-    const { offers = [] } = useOffers();
-    const { activities = [] } = useActivities();
+    const { locations } = useLocations();
+    const safeLocations = Array.isArray(locations) ? locations : [];
+    const { offers } = useOffers();
+    const safeOffers = Array.isArray(offers) ? offers : [];
+    const { activities } = useActivities();
+    const safeActivities = Array.isArray(activities) ? activities : [];
 
     const [form, setForm] = useState<CabinData>({
         name: cabin.name,
@@ -149,7 +152,7 @@ const EditCabinModal = ({
                                             className={`${inputBaseClass} pl-12 appearance-none`}
                                         >
                                             <option value="">Select Geographic Area...</option>
-                                            {locations.map(loc => (
+                                            {safeLocations.map(loc => (
                                                 <option key={loc.id} value={loc.id}>{loc.name} — {loc.city}</option>
                                             ))}
                                         </select>
@@ -254,7 +257,7 @@ const EditCabinModal = ({
                             </div>
 
                             <div className="space-y-2 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar-hide">
-                                {offers.map(offer => (
+                                {safeOffers.map(offer => (
                                     <button
                                         key={offer.id}
                                         type="button"
@@ -275,7 +278,7 @@ const EditCabinModal = ({
                                             }`} />
                                     </button>
                                 ))}
-                                {offers.length === 0 && (
+                                {safeOffers.length === 0 && (
                                     <div className="py-10 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-3xl">
                                         <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No available offers</p>
                                     </div>
@@ -294,7 +297,7 @@ const EditCabinModal = ({
                             </div>
 
                             <div className="space-y-2 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar-hide">
-                                {activities.map(activity => (
+                                {safeActivities.map(activity => (
                                     <button
                                         key={activity.id}
                                         type="button"
@@ -315,7 +318,7 @@ const EditCabinModal = ({
                                             }`} />
                                     </button>
                                 ))}
-                                {activities.length === 0 && (
+                                {safeActivities.length === 0 && (
                                     <div className="py-10 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-3xl">
                                         <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">No available activities</p>
                                     </div>

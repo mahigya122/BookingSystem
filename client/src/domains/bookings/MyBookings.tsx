@@ -38,7 +38,7 @@ const MyBookings = () => {
     return isNaN(page) || page < 1 ? 1 : page;
   }, [params, searchParams]);
 
-  const { bookings = [], totalCount = 0, isLoading: loadingBookings } = useBookings(
+  const { bookings, totalCount = 0, isLoading: loadingBookings } = useBookings(
     currentPage,
     8,
     currentStatus,
@@ -47,7 +47,9 @@ const MyBookings = () => {
     "all",
     user?.email || ""
   );
-  const { cabins = [], isLoading: loadingCabins } = useCabinsData();
+  const safeBookings = Array.isArray(bookings) ? bookings : [];
+  const { cabins, isLoading: loadingCabins } = useCabinsData();
+  const safeCabins = Array.isArray(cabins) ? cabins : [];
 
   const isLoading = loadingBookings || loadingCabins;
   const totalPages = Math.ceil(totalCount / 8);
@@ -161,7 +163,7 @@ const MyBookings = () => {
             </div>
           ))}
         </div>
-      ) : bookings.length === 0 ? (
+      ) : safeBookings.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-16 text-center max-w-xl mx-auto">
           <Compass className="h-14 w-14 mx-auto text-slate-400 dark:text-slate-600 mb-4" />
           <h3 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">No stays found</h3>
@@ -180,9 +182,9 @@ const MyBookings = () => {
       ) : (
         <div className="space-y-12">
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {bookings.map((booking: any) => {
+            {safeBookings.map((booking: any) => {
               // Find corresponding cabin to resolve thumbnail
-              const cabinInfo = cabins.find((c) => c.id === booking.cabin_id);
+              const cabinInfo = safeCabins.find((c) => c.id === booking.cabin_id);
               if (!cabinInfo) return null;
               const realStatus = getBookingRealStatus(booking);
 

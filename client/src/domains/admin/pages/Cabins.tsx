@@ -17,8 +17,10 @@ const Cabins = () => {
   const [filter, setFilter] = useState("all");
   const [sort, setSort] = useState("recent");
 
-  const { cabins = [], totalCount = 0, isLoading } = useCabins(currentPage, 10, filter, sort);
-  const { bookings = [], isLoading: isBookingsLoading } = useBookings();
+  const { cabins, totalCount = 0, isLoading } = useCabins(currentPage, 10, filter, sort);
+  const safeCabins = Array.isArray(cabins) ? cabins : [];
+  const { bookings, isLoading: isBookingsLoading } = useBookings();
+  const safeBookings = Array.isArray(bookings) ? bookings : [];
 
   const totalPages = Math.ceil(totalCount / 10);
 
@@ -36,7 +38,7 @@ const Cabins = () => {
   }, [filter, sort]);
 
   const activeBookingByCabinId = useMemo(() => {
-    const active = bookings.filter(
+    const active = safeBookings.filter(
       (booking: Booking) => booking.status === "booked" || booking.status === "checked-in"
     );
 
@@ -57,7 +59,7 @@ const Cabins = () => {
 
       return acc;
     }, {} as Record<string, Booking>);
-  }, [bookings]);
+  }, [safeBookings]);
 
   // Use the hook to handle local filter/sort/pagination changes
   useScrollToTop([filter, sort, currentPage]);
@@ -89,7 +91,7 @@ const Cabins = () => {
 
       <div className="card overflow-hidden">
         <CabinTable
-          cabins={cabins}
+          cabins={safeCabins}
           onDelete={handleDelete}
           onEdit={setEditingCabin}
           onView={(cabin, section = "overview") => {

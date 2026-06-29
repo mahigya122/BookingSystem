@@ -40,8 +40,10 @@ const INITIAL_FORM_STATE: BookingFormState = {
 
 const BookingForm = () => {
   const { createBooking, isPending } = useCreateBooking();
-  const { cabins = [], isLoading: isLoadingCabins } = useCabins();
-  const { guests = [], isLoading: isLoadingGuests } = useGuests();
+  const { cabins, isLoading: isLoadingCabins } = useCabins();
+  const safeCabins = Array.isArray(cabins) ? cabins : [];
+  const { guests, isLoading: isLoadingGuests } = useGuests();
+  const safeGuests = Array.isArray(guests) ? guests : [];
   const { settings } = useSettings();
 
   const [form, setForm] = useState<BookingFormState>(INITIAL_FORM_STATE);
@@ -51,11 +53,15 @@ const BookingForm = () => {
   const { availability, isLoading: loadingAvailability } = useCabinAvailability(form.cabin_id);
 
   const selectedCabin = useMemo(
-    () => cabins.find((cabin: Cabin) => cabin.id === form.cabin_id) ?? null,
-    [cabins, form.cabin_id]
+    () => safeCabins.find((cabin: Cabin) => cabin.id === form.cabin_id) ?? null,
+    [safeCabins, form.cabin_id]
   );
 
-  const bookedDatesSet = useMemo(() => new Set<string>(availability?.booked_dates || []), [availability]);
+  const bookedDatesSet = useMemo(() => {
+    const rawBookedDates = availability?.booked_dates;
+    const safeBookedDates = Array.isArray(rawBookedDates) ? rawBookedDates : [];
+    return new Set<string>(safeBookedDates);
+  }, [availability]);
 
   const handleDayClick = (date: Date) => {
     const dateStr = formatDateString(date);
@@ -109,9 +115,9 @@ const BookingForm = () => {
   };
 
   const filteredCabins = useMemo(() => {
-    if (!form.capacity) return cabins;
-    return cabins.filter((cabin: Cabin) => cabin.capacity >= Number(form.capacity));
-  }, [form.capacity, cabins]);
+    if (!form.capacity) return safeCabins;
+    return safeCabins.filter((cabin: Cabin) => cabin.capacity >= Number(form.capacity));
+  }, [form.capacity, safeCabins]);
 
   const pricing = useMemo(() => {
     if (!form.cabin_id || !form.start_date || !form.end_date) return null;
@@ -266,7 +272,7 @@ const BookingForm = () => {
                 {isLoadingGuests ? (
                   <option disabled>Loading guests...</option>
                 ) : (
-                  guests.map((guest: Guest) => (
+                  safeGuests.map((guest: Guest) => (
                     <option key={guest.id} value={guest.id}>
                       {guest.full_name} ({guest.email})
                     </option>

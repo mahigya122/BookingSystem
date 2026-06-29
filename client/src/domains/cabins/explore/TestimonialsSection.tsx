@@ -30,7 +30,8 @@ const DashedCircle = ({ className }: { className?: string }) => (
 );
 
 const TestimonialsSection = () => {
-    const { reviews = [], isLoading } = useReviews(true);
+    const { reviews, isLoading } = useReviews(true);
+    const safeReviews = Array.isArray(reviews) ? reviews : [];
     const [currentIndex, setCurrentIndex] = useState(0);
     const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
 
@@ -48,12 +49,12 @@ const TestimonialsSection = () => {
     }, []);
 
     const sortedReviews = useMemo(() => {
-        return [...reviews].sort((a, b) => {
+        return [...safeReviews].sort((a, b) => {
             const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
             const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
             return dateB - dateA;
         });
-    }, [reviews]);
+    }, [safeReviews]);
 
     const columnsPerPage = windowWidth < 768 ? 2 : 3;
     const maxIndex = Math.max(0, Math.ceil(sortedReviews.length / columnsPerPage) - 1);

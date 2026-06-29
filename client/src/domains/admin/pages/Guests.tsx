@@ -16,7 +16,8 @@ const Guests = () => {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<GuestSortType>("recent");
 
-  const { guests = [], totalCount = 0, isLoading } = useGuests(currentPage, 15, search, sort);
+  const { guests, totalCount = 0, isLoading } = useGuests(currentPage, 15, search, sort);
+  const safeGuests = Array.isArray(guests) ? guests : [];
   const { removeGuest } = useDeleteGuest();
 
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
@@ -49,7 +50,7 @@ const Guests = () => {
 
       <div className="card overflow-hidden">
         <GuestTable
-          guests={guests}
+          guests={safeGuests}
           onDelete={handleDelete}
           onEdit={setEditingGuest}
           isLoading={isLoading}

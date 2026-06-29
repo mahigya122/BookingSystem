@@ -13,9 +13,12 @@ interface Props {
 
 const CreateCabinModal = ({ onClose } : Props) => {
     const { addCabin, isPending } = useCreateCabin();
-    const { locations = [] } = useLocations();
-    const { offers = [] } = useOffers();
-    const { activities = [] } = useActivities();
+    const { locations } = useLocations();
+    const safeLocations = Array.isArray(locations) ? locations : [];
+    const { offers } = useOffers();
+    const safeOffers = Array.isArray(offers) ? offers : [];
+    const { activities } = useActivities();
+    const safeActivities = Array.isArray(activities) ? activities : [];
 
     const [form, setForm] = useState<CabinData>({
         name: "",
@@ -114,7 +117,7 @@ return (
                                     className={`${inputBaseClass} pl-10 appearance-none`}
                                 >
                                     <option value="">Select geographic area...</option>
-                                    {locations.map(loc => (
+                                    {safeLocations.map(loc => (
                                         <option key={loc.id} value={loc.id}>{loc.name} ({loc.city})</option>
                                     ))}
                                 </select>
@@ -196,7 +199,7 @@ return (
                             <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900 dark:text-white">Assign Offers</h3>
                         </div>
                         <div className="grid grid-cols-1 gap-2 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl max-h-48 overflow-y-auto border border-slate-200 dark:border-slate-800">
-                            {offers.map(offer => (
+                            {safeOffers.map(offer => (
                                 <label key={offer.id} className="flex items-center gap-3 p-2 hover:bg-white dark:hover:bg-slate-900 rounded-xl cursor-pointer transition-colors group">
                                     <input 
                                         type="checkbox" 
@@ -210,7 +213,7 @@ return (
                                     </div>
                                 </label>
                             ))}
-                            {offers.length === 0 && <p className="text-[10px] text-slate-400 italic py-4 text-center">No offers available to link.</p>}
+                            {safeOffers.length === 0 && <p className="text-[10px] text-slate-400 italic py-4 text-center">No offers available to link.</p>}
                         </div>
                     </div>
 
@@ -220,7 +223,7 @@ return (
                             <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900 dark:text-white">Assign Activities</h3>
                         </div>
                         <div className="grid grid-cols-1 gap-2 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl max-h-48 overflow-y-auto border border-slate-200 dark:border-slate-800">
-                            {activities.map(activity => (
+                            {safeActivities.map(activity => (
                                 <label key={activity.id} className="flex items-center gap-3 p-2 hover:bg-white dark:hover:bg-slate-900 rounded-xl cursor-pointer transition-colors group">
                                     <input 
                                         type="checkbox" 
@@ -229,12 +232,12 @@ return (
                                         onChange={() => handleActivityToggle(activity.id)}
                                     />
                                     <div className="flex flex-col">
-                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{activity.name}</span>
-                                        <span className="text-[10px] text-slate-400 font-bold">${activity.price}</span>
+                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-205">{activity.name}</span>
+                                        <span className="text-[10px] text-slate-405 font-bold">${activity.price}</span>
                                     </div>
                                 </label>
                             ))}
-                            {activities.length === 0 && <p className="text-[10px] text-slate-400 italic py-4 text-center">No activities available to link.</p>}
+                            {safeActivities.length === 0 && <p className="text-[10px] text-slate-400 italic py-4 text-center">No activities available to link.</p>}
                         </div>
                     </div>
                 </section>

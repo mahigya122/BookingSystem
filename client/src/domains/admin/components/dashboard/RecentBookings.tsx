@@ -6,8 +6,9 @@ interface Props {
 }
 
 const RecentBookings = ({ bookings }: Props) => {
+  const safeBookings = Array.isArray(bookings) ? bookings : [];
   // Show only top 5 recent bookings
-  const recentItems = bookings.slice(0, 5);
+  const recentItems = safeBookings.slice(0, 5);
 
   return (
     <div className="card">

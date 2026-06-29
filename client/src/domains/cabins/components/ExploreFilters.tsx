@@ -33,30 +33,32 @@ const ExploreFilters = () => {
         setLocalPrice(filters.price);
     }
 
-    const { locations: rawLocations = [] } = useLocations();
-    const { activities: rawActivities = [] } = useActivities();
+    const { locations: rawLocations } = useLocations();
+    const safeLocations = Array.isArray(rawLocations) ? rawLocations : [];
+    const { activities: rawActivities } = useActivities();
+    const safeActivities = Array.isArray(rawActivities) ? rawActivities : [];
 
     // Dedupe Locations by Name
     const locations = useMemo(() => {
         const seen = new Set();
-        return rawLocations.filter(loc => {
+        return safeLocations.filter(loc => {
             const name = loc.name.trim().toLowerCase();
             if (seen.has(name)) return false;
             seen.add(name);
             return true;
         });
-    }, [rawLocations]);
+    }, [safeLocations]);
 
     // Dedupe Activities by Name
     const activities = useMemo(() => {
         const seen = new Set();
-        return rawActivities.filter(act => {
+        return safeActivities.filter(act => {
             const name = act.name.trim().toLowerCase();
             if (seen.has(name)) return false;
             seen.add(name);
             return true;
         });
-    }, [rawActivities]);
+    }, [safeActivities]);
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">

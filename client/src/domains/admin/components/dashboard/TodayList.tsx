@@ -22,7 +22,8 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 	const { editBooking } = useUpdateBooking();
 	const [localStatus, setLocalStatus] = useState<Record<string, Booking["status"]>>({});
 
-	const items = bookings
+	const safeBookings = Array.isArray(bookings) ? bookings : [];
+	const items = safeBookings
 		.filter((booking) => {
 			const startMs = toLocalDateMs(booking.start_date);
 			const endMs = toLocalDateMs(booking.end_date);

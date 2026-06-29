@@ -22,10 +22,11 @@ const BookingPage = () => {
   const [search, setSearch] = useState("");
 
   const {
-    bookings = [],
+    bookings,
     totalCount = 0,
     isLoading,
   } = useBookings(currentPage, 10, filter, sort, search);
+  const safeBookings = Array.isArray(bookings) ? bookings : [];
 
   const totalPages = Math.ceil(totalCount / 10);
 
@@ -62,7 +63,7 @@ const BookingPage = () => {
 
       <div className="card overflow-hidden">
         <BookingTable
-          bookings={bookings}
+          bookings={safeBookings}
           onDelete={handleDelete}
           onEdit={setEditingBooking}
           onDetails={setDetailBooking}

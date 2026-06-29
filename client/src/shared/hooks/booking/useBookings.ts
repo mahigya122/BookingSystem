@@ -46,7 +46,8 @@ export function useBookings(
     placeholderData: keepPreviousData,
   });
 
-  const bookingsList = (data as any)?.data ?? (data as any) ?? [];
+  const rawList = (data as any)?.data ?? data;
+  const bookingsList = Array.isArray(rawList) ? rawList : [];
   const total = (data as any)?.count ?? bookingsList.length;
 
   return {

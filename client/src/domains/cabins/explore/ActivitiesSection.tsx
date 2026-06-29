@@ -48,17 +48,18 @@ const fallbackActivityImage =
     "https://images.unsplash.com/photo-1533240332313-0db49b459ad6?w=800&q=80";
 
 const ActivitiesSection = () => {
-    const { activities = [], isLoading } = useActivities();
+    const { activities, isLoading } = useActivities();
+    const safeActivities = Array.isArray(activities) ? activities : [];
     const { filters, setFilters, applyFilters } = useCabinFiltersContext();
 
     const uniqueActivities = useMemo(() => {
         const seen = new Set();
-        return activities.filter((a) => {
+        return safeActivities.filter((a) => {
             if (seen.has(a.name)) return false;
             seen.add(a.name);
             return true;
         });
-    }, [activities]);
+    }, [safeActivities]);
 
     if (isLoading) {
         return (

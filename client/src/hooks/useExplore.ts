@@ -5,19 +5,20 @@ import type { CabinWithBookings } from "../shared/services/cabinWithBookings";
 
 export const useExplore = (page?: number, pageSize?: number) => {
   const { appliedFilters: filters } = useCabinFiltersContext();
-  const { cabins = [], data, isLoading, error } = useCabinsData(filters, page, pageSize);
+  const { cabins, data, isLoading, error } = useCabinsData(filters, page, pageSize);
+  const safeCabins = Array.isArray(cabins) ? cabins : [];
 
   const isPaginated = page !== undefined && pageSize !== undefined;
 
   const cabinsList = useMemo(() => {
-    return cabins.map((cabin: CabinWithBookings) => ({
+    return safeCabins.map((cabin: CabinWithBookings) => ({
       ...cabin,
       isBookedByUser: false,
       isBookedByOthers: false,
       isBooked: false,
       bookingCount: 0,
     }));
-  }, [cabins]);
+  }, [safeCabins]);
 
   const total = isPaginated ? (data as any)?.count ?? 0 : cabinsList.length;
 

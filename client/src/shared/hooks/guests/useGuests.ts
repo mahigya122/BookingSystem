@@ -60,7 +60,8 @@ export function useGuests(
   });
 
   const isPaginated = page !== undefined && pageSize !== undefined;
-  const guestsList = isPaginated ? data?.guests ?? [] : data ?? [];
+  const rawList = isPaginated ? data?.guests : data;
+  const guestsList = Array.isArray(rawList) ? rawList : [];
   const total = isPaginated ? data?.count ?? 0 : guestsList.length;
 
   return {

@@ -83,13 +83,13 @@ const Dashboard = () => {
       finalRevenue: stats?.revenue ?? 0,
       finalOccupancy: stats?.occupancyRate ?? 0,
       cancelledBookings: stats?.cancelledBookingsCount ?? 0,
-      salesData: stats?.salesChartData ?? [],
-      stayData: stats?.stayDurationData ?? [],
+      salesData: Array.isArray(stats?.salesChartData) ? stats.salesChartData : [],
+      stayData: Array.isArray(stats?.stayDurationData) ? stats.stayDurationData : [],
       arrivals: stats?.todayActivity?.arrivals ?? 0,
       departures: stats?.todayActivity?.departures ?? 0,
       checkIns: stats?.todayActivity?.checkIns ?? 0,
-      bookings: stats?.recentBookings ?? [],
-      todayBookings: stats?.todayBookings ?? [],
+      bookings: Array.isArray(stats?.recentBookings) ? stats.recentBookings : [],
+      todayBookings: Array.isArray(stats?.todayBookings) ? stats.todayBookings : [],
     };
   }, [stats]);
 

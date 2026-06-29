@@ -4,7 +4,8 @@ import { Star, Trash2, CheckCircle, XCircle, ChevronLeft, ChevronRight } from "l
 
 const Reviews = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const { reviews = [], totalCount = 0, isLoading, removeReview, moderateReview } = useReviews(undefined, currentPage, 6);
+  const { reviews, totalCount = 0, isLoading, removeReview, moderateReview } = useReviews(undefined, currentPage, 6);
+  const safeReviews = Array.isArray(reviews) ? reviews : [];
 
   const totalPages = Math.ceil(totalCount / 6);
 
@@ -52,7 +53,7 @@ const Reviews = () => {
                 </div>
               </div>
             ))
-          : reviews.map((review: any) => (
+          : safeReviews.map((review: any) => (
               <div key={review.id} className="card p-6 flex flex-col justify-between">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">

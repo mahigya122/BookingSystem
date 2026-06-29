@@ -63,7 +63,8 @@ export function useOffers(
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const offersList = (data as any)?.data ?? (data as any) ?? [];
+  const rawList = (data as any)?.data ?? data;
+  const offersList = Array.isArray(rawList) ? rawList : [];
   const total = (data as any)?.count ?? offersList.length;
 
   return {

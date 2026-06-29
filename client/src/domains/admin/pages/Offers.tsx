@@ -20,7 +20,7 @@ const Offers = () => {
   }, [searchInput]);
 
   const {
-    offers = [],
+    offers,
     totalCount = 0,
     isLoading: isOffersLoading,
     addOffer,
@@ -30,8 +30,10 @@ const Offers = () => {
     isUpdating,
     isDeleting,
   } = useOffers(currentPage, 10, searchTerm);
+  const safeOffers = Array.isArray(offers) ? offers : [];
 
-  const { cabins = [], isLoading: isCabinsLoading } = useCabins();
+  const { cabins, isLoading: isCabinsLoading } = useCabins();
+  const safeCabins = Array.isArray(cabins) ? cabins : [];
   const { editCabin, isPending: isUpdatingCabin } = useUpdateCabin();
   
   const totalPages = Math.ceil(totalCount / 10);
@@ -61,7 +63,7 @@ const Offers = () => {
     const stats: Record<string, number> = {};
     const normalize = (s?: string) => s?.toLowerCase().trim() || "";
 
-    cabins.forEach(cabin => {
+    safeCabins.forEach(cabin => {
       cabin.offers?.forEach(offer => {
         const title = normalize(offer.title || (offer as any).name);
         stats[title] = (stats[title] || 0) + 1;
@@ -282,7 +284,7 @@ const Offers = () => {
                     </td>
                   </tr>
                 ))
-              : offers.map((offer) => (
+              : safeOffers.map((offer) => (
                   <tr key={offer.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="px-8 py-5 text-left">
                       <div className="flex flex-col">
@@ -337,7 +339,7 @@ const Offers = () => {
                 ))}
           </tbody>
         </table>
-        {offers.length === 0 && (
+        {safeOffers.length === 0 && (
             <div className="py-20 text-center">
                 <Search size={40} className="mx-auto text-slate-200 mb-4" />
                 <p className="text-slate-400 font-bold tracking-tight">No offers found.</p>

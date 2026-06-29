@@ -14,18 +14,20 @@ interface ExploreLocationsProps {
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
 const ExploreLocations = ({ cabins }: ExploreLocationsProps) => {
-    const { locations = [], isLoading } = useLocations();
+    const { locations, isLoading } = useLocations();
+    const safeLocations = Array.isArray(locations) ? locations : [];
+    const safeCabins = Array.isArray(cabins) ? cabins : [];
     const { filters, setFilters, applyFilters } = useCabinFiltersContext();
 
     // Deduplicate locations by name
     const uniqueLocations = useMemo(() => {
         const seen = new Set();
-        return locations.filter(loc => {
-            if (seen.has(loc.name)) return false;
+        return safeLocations.filter(loc => {
+            if (!loc?.name || seen.has(loc.name)) return false;
             seen.add(loc.name);
             return true;
         });
-    }, [locations]);
+    }, [safeLocations]);
 
     if (isLoading) {
         return (
@@ -55,7 +57,7 @@ const ExploreLocations = ({ cabins }: ExploreLocationsProps) => {
     // Filter locations that have at least one cabin or just show top 6
     const displayedLocations = uniqueLocations.slice(0, 6).map(loc => ({
         ...loc,
-        cabinCount: cabins.filter(c => c.location_id === loc.id).length
+        cabinCount: safeCabins.filter(c => c.location_id === loc.id).length
     }));
 
     if (displayedLocations.length === 0) return null;

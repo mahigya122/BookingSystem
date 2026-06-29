@@ -20,6 +20,7 @@ const CabinTable = ({
     activeBookingByCabinId,
     isLoading,
 }: Props) => {
+  const safeCabins = Array.isArray(cabins) ? cabins : [];
 
 return(
     <div className="overflow-x-auto">
@@ -55,7 +56,7 @@ return(
                             <td className="px-8 py-5 text-right w-60"><div className="h-8 w-24 rounded bg-slate-200 dark:bg-slate-800 animate-pulse ml-auto" /></td>
                         </tr>
                     ))
-                    : cabins.map((cabin) => (
+                    : safeCabins.map((cabin) => (
                         <CabinRow
                         key= {cabin.id}
                         cabin= {cabin}

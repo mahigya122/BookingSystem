@@ -51,8 +51,10 @@ const CabinDetails = () => {
 
     const { data: cabin, isLoading: loadingCabin } = useCabin(id);
     const { availability, isLoading: loadingAvailability } = useCabinAvailability(id);
-    const { cabins = [], isLoading: loadingAllCabins } = useCabins();
-    const { bookings: allBookings = [] } = useBookings();
+    const { cabins, isLoading: loadingAllCabins } = useCabins();
+    const safeCabins = Array.isArray(cabins) ? cabins : [];
+    const { bookings: allBookings } = useBookings();
+    const safeAllBookings = Array.isArray(allBookings) ? allBookings : [];
 
     const { user } = useUser();
     const { fullName, phone, loading: loadingProfile } = useProfile();
@@ -62,9 +64,9 @@ const CabinDetails = () => {
     const { payNow } = usePayment("");
 
     const existingBooking = useMemo(() => {
-        if (!bookingId || !allBookings.length) return null;
-        return allBookings.find(b => b.id === bookingId);
-    }, [bookingId, allBookings]);
+        if (!bookingId || !safeAllBookings.length) return null;
+        return safeAllBookings.find(b => b.id === bookingId);
+    }, [bookingId, safeAllBookings]);
 
     const isUpdateMode = !!existingBooking;
 
@@ -275,7 +277,7 @@ const CabinDetails = () => {
     // --- BOOKING STATE LOGIC ---
     // Find all bookings for this user for this cabin
     const userBookings = useMemo(() => {
-        if (!user || !availability?.bookings) return [];
+        if (!user || !availability?.bookings || !Array.isArray(availability.bookings)) return [];
         return availability.bookings.filter(b => b.guest_id === user.id);
     }, [user, availability]);
 
@@ -317,10 +319,9 @@ const CabinDetails = () => {
 
     const recentlyViewed = useMemo(() => {
         const viewed = localStorage.getItem("recently-viewed-cabins");
-        if (!viewed) return [];
-        const list: string[] = JSON.parse(viewed);
-        return (cabins as Cabin[]).filter((c) => list.includes(c.id) && c.id !== id);
-    }, [cabins, id]);
+        const list: string[] = viewed ? JSON.parse(viewed) : [];
+        return (safeCabins as Cabin[]).filter((c) => list.includes(c.id) && c.id !== id);
+    }, [safeCabins, id]);
 
 
 
@@ -671,8 +672,10 @@ const CabinDetails = () => {
     }
 
     // --- DERIVED DATA ---
+    const rawBookedDates = availability?.booked_dates;
+    const safeBookedDates = Array.isArray(rawBookedDates) ? rawBookedDates : [];
     const bookedDatesSet = new Set<string>(
-        (availability?.booked_dates || []).filter(d => {
+        safeBookedDates.filter(d => {
             if (!isUpdateMode || !existingBooking) return true;
             // When updating, remove the dates of the current booking from 'unavailable' dates
             const start = parseDateString(existingBooking.start_date);
@@ -683,7 +686,7 @@ const CabinDetails = () => {
     );
 
     const userBookingsByDate = new Map<string, string>();
-    if (availability?.bookings) {
+    if (availability?.bookings && Array.isArray(availability.bookings)) {
         availability.bookings.forEach((booking) => {
             if (booking.guest_id === user?.id) {
                 // If we are updating a specific booking, don't highlight its dates in status colors

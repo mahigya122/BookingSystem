@@ -41,7 +41,8 @@ export function useReviews(approved?: boolean, page?: number, pageSize?: number)
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const reviewsList = (data as any)?.data ?? (data as any) ?? [];
+  const rawList = (data as any)?.data ?? data;
+  const reviewsList = Array.isArray(rawList) ? rawList : [];
   const total = (data as any)?.count ?? reviewsList.length;
 
   return {

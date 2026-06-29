@@ -66,7 +66,8 @@ export function useLocations(
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const locationsList = (data as any)?.data ?? (data as any) ?? [];
+  const rawList = (data as any)?.data ?? data;
+  const locationsList = Array.isArray(rawList) ? rawList : [];
   const total = (data as any)?.count ?? locationsList.length;
 
   return {

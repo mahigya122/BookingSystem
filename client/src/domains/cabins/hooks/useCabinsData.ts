@@ -9,7 +9,8 @@ export const useCabinsData = (filters?: ExploreFilters, page?: number, pageSize?
   });
 
   const isPaginated = page !== undefined && pageSize !== undefined;
-  const cabins = isPaginated ? (data as PaginatedCabins)?.data ?? [] : (data as CabinWithBookings[] ?? []);
+  const rawList = isPaginated ? (data as PaginatedCabins)?.data : data;
+  const cabins = Array.isArray(rawList) ? rawList : [];
 
   return { cabins, data, isLoading, error };
 };

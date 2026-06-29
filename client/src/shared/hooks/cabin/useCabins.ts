@@ -26,7 +26,8 @@ export function useCabins(
     placeholderData: keepPreviousData,
   });
 
-  const cabinsList = (data as any)?.data ?? (data as any) ?? [];
+  const rawList = (data as any)?.data ?? data;
+  const cabinsList = Array.isArray(rawList) ? rawList : [];
   const total = (data as any)?.count ?? cabinsList.length;
 
   return {

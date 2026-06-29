@@ -18,7 +18,7 @@ const PaymentsPage = () => {
     return () => clearTimeout(handler);
   }, [searchInput]);
 
-  const { bookings = [], totalCount = 0, isLoading } = useBookings(
+  const { bookings, totalCount = 0, isLoading } = useBookings(
     currentPage,
     10,
     "all",
@@ -26,6 +26,7 @@ const PaymentsPage = () => {
     searchTerm,
     statusFilter
   );
+  const safeBookings = Array.isArray(bookings) ? bookings : [];
 
   const totalPages = Math.ceil(totalCount / 10);
 
@@ -118,7 +119,7 @@ const PaymentsPage = () => {
                       </td>
                     </tr>
                   ))
-                : bookings.map((booking: any) => (
+                : safeBookings.map((booking: any) => (
                     <tr key={booking.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                       <td className="px-8 py-5 text-left w-32">
                         <span className="font-mono text-xs font-bold text-slate-400">#{booking.id.slice(0, 8)}</span>
@@ -150,7 +151,7 @@ const PaymentsPage = () => {
                     </tr>
                   ))}
 
-              {bookings.length === 0 && (
+              {safeBookings.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-slate-400 font-bold">
                     No payment records found matching your criteria.

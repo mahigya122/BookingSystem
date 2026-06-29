@@ -6,7 +6,8 @@ interface RecentlyViewedProps {
 }
 
 const RecentlyViewed = ({ cabins }: RecentlyViewedProps) => {
-    if (cabins.length === 0) return null;
+    const safeCabins = Array.isArray(cabins) ? cabins : [];
+    if (safeCabins.length === 0) return null;
 
     return (
         <div className="space-y-6 border-t border-slate-150 dark:border-slate-800/80 pt-8 md:pt-12">
@@ -15,7 +16,7 @@ const RecentlyViewed = ({ cabins }: RecentlyViewedProps) => {
             </h2>
 
             <div className="grid grid-cols-2 gap-4">
-                {cabins.map((recentCabin) => (
+                {safeCabins.map((recentCabin) => (
                     <CabinCard 
                         key={recentCabin.id} 
                         cabin={recentCabin} 

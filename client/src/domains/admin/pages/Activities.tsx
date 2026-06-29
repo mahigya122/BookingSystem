@@ -21,7 +21,7 @@ const Activities = () => {
   }, [searchInput]);
 
   const {
-    activities = [],
+    activities,
     totalCount = 0,
     isLoading: isActivitiesLoading,
     addActivity,
@@ -31,8 +31,10 @@ const Activities = () => {
     isUpdating,
     isDeleting,
   } = useActivities(currentPage, 10, searchTerm);
+  const safeActivities = Array.isArray(activities) ? activities : [];
 
-  const { cabins = [], isLoading: isCabinsLoading } = useCabins();
+  const { cabins, isLoading: isCabinsLoading } = useCabins();
+  const safeCabins = Array.isArray(cabins) ? cabins : [];
   const { editCabin, isPending: isUpdatingCabin } = useUpdateCabin();
 
   const totalPages = Math.ceil(totalCount / 10);
@@ -60,14 +62,14 @@ const Activities = () => {
     const stats: Record<string, number> = {};
     const normalize = (s?: string) => s?.toLowerCase().trim() || "";
 
-    cabins.forEach(cabin => {
+    safeCabins.forEach(cabin => {
       cabin.activities?.forEach(activity => {
         const name = normalize(activity.name);
         stats[name] = (stats[name] || 0) + 1;
       });
     });
     return stats;
-  }, [cabins]);
+  }, [safeCabins]);
 
   const getActivityCount = (activity: Activity) => {
     const normalize = (s?: string) => s?.toLowerCase().trim() || "";
@@ -162,10 +164,10 @@ const Activities = () => {
 
   // Find cabins with current activity
   const cabinsWithActivity = viewingActivity 
-    ? cabins.filter(c => c.activities?.some(a => a.id === viewingActivity.id)) 
+    ? safeCabins.filter(c => c.activities?.some(a => a.id === viewingActivity.id)) 
     : [];
   const cabinsWithoutActivity = viewingActivity 
-    ? cabins.filter(c => !c.activities?.some(a => a.id === viewingActivity.id)) 
+    ? safeCabins.filter(c => !c.activities?.some(a => a.id === viewingActivity.id)) 
     : [];
 
   return (
@@ -290,7 +292,7 @@ const Activities = () => {
                     </td>
                   </tr>
                 ))
-              : activities.map((activity) => (
+              : safeActivities.map((activity) => (
               <tr key={activity.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                 <td className="px-8 py-5 text-left w-28">
                     {activity.image_url ? (
@@ -347,7 +349,7 @@ const Activities = () => {
             ))}
           </tbody>
         </table>
-        {activities.length === 0 && (
+        {safeActivities.length === 0 && (
             <div className="py-20 text-center">
                 <Search size={40} className="mx-auto text-slate-200 mb-4" />
                 <p className="text-slate-400 font-bold tracking-tight">No activities found.</p>

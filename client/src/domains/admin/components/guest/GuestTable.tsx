@@ -14,6 +14,7 @@ export default function GuestTable({
   onDelete,
   isLoading,
 }: Props) {
+  const safeGuests = Array.isArray(guests) ? guests : [];
   return (
     <table className="w-full">
 
@@ -36,7 +37,7 @@ export default function GuestTable({
                   <td className="px-8 py-5 text-right w-36"><div className="h-8 w-16 rounded bg-slate-200 dark:bg-slate-800 animate-pulse ml-auto" /></td>
                 </tr>
               ))
-            : guests.map((g) => (
+            : safeGuests.map((g) => (
                 <GuestRow
                   key={g.id}
                   guest={g}

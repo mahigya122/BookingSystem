@@ -63,7 +63,8 @@ export function useActivities(
     onError: (err: Error) => toast.error(err.message),
   });
 
-  const activitiesList = (data as any)?.data ?? (data as any) ?? [];
+  const rawList = (data as any)?.data ?? data;
+  const activitiesList = Array.isArray(rawList) ? rawList : [];
   const total = (data as any)?.count ?? activitiesList.length;
 
   return {

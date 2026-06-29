@@ -21,7 +21,7 @@ const Locations = () => {
   }, [searchInput]);
 
   const {
-    locations = [],
+    locations,
     totalCount = 0,
     isLoading: isLocationsLoading,
     addLocation,
@@ -31,8 +31,10 @@ const Locations = () => {
     isUpdating,
     isDeleting
   } = useLocations(currentPage, 10, searchTerm);
+  const safeLocations = Array.isArray(locations) ? locations : [];
 
-  const { cabins = [], isLoading: isCabinsLoading } = useCabins();
+  const { cabins, isLoading: isCabinsLoading } = useCabins();
+  const safeCabins = Array.isArray(cabins) ? cabins : [];
   const { editCabin, isPending: isUpdatingCabin } = useUpdateCabin();
 
   const totalPages = Math.ceil(totalCount / 10);
@@ -61,14 +63,14 @@ const Locations = () => {
     const stats: Record<string, number> = {};
     const normalize = (s?: string) => s?.toLowerCase().trim() || "";
 
-    cabins.forEach((cabin: Cabin) => {
+    safeCabins.forEach((cabin: Cabin) => {
       const locationName = normalize(cabin.location?.name);
       if (locationName) {
         stats[locationName] = (stats[locationName] || 0) + 1;
       }
     });
     return stats;
-  }, [cabins]);
+  }, [safeCabins]);
 
   const getLocationCount = (location: Location) => {
     const normalize = (s?: string) => s?.toLowerCase().trim() || "";
@@ -151,8 +153,8 @@ const Locations = () => {
   const modalInputBaseClass = "w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-3 text-sm font-bold focus:border-sky-500 focus:ring-8 focus:ring-sky-500/5 outline-none transition-all dark:text-white";
 
   // Find cabins with current location
-  const cabinsWithLocation = viewingLocation ? cabins.filter((c: Cabin) => c.location_id === viewingLocation.id) : [];
-  const cabinsWithoutLocation = viewingLocation ? cabins.filter((c: Cabin) => c.location_id !== viewingLocation.id) : [];
+  const cabinsWithLocation = viewingLocation ? safeCabins.filter((c: Cabin) => c.location_id === viewingLocation.id) : [];
+  const cabinsWithoutLocation = viewingLocation ? safeCabins.filter((c: Cabin) => c.location_id !== viewingLocation.id) : [];
 
   return (
       <div className="px-6 md:px-0 space-y-8 animate-slide-up pb-12">
@@ -284,7 +286,7 @@ const Locations = () => {
                     </td>
                   </tr>
                 ))
-              : locations.map((location) => (
+              : safeLocations.map((location) => (
                   <tr key={location.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="px-8 py-5 text-left">
                       <div className="flex flex-col">
@@ -338,7 +340,7 @@ const Locations = () => {
           </tbody>
         </table>
         
-        {locations.length === 0 && (
+        {safeLocations.length === 0 && (
             <div className="py-20 text-center">
                 <Search size={40} className="mx-auto text-slate-200 mb-4" />
                 <p className="text-slate-400 font-bold tracking-tight">No locations found.</p>
