@@ -1,0 +1,16 @@
+{
+  "watch": [
+    "server.js",
+    "services/**/*.js",
+    "routes/**/*.js",
+    "lib/**/*.js",
+    ".env",
+    "server/.env",
+    "../.env"
+  ],
+  "ext": "js,json,env",
+  "ignore": [
+    "node_modules/**/node_modules",
+    "scripts/**/*.js"
+  ]
+}
