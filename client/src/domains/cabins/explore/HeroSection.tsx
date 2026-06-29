@@ -1,5 +1,5 @@
 import { useUser } from "@shared/hooks";
-import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
+import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
 import { motion } from "framer-motion";
 import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import { Compass } from "lucide-react";

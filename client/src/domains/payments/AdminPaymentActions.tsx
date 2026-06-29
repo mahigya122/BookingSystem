@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { paymentService } from "../services/paymentService";
+import { paymentService } from "./paymentService";
 import toast from "react-hot-toast";
 import { Loader2, Check, RotateCcw, Undo2 } from "lucide-react";
 

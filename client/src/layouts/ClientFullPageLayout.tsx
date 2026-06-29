@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import ClientNavbar from "./ClientNavbar";
-import { ClientAIChatProvider } from "../domains/guests/contexts/ClientAIChatContext";
-import ClientAIChatDrawer from "../domains/guests/components/ai/ClientAIChatDrawer";
+import { ClientAIChatProvider } from "../domains/guests/ClientAIChatContext";
+import ClientAIChatDrawer from "../domains/guests/ClientAIChatDrawer";
 import Footer from "@shared/components/layout/Footer";
 import NavigationProgressBar from "@shared/components/layout/NavigationProgressBar";
 import { useScrollToTop } from "@shared/hooks/useScrollToTop";

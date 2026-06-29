@@ -4,7 +4,7 @@ import ProtectedRoute from "@shared/components/layout/ProtectedRoute";
 import DashboardLayout from "../layouts/DashboardLayout";
 
 // Trigger background preload for the primary entry Dashboard page
-import("../domains/admin/pages/Home").catch(() => {});
+import("../domains/admin/pages/Home").catch(() => { });
 import {
   Home,
   Booking,
@@ -19,6 +19,7 @@ import {
   Offers,
   Activities,
   Reviews,
+  Messages,
 } from "./lazyPages";
 
 export const adminRouter = createBrowserRouter([
@@ -48,6 +49,7 @@ export const adminRouter = createBrowserRouter([
       { path: "guests", element: <Guests /> },
       { path: "user", element: <Navigate to="/guests" replace /> },
       { path: "settings", element: <Settings /> },
+      { path: "messages", element: <Messages /> },
     ],
   },
   {

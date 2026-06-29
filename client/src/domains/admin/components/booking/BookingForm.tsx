@@ -6,7 +6,7 @@ import CabinCalendar from "../../../../shared/components/ui/CabinCalendar";
 import type { Cabin } from "@shared/types/cabin";
 import type { Guest } from "@shared/types/guest";
 import toast from "react-hot-toast";
-import PaymentSelector from "../../../payments/components/PaymentSelector";
+import PaymentSelector from "../../../payments/PaymentSelector";
 
 // Format date to YYYY-MM-DD string in local timezone
 const formatDateString = (date: Date) => {

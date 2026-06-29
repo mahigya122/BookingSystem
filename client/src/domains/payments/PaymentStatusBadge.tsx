@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import type { PaymentStatus } from "../types/payment.types";
+import type { PaymentStatus } from "./payment.types";
 
 
 interface Props {

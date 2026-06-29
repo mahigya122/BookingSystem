@@ -1,4 +1,4 @@
-import { useClientAIChat } from "../../contexts/ClientAIChatContext";
+import { useClientAIChat } from "./ClientAIChatContext";
 
 import GuestChat from "./GuestChat";
 

@@ -13,7 +13,7 @@ import {
     Footprints, 
     Sparkles 
 } from "lucide-react";
-import PaymentSelector from "../../../payments/components/PaymentSelector";
+import PaymentSelector from "../../payments/PaymentSelector";
 import type { Cabin } from "@shared/types";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 

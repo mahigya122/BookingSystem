@@ -4,7 +4,7 @@ import { MapPin, Calendar, CheckCircle2, Clock, ShieldCheck, Compass } from "luc
 import type { Cabin } from "@shared/types/cabin";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { useCancelBooking, useUser } from "@shared/hooks";
-import ReviewForm from "../pages/CabinDetails/ReviewForm";
+import ReviewForm from "../details/ReviewForm";
 
 interface CabinCardProps {
   cabin: Cabin & {

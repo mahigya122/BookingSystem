@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useClientAIChat } from "../../../domains/guests/contexts/ClientAIChatContext";
+import { useClientAIChat } from "../../../domains/guests/ClientAIChatContext";
 
 const AIFloatButton = () => {
   const { open, setOpen } = useClientAIChat();

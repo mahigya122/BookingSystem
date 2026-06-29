@@ -5,7 +5,7 @@ import { useGuests, useDeleteGuest } from "@shared/hooks";
 
 import GuestSubnav from "../components/guest/GuestSubnav";
 import GuestTable from "../components/guest/GuestTable";
-import GuestPagination from "../components/guest/GuestPagination";
+import AdminPagination from "../components/AdminPagination";
 import { EditGuestModal } from "@shared/modals/lazyModals";
 import ModalSpinner from "@shared/components/ui/ModalSpinner";
 
@@ -56,10 +56,11 @@ const Guests = () => {
         />
 
         <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
-          <GuestPagination
+          <AdminPagination
             currentPage={currentPage}
             totalPages={totalPages}
             setCurrentPage={setCurrentPage}
+            label="Record Page"
           />
         </div>
       </div>

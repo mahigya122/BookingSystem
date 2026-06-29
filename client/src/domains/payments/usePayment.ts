@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { paymentService } from "../services/paymentService";
-import type { PaymentMethod } from "../types/payment.types";
+import { paymentService } from "./paymentService";
+import type { PaymentMethod } from "./payment.types";
 
 export const usePayment = (bookingId: string) => {
     const [loading, setLoading] = useState(false);

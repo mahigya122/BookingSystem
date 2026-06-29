@@ -2,7 +2,7 @@ import { X } from "lucide-react";
 
 import SQLChat from "./SQLChat";
 
-import { useAIChat } from "../../contexts/AIChatContext";
+import { useAIChat } from "../../ai/AIChatContext";
 
 const AIChatDrawer = () => {
   const { open, setOpen } = useAIChat();

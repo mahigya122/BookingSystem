@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle2, Calendar, CreditCard, Home, Loader2, ArrowRight } from "lucide-react";
-import { supabase } from "../../../shared/services/supabase";
-import type { Booking } from "../../../shared/types/booking";
+import { supabase } from "../../shared/services/supabase";
+import type { Booking } from "../../shared/types/booking";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();

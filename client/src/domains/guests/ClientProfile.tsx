@@ -1,8 +1,8 @@
-import { useProfile } from "../../../hooks/useProfile";
+import { useProfile } from "../../hooks/useProfile";
 import { User, Mail, Shield, Loader2, Lock, Camera, Compass } from "lucide-react";
 import { useScrollToTop } from "@shared/hooks/useScrollToTop";
 import { useNavigate } from "react-router-dom";
-import { useCabinFiltersContext } from "../../cabins/contexts/CabinFiltersContext";
+import { useCabinFiltersContext } from "../cabins/contexts/CabinFiltersContext";
 
 const ClientProfile = () => {
   const {

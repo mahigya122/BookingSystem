@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useUser } from "@shared/hooks";
 import SQLInput from "./SQLInput";
 import SQLMessage from "./SQLMessage";
-import { askSqlCopilot, getLatestConversation, getSuggestions } from "../../services/ai/sqlAI";
+import { askSqlCopilot, getLatestConversation, getSuggestions } from "../../ai/sqlAI";
 import type { SQLMessage as SQLMessageType } from '@shared/types/sql';
 
 interface Props {

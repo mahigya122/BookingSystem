@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import type { Booking } from "@shared/types/booking";
 import { useUpdateBooking } from "@shared/hooks";
-import type { PaymentStatus, PaymentMethod } from "../../../payments/types/payment.types";
+import type { PaymentStatus, PaymentMethod } from "../../../payments/payment.types";
 import { 
   Save, 
   Calendar, 

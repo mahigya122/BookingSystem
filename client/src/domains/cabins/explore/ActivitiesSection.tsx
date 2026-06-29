@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useActivities } from "@shared/hooks/useActivities";
-import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
+import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";

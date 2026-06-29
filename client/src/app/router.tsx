@@ -3,6 +3,7 @@ import ProtectedRoute from "@shared/components/layout/ProtectedRoute";
 import ClientDashboardLayout from "../layouts/ClientDashboardLayout";
 import ClientFullPageLayout from "../layouts/ClientFullPageLayout";
 import RootClientLayout from "../layouts/RootClientLayout";
+
 import {
   ClientDashboard,
   ClientProfile,
@@ -12,6 +13,7 @@ import {
   PaymentSuccess,
   PaymentFailure,
   InfoPage,
+  GuestMessages,
 } from "./lazyClientPages";
 
 export const router = createBrowserRouter([
@@ -60,6 +62,15 @@ export const router = createBrowserRouter([
             element: (
               <ProtectedRoute requiredRole="guest">
                 <MyBookings />
+              </ProtectedRoute>
+            ),
+          },
+
+          {
+            path: "/messages",
+            element: (
+              <ProtectedRoute requiredRole="guest">
+                <GuestMessages />
               </ProtectedRoute>
             ),
           },

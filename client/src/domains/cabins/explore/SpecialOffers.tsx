@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { useOffers } from "@shared/hooks/useOffers";
-import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
+import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { motion } from "framer-motion";
 import { layoutConfig, pageSpacing } from "@shared/utils/spacing";

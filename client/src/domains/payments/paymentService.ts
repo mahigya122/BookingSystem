@@ -1,5 +1,5 @@
-import { fetchJson } from "../../../shared/services/http";
-import type { PaymentUpdatePayload } from "../types/payment.types";
+import { fetchJson } from "../../shared/services/http";
+import type { PaymentUpdatePayload } from "./payment.types";
 
 export const paymentService = {
     async updatePayment({

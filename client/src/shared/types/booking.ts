@@ -1,4 +1,4 @@
-import type { PaymentMethod, PaymentStatus } from "../../domains/payments/types/payment.types";
+import type { PaymentMethod, PaymentStatus } from "../../domains/payments/payment.types";
 
 export type BookingStatus =
   | "all"

@@ -1,6 +1,6 @@
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import type { Booking } from "@shared/types/booking";
-import PaymentStatusBadge from "../../../payments/components/PaymentStatusBadge";
+import PaymentStatusBadge from "../../../payments/PaymentStatusBadge";
 
 interface Props {
   booking: Booking;

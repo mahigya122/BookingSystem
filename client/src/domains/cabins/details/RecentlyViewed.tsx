@@ -1,5 +1,5 @@
 import type { Cabin } from "@shared/types";
-import CabinCard from "../../components/CabinCard";
+import CabinCard from "../components/CabinCard";
 
 interface RecentlyViewedProps {
     cabins: Cabin[];

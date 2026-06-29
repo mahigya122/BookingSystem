@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { useLocations } from "@shared/hooks/useLocations";
 import type { Cabin } from "@shared/types/cabin";
-import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
+import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { motion } from "framer-motion";
 import { layoutConfig, pageSpacing } from "@shared/utils/spacing";

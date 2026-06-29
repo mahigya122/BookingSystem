@@ -2,10 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useUser, useLogout } from "@shared/hooks";
 import ThemeToggle from "@shared/components/ui/ThemeToggle";
 import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
-import { Mountain, LogOut } from "lucide-react";
+import { Mountain, LogOut, MessageCircle } from "lucide-react";
 import { scrollToTop } from "@shared/hooks/useScrollToTop";
 import { useState } from "react";
-import { PromoBanner } from "../domains/cabins/pages/CabinDetails/explorepage/PromoBanner";
+import { PromoBanner } from "../domains/cabins/explore/PromoBanner";
 
 const ClientNavbar = () => {
     const { user } = useUser();
@@ -64,6 +64,14 @@ const ClientNavbar = () => {
 
                     {user ? (
                         <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => navigate("/messages")}
+                                className="p-1.5 text-slate-500 hover:text-sky-500 dark:text-slate-400 dark:hover:text-sky-400 transition-all duration-300 active:scale-90 flex items-center justify-center drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"
+                                title="Messages"
+                            >
+                                <MessageCircle size={22} />
+                            </button>
+
                             <button
                                 onClick={() => navigate("/profile")}
                                 className="p-1.5 text-slate-500 hover:text-sky-500 dark:text-slate-400 dark:hover:text-sky-400 transition-all duration-300 active:scale-90 text-sm flex items-center justify-center drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"

@@ -1,12 +1,12 @@
 import { useBookings, useUser } from "@shared/hooks";
-import { useCabinsData } from "../../cabins/hooks/useCabinsData";
-import { useCabinFiltersContext } from "../../cabins/contexts/CabinFiltersContext";
+import { useCabinsData } from "../cabins/hooks/useCabinsData";
+import { useCabinFiltersContext } from "../cabins/contexts/CabinFiltersContext";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { getBookingRealStatus } from "@shared/utils/bookingUtils";
 import Pagination from "@shared/components/ui/Pagination";
 import { Compass, ArrowRight, Clock, CheckCircle2, XCircle, ListFilter, ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
-import CabinCard from "../../cabins/components/CabinCard";
+import CabinCard from "../cabins/components/CabinCard";
 
 const MyBookings = () => {
   const { user } = useUser();

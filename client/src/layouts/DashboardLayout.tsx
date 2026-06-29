@@ -3,7 +3,7 @@ import Navbar from "./AdminNavbar";
 import Sidebar from "./AdminSidebar";
 import AIChatDrawer from "../domains/admin/components/ai/AIChatDrawer";
 import AdminAIFloatButton from "@shared/components/ui/AdminAIFloatButton";
-import { AIChatProvider } from "../domains/admin/contexts/AIChatContext";
+import { AIChatProvider } from "../domains/admin/ai/AIChatContext";
 import { AdminSidebarProvider } from "../domains/admin/contexts/AdminSidebarContext";
 import { useScrollToTop } from "@shared/hooks/useScrollToTop";
 

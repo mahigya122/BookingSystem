@@ -3,7 +3,7 @@ import { useEffect, useState, Suspense } from "react";
 
 import BookingSubnav from "../components/booking/BookingSubnav";
 import BookingTable from "../components/booking/BookingTable";
-import BookingPagination from "../components/booking/BookingPagination";
+import AdminPagination from "../components/AdminPagination";
 import { EditBookingModal, BookingDetailModal } from "@shared/modals/lazyModals";
 import ModalSpinner from "@shared/components/ui/ModalSpinner";
 
@@ -70,10 +70,11 @@ const BookingPage = () => {
         />
 
         <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
-          <BookingPagination
+          <AdminPagination
             currentPage={currentPage}
             totalPages={totalPages}
             setCurrentPage={setCurrentPage}
+            label="Displaying Page"
           />
         </div>
       </div>

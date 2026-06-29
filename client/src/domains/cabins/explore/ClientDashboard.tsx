@@ -1,8 +1,8 @@
 import { useEffect, lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
-import { useExplore } from "../../../hooks/useExplore";
-import { useCabinFiltersContext } from "../../../contexts/CabinFiltersContext";
-import CabinCard from "../../../components/CabinCard";
+import { useExplore } from "../hooks/useExplore";
+import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
+import CabinCard from "../components/CabinCard";
 import Pagination from "@shared/components/ui/Pagination";
 import { useScrollToTop, scrollToTop } from "@shared/hooks/useScrollToTop";
 

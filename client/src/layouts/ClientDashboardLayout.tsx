@@ -1,9 +1,9 @@
 import { Outlet, useLocation } from "react-router-dom";
 import UserSidebar from "./UserSidebar";
 import ClientNavbar from "./ClientNavbar";
-import { ClientAIChatProvider } from "../domains/guests/contexts/ClientAIChatContext";
+import { ClientAIChatProvider } from "../domains/guests/ClientAIChatContext";
 import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
-import ClientAIChatDrawer from "../domains/guests/components/ai/ClientAIChatDrawer";
+import ClientAIChatDrawer from "../domains/guests/ClientAIChatDrawer";
 import Footer from "@shared/components/layout/Footer";
 import NavigationProgressBar from "@shared/components/layout/NavigationProgressBar";
 import { useScrollToTop } from "@shared/hooks/useScrollToTop";

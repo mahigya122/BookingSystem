@@ -1,8 +1,8 @@
 import { ArrowLeft, MapPin, Tag } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
-import { useCabinFiltersContext } from "../../contexts/CabinFiltersContext";
-import { serializeFiltersToParams } from "../../../../store/useCabinFilters";
+import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
+import { serializeFiltersToParams } from "../../../store/useCabinFilters";
 
 interface CabinGalleryProps {
     cabin: {

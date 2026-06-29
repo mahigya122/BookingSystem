@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import { useBookings } from "@shared/hooks";
 import { CreditCard, Search, ChevronLeft, ChevronRight } from "lucide-react";
-import PaymentStatusBadge from "../../payments/components/PaymentStatusBadge";
-import AdminPaymentActions from "../../payments/components/AdminPaymentActions";
+import PaymentStatusBadge from "../../payments/PaymentStatusBadge";
+import AdminPaymentActions from "../../payments/AdminPaymentActions";
 
 const PaymentsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
