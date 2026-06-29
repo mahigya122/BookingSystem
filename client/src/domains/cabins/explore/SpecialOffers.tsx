@@ -9,18 +9,19 @@ import SectionHeader from "@shared/components/ui/SectionHeader";
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
 const SpecialOffers = () => {
-    const { offers = [], isLoading } = useOffers();
+    const { offers, isLoading } = useOffers();
+    const safeOffers = Array.isArray(offers) ? offers : [];
     const { filters, setFilters, applyFilters } = useCabinFiltersContext();
 
     const uniqueOffers = useMemo(() => {
         const seen = new Set();
-        return offers.filter(offer => {
-            const title = offer.title || (offer as any).name;
-            if (seen.has(title)) return false;
+        return safeOffers.filter(offer => {
+            const title = offer?.title || (offer as any)?.name;
+            if (!title || seen.has(title)) return false;
             seen.add(title);
             return true;
         });
-    }, [offers]);
+    }, [safeOffers]);
 
     if (isLoading) {
         return (
