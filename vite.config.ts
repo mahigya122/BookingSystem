@@ -11,7 +11,7 @@ export default defineConfig({
       configureServer(server) {
         server.middlewares.use((req, _res, next) => {
           const url = req.url?.split('?')[0] || '';
-          
+
           if (url.startsWith('/admin') && !url.includes('.')) {
             req.url = '/admin.html';
           }
