@@ -88,7 +88,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
     const loadSuggestions = useCallback(async () => {
         try {
             const userIdParam = user?.id ? `&userId=${user.id}` : "";
-            const res = await fetch(`/api/suggestions?role=guest${userIdParam}`);
+            const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/suggestions?role=guest${userIdParam}`);
 
             const data = await res.json();
 
@@ -108,7 +108,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
             // If logged in, fetch history in background
             try {
                 if (user?.id) {
-                    const res = await fetch(`/api/ai/guest/conversation/latest?userId=${user.id}`);
+                    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/ai/guest/conversation/latest?userId=${user.id}`);
                     const data = await res.json();
 
                     if (data.conversationId) {
@@ -148,7 +148,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
 
         try {
             const res = await fetch(
-                "/api/ai/guest/chat",
+                `${import.meta.env.VITE_BACKEND_URL}/api/ai/guest/chat`,
                 {
                     method: "POST",
                     headers: {
