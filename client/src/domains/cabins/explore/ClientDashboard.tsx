@@ -111,7 +111,7 @@ const HowItWorksSkeleton = () => (
 );
 
 const ClientDashboard = () => {
-  const { isSearching, clearFilters, appliedFilters, currentPage, setCurrentPage, sidebarOpen, setSidebarOpen } = useCabinFiltersContext();
+  const { isSearching, clearFilters, appliedFilters, currentPage, setCurrentPage, sidebarOpen, setSidebarOpen, isRefreshing } = useCabinFiltersContext();
 
   // If search is active, use the current page. If on landing page, fetch first page (page 1, size 12)
   const queryPage = isSearching ? currentPage : 1;
@@ -177,7 +177,7 @@ const ClientDashboard = () => {
           </div>
 
           <div className="mt-6 md:mt-8">
-            {isLoading ? (
+            {isLoading || isRefreshing ? (
               <div className="grid grid-cols-2 gap-4 md:gap-8 lg:grid-cols-3 xl:grid-cols-4">
                 {[...Array(8)].map((_, idx) => (
                   <div key={idx} className="bg-slate-200 dark:bg-slate-800 animate-pulse rounded-2xl md:rounded-3xl aspect-[4/3] w-full" />

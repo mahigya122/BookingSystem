@@ -15,7 +15,7 @@ export const usePayment = (bookingId: string) => {
             // -------------------------
             // ESEWA FLOW (BACKEND)
             // -------------------------
-            if (method === "esewa") {
+            if (method.startsWith("esewa")) {
                 // 1. mark booking as pending
                 await paymentService.updatePayment({
                     bookingId: bId,

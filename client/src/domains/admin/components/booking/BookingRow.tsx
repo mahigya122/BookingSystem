@@ -64,7 +64,7 @@ const BookingRow = ({
 
       {/* PAYMENT */}
       <td className="px-8 py-5 text-left">
-        <PaymentStatusBadge status={booking.payment_status || 'pending'} />
+        <PaymentStatusBadge status={booking.payment_status || 'pending'} paymentMethod={booking.payment_method} />
       </td>
 
       {/* ACTIONS */}

@@ -50,10 +50,10 @@ export const useProfile = () => {
     };
   }, [user?.id]);
 
-  const save = async () => {
+  const save = async (): Promise<boolean> => {
     if (!user?.id) {
       toast.error("No authenticated user found.");
-      return;
+      return false;
     }
 
     try {
@@ -73,8 +73,10 @@ export const useProfile = () => {
          full_name: fullName.trim(),
          phone_no: phoneNo.trim()
       }) : null);
+      return true;
     } catch (saveError) {
       toast.error(saveError instanceof Error ? saveError.message : "Failed to save profile.");
+      return false;
     } finally {
       setSaving(false);
     }

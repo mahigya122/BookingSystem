@@ -8,3 +8,4 @@ export const EditBookingModal = lazy(() => import("../../domains/admin/component
 export const BookingDetailModal = lazy(() => import("../../domains/admin/components/booking/BookingDetailModal"));
 export const EditGuestModal = lazy(() => import("../../domains/admin/components/guest/EditGuestModal"));
 export const ProfileIncompleteModal = lazy(() => import("../../domains/cabins/details/ProfileIncompleteModal"));
+export const InvoiceModal = lazy(() => import("./InvoiceModal"));

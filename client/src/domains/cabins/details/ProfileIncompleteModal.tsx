@@ -5,9 +5,10 @@ interface ProfileIncompleteModalProps {
     fullName: string | null;
     phone: string | null;
     onClose: () => void;
+    bookingState?: any;
 }
 
-const ProfileIncompleteModal = ({ fullName, phone, onClose }: ProfileIncompleteModalProps) => {
+const ProfileIncompleteModal = ({ fullName, phone, onClose, bookingState }: ProfileIncompleteModalProps) => {
     const navigate = useNavigate();
 
     return (
@@ -45,7 +46,12 @@ const ProfileIncompleteModal = ({ fullName, phone, onClose }: ProfileIncompleteM
 
                 <div className="flex flex-col gap-3">
                     <button
-                        onClick={() => navigate("/profile")}
+                        onClick={() => navigate("/profile", {
+                            state: {
+                                from: window.location.pathname + window.location.search,
+                                bookingState
+                            }
+                        })}
                         className="w-full rounded-full bg-sky-500 py-4 font-black text-white hover:bg-sky-600 transition shadow-lg shadow-sky-200/50 dark:shadow-none flex items-center justify-center gap-2 cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
                     >
                         Go To Profile <ArrowRight size={18} />

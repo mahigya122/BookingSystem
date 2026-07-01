@@ -3,6 +3,7 @@ import ProtectedRoute from "@shared/components/layout/ProtectedRoute";
 import ClientDashboardLayout from "../layouts/ClientDashboardLayout";
 import ClientFullPageLayout from "../layouts/ClientFullPageLayout";
 import RootClientLayout from "../layouts/RootClientLayout";
+import { PATHS } from "./path";
 
 import {
   ClientDashboard,
@@ -12,8 +13,18 @@ import {
   MyBookings,
   PaymentSuccess,
   PaymentFailure,
-  InfoPage,
   GuestMessages,
+  AboutPage,
+  HelpCenterPage,
+  FAQsPage,
+  PrivacyPage,
+  TermsPage,
+  ContactPage,
+  CareersPage,
+  CookiesPage,
+  BlogPage,
+  BlogPostPage,
+  LegacyInfoRedirect,
 } from "./lazyClientPages";
 
 export const router = createBrowserRouter([
@@ -29,18 +40,9 @@ export const router = createBrowserRouter([
         element: <ClientDashboardLayout />,
         children: [
           { index: true, element: <ClientDashboard /> },
-          {
-            path: "explorepage",
-            element: <ClientDashboard />,
-          },
-          {
-            path: "explorepage:pageSuffix",
-            element: <ClientDashboard />,
-          },
-          {
-            path: "explorepage/:pageParam",
-            element: <ClientDashboard />,
-          },
+          { path: "explorepage", element: <ClientDashboard /> },
+          { path: "explorepage:pageSuffix", element: <ClientDashboard /> },
+          { path: "explorepage/:pageParam", element: <ClientDashboard /> },
           {
             path: "bookings",
             element: (
@@ -65,7 +67,6 @@ export const router = createBrowserRouter([
               </ProtectedRoute>
             ),
           },
-
           {
             path: "/messages",
             element: (
@@ -77,7 +78,6 @@ export const router = createBrowserRouter([
         ],
       },
 
-      // 👇 FULL PAGE LAYOUT (NO SIDEBAR)
       {
         element: <ClientFullPageLayout />,
         children: [
@@ -89,7 +89,20 @@ export const router = createBrowserRouter([
               </ProtectedRoute>
             ),
           },
-          { path: "/info/:slug", element: <InfoPage /> },
+
+          { path: PATHS.ABOUT, element: <AboutPage /> },
+          { path: PATHS.HELP_CENTER, element: <HelpCenterPage /> },
+          { path: PATHS.FAQS, element: <FAQsPage /> },
+          { path: PATHS.PRIVACY, element: <PrivacyPage /> },
+          { path: PATHS.TERMS, element: <TermsPage /> },
+          { path: PATHS.CONTACT, element: <ContactPage /> },
+          { path: PATHS.CAREERS, element: <CareersPage /> },
+          { path: PATHS.COOKIES, element: <CookiesPage /> },
+          { path: PATHS.BLOG, element: <BlogPage /> },
+          { path: "/blog/:slug", element: <BlogPostPage /> },
+
+          { path: "/info/:slug", element: <LegacyInfoRedirect /> },
+
           { path: "/cabin/:id", element: <CabinDetails /> },
           { path: "/payment/success", element: <PaymentSuccess /> },
           { path: "/payment/failure", element: <PaymentFailure /> },

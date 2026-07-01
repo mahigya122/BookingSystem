@@ -1,4 +1,8 @@
 import type { Booking } from "@shared/types/booking";
+import { useState } from "react";
+import { useUpdateBooking } from "@shared/hooks";
+import InvoiceModal from "../../../../shared/modals/InvoiceModal";
+import toast from "react-hot-toast";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import {
   X,
@@ -20,6 +24,10 @@ const BookingDetailModal = ({
   booking,
   onClose,
 }: Props) => {
+  const [settleMethod, setSettleMethod] = useState<"arrival" | "esewa_full">("arrival");
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+  const { editBooking, isPending: isUpdating } = useUpdateBooking();
+
   const nights = Math.ceil(
     (new Date(booking.end_date).getTime() -
       new Date(booking.start_date).getTime()) /
@@ -188,23 +196,125 @@ const BookingDetailModal = ({
                       <span className="font-bold text-slate-500">Service Add-ons</span>
                       <span className="font-black text-slate-900 dark:text-white">${booking.has_breakfast ? nights * 12 : 0}</span>
                     </div>
+                    {booking.payment_method === "esewa_full" && (
+                      <div className="flex items-center justify-between text-sm text-emerald-600 dark:text-emerald-450">
+                        <span className="font-bold">Early Payment Discount (5%)</span>
+                        <span className="font-black">-${(booking.total_price * (5 / 95)).toFixed(2)}</span>
+                      </div>
+                    )}
                     <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                      <span className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">Net Payable</span>
-                      <span className="text-3xl font-black text-sky-500 tracking-tight">${booking.total_price}</span>
+                      <span className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">Net Total Price</span>
+                      <span className="text-3xl font-black text-sky-500 tracking-tight">${booking.total_price.toFixed(2)}</span>
                     </div>
                   </div>
 
-                  <div className="bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <CreditCard size={16} className="text-slate-400" />
-                      <div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Payment Method</p>
-                        <p className="text-xs font-black text-slate-900 dark:text-white uppercase">{booking.payment_method || "arrival"}</p>
+                  {/* Payment Method details */}
+                  <div className="bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl p-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 text-left">
+                        <CreditCard size={16} className="text-slate-400" />
+                        <div>
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Payment Selection</p>
+                          <p className="text-xs font-black text-slate-900 dark:text-white uppercase mt-1">
+                            {booking.payment_method === "esewa_deposit"
+                              ? "20% Downpayment"
+                              : booking.payment_method === "esewa_full"
+                                ? "Pay in Full (eSewa)"
+                                : booking.payment_method || "Pay on Arrival"}
+                          </p>
+                        </div>
                       </div>
+                      <span className={`badge ${
+                        booking.payment_status === "fully_paid"
+                          ? "badge-success bg-emerald-500/10 text-emerald-500 border border-emerald-300"
+                          : booking.payment_status === "paid"
+                            ? booking.payment_method === "esewa_deposit"
+                              ? "badge-info bg-sky-500/10 text-sky-500 border border-sky-300"
+                              : "badge-success bg-emerald-500/10 text-emerald-500 border border-emerald-300"
+                            : "badge-warning shadow-none bg-transparent border border-yellow-300"
+                      }`}>
+                        {booking.payment_status === "fully_paid"
+                          ? "Fully Paid"
+                          : booking.payment_status === "paid"
+                            ? booking.payment_method === "esewa_deposit"
+                              ? "Deposit Paid"
+                              : "Paid"
+                            : booking.payment_status?.toUpperCase() || "PENDING"}
+                      </span>
                     </div>
-                    <span className={`badge ${booking.payment_status === "paid" ? "badge-success" : "badge-warning shadow-none bg-transparent"}`}>
-                      {booking.payment_status?.toUpperCase() || "PENDING"}
-                    </span>
+
+                    {/* If 20% Deposit chosen, show breakdowns */}
+                    {booking.payment_method === "esewa_deposit" && (
+                      <div className="pt-3 border-t border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-500 space-y-2 text-left">
+                        <div className="flex justify-between">
+                          <span>Deposit Paid (20%)</span>
+                          <span className="text-slate-900 dark:text-white">${(booking.total_price * 0.2).toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Remaining Balance (80%)</span>
+                          <span className="text-slate-905 dark:text-white text-sm font-black">${(booking.total_price * 0.8).toFixed(2)}</span>
+                        </div>
+
+                        {/* Settle panel if not fully paid yet */}
+                        {booking.payment_status === "paid" ? (
+                          <div className="mt-4 p-4 rounded-2xl bg-sky-500/5 border border-sky-500/10 space-y-3">
+                            <p className="text-[10px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-widest leading-none">
+                              Process Remaining Payment
+                            </p>
+                            <p className="text-[10.5px] leading-normal text-slate-400">
+                              Choose how guest is settling the remaining balance of ${(booking.total_price * 0.8).toFixed(2)}:
+                            </p>
+                            
+                            <div className="flex gap-4">
+                              <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-slate-800 dark:text-white">
+                                <input
+                                  type="radio"
+                                  name="settleMethod"
+                                  checked={settleMethod === "arrival"}
+                                  onChange={() => setSettleMethod("arrival")}
+                                  className="text-sky-500 focus:ring-sky-500 h-4 w-4"
+                                />
+                                Cash / Arrival
+                              </label>
+                              <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-slate-800 dark:text-white">
+                                <input
+                                  type="radio"
+                                  name="settleMethod"
+                                  checked={settleMethod === "esewa_full"}
+                                  onChange={() => setSettleMethod("esewa_full")}
+                                  className="text-sky-500 focus:ring-sky-500 h-4 w-4"
+                                />
+                                eSewa Digital
+                              </label>
+                            </div>
+
+                            <button
+                              disabled={isUpdating}
+                              onClick={() => {
+                                editBooking({
+                                  ...booking,
+                                  payment_status: "fully_paid",
+                                  payment_method: settleMethod
+                                } as any, {
+                                  onSuccess: () => {
+                                    toast.success("Remaining balance settled successfully!");
+                                    booking.payment_status = "fully_paid";
+                                    booking.payment_method = settleMethod;
+                                  }
+                                });
+                              }}
+                              className="w-full mt-2 py-2.5 px-4 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-extrabold uppercase tracking-widest text-[10px] shadow transition disabled:opacity-50"
+                            >
+                              {isUpdating ? "Settling..." : "Confirm Settlement"}
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="mt-2 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/10 text-emerald-600 text-[10.5px] leading-relaxed">
+                            🟢 remaining balance settled via **{(booking.payment_method as any) === "esewa_full" ? "eSewa" : "Cash"}**! Stay is fully settled.
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </section>
@@ -218,10 +328,24 @@ const BookingDetailModal = ({
             <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Created:</span>
             <span className="text-xs font-black text-slate-600 dark:text-slate-300">{new Date(booking.created_at || "").toLocaleString()}</span>
           </div>
-          <button onClick={onClose} className="btn btn-primary px-10">
-            Close View
-          </button>
+          <div className="flex gap-3">
+            {(booking.payment_status === "paid" || booking.payment_status === "fully_paid") && (
+              <button onClick={() => setIsInvoiceOpen(true)} className="btn btn-secondary px-6 font-extrabold uppercase text-xs tracking-wider rounded-2xl">
+                View Invoice
+              </button>
+            )}
+            <button onClick={onClose} className="btn btn-primary px-10">
+              Close View
+            </button>
+          </div>
         </div>
+
+        {isInvoiceOpen && (
+          <InvoiceModal
+            booking={booking}
+            onClose={() => setIsInvoiceOpen(false)}
+          />
+        )}
       </div>
     </div>
   );

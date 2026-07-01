@@ -1,5 +1,6 @@
 import { ArrowLeft, MapPin, Tag } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { createPortal } from "react-dom";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
 import { serializeFiltersToParams } from "../../../store/useCabinFilters";
@@ -124,8 +125,8 @@ const CabinGallery = ({
             </div>
 
             {/* LIGHTBOX */}
-            {isLightboxOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
+            {isLightboxOpen && createPortal(
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90 backdrop-blur-md p-6">
                     <button
                         onClick={onCloseLightbox}
                         className="absolute top-6 right-6 text-white hover:text-slate-300 font-extrabold text-3xl cursor-pointer"
@@ -141,7 +142,8 @@ const CabinGallery = ({
                             e.currentTarget.src = "https://images.unsplash.com/photo-1542718610-a1d656d1884c?w=1200&q=80";
                         }}
                     />
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

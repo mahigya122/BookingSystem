@@ -1,7 +1,6 @@
 import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
 import type { CabinFilters } from "../store/useCabinFilters";
 import { DEFAULT_FILTERS } from "../store/useCabinFilters";
-import { useNavigate } from "react-router-dom";
 import { scrollToTop } from "@shared/hooks/useScrollToTop";
 
 export const useFilterActions = () => {
@@ -13,7 +12,6 @@ export const useFilterActions = () => {
     isSearching, 
     setSidebarOpen
   } = useCabinFiltersContext();
-  const navigate = useNavigate();
 
   const handlePriceChange = (values: number[]) => {
     setFilters({ ...filters, price: [values[0], values[1]] });
@@ -54,7 +52,6 @@ export const useFilterActions = () => {
     setFilters(DEFAULT_FILTERS);
     applyFilters(DEFAULT_FILTERS);
     setSidebarOpen(true);
-    navigate("/");
     scrollToTop(null, "auto");
   };
 

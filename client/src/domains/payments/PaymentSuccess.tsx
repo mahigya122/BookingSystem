@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle2, Calendar, CreditCard, Home, Loader2, ArrowRight } from "lucide-react";
+import { CheckCircle2, Calendar, CreditCard, Home, Loader2, ArrowRight, Printer } from "lucide-react";
 import { supabase } from "../../shared/services/supabase";
 import type { Booking } from "../../shared/types/booking";
+import InvoiceModal from "../../shared/modals/InvoiceModal";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -10,6 +11,7 @@ const PaymentSuccess = () => {
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -97,12 +99,36 @@ const PaymentSuccess = () => {
                 </h3>
               </div>
               <div className="text-right">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-0.5">Amount Paid</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-zinc-500 mb-0.5">
+                  {booking.payment_method === "esewa_deposit" ? "Deposit Paid" : "Amount Paid"}
+                </p>
                 <p className="text-lg font-black text-sky-650 dark:text-sky-400">
-                  Rs. {booking.total_price.toLocaleString()}
+                  Rs. {booking.payment_method === "esewa_deposit"
+                    ? (booking.total_price * 0.2).toLocaleString()
+                    : booking.payment_method === "esewa_full"
+                      ? (booking.total_price * 0.95).toLocaleString()
+                      : booking.total_price.toLocaleString()}
                 </p>
               </div>
             </div>
+
+            {booking.payment_method === "esewa_deposit" && (
+              <div className="p-4 rounded-2xl bg-sky-50 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-900/30 space-y-1 text-left">
+                <p className="text-[10px] font-black uppercase tracking-widest text-sky-600 dark:text-sky-400 leading-none">Remaining Balance Due at Arrival</p>
+                <p className="text-lg font-black text-slate-800 dark:text-white">
+                  Rs. {(booking.total_price * 0.8).toLocaleString()}
+                </p>
+                <p className="text-[11px] font-medium text-slate-500 dark:text-zinc-400 leading-normal">
+                  You can settle the remaining balance by <strong>Cash</strong> or <strong>eSewa</strong> upon arrival at the property.
+                </p>
+              </div>
+            )}
+
+            {booking.payment_method === "esewa_full" && (
+              <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 text-left">
+                ⭐ 5% Early Payment Discount was applied. Paid in full!
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="flex items-center gap-2">
@@ -134,6 +160,16 @@ const PaymentSuccess = () => {
         )}
 
         <div className="space-y-3">
+          {booking && (
+            <button
+              onClick={() => setIsInvoiceOpen(true)}
+              className="flex items-center justify-center gap-2 w-full py-4 px-6 rounded-full bg-slate-50 hover:bg-slate-100 dark:bg-zinc-800/50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-355 font-bold transition-all border border-slate-105 dark:border-zinc-800 hover:-translate-y-0.5 cursor-pointer"
+            >
+              <Printer className="w-4 h-4 text-sky-500" />
+              View & Print Invoice
+            </button>
+          )}
+
           <Link
             to="/bookings"
             className="flex items-center justify-center gap-2 w-full py-4 px-6 rounded-full bg-sky-500 hover:bg-sky-600 text-white font-bold shadow-md shadow-sky-200/50 dark:shadow-none hover:shadow-sky-300/40 transition-all duration-300 transform hover:-translate-y-0.5 group cursor-pointer"
@@ -151,6 +187,13 @@ const PaymentSuccess = () => {
           </Link>
         </div>
       </div>
+
+      {isInvoiceOpen && booking && (
+        <InvoiceModal
+          booking={booking}
+          onClose={() => setIsInvoiceOpen(false)}
+        />
+      )}
     </div>
   );
 };

@@ -192,10 +192,7 @@ const MyBookings = () => {
                   cabin={cabinInfo}
                   variant="small"
                   booking={{
-                    id: booking.id,
-                    start_date: booking.start_date,
-                    end_date: booking.end_date,
-                    total_price: booking.total_price,
+                    ...booking,
                     realStatus: realStatus
                   }}
                 />

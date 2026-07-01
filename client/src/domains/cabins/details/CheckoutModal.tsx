@@ -13,9 +13,9 @@ import {
     Footprints, 
     Sparkles 
 } from "lucide-react";
-import PaymentSelector from "../../payments/PaymentSelector";
 import type { Cabin } from "@shared/types";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
+import type { PaymentMethod } from "../../payments/payment.types";
 
 import type { Activity } from "@shared/types/activity";
 import type { Offer } from "@shared/types/offer";
@@ -74,11 +74,11 @@ interface CheckoutModalProps {
     selectedActivities: Activity[];
     selectedOffers: Offer[];
     totalPrice: number;
-    paymentMethod: string;
+    paymentMethod: PaymentMethod;
     isBookingPending: boolean;
     onClose: () => void;
     onStepChange: (step: "activities" | "summary" | "payment") => void;
-    onPaymentMethodChange: (method: string) => void;
+    onPaymentMethodChange: (method: PaymentMethod) => void;
     onConfirm: () => void;
     onToggleActivity: (activity: Activity) => void;
 }
@@ -272,50 +272,81 @@ const CheckoutModal = ({
                         </div>
 
                         {/* Price Breakdown */}
-                        <div className="space-y-2 px-2 text-left">
-                            <div className="flex justify-between text-sm font-bold text-slate-600 dark:text-slate-400">
-                                <span>Accommodation</span>
-                                <span>${baseAccommodationPrice}</span>
+                        <div className="space-y-4 px-2 text-left">
+                            {/* SECTION 1: ACCOMMODATION */}
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                    Accommodation
+                                </p>
+                                <div className="flex justify-between text-sm font-bold text-slate-655 dark:text-slate-400">
+                                    <span>Accommodation Price</span>
+                                    <span>${baseAccommodationPrice.toFixed(2)}</span>
+                                </div>
+                                
+                                {discountFromOffers > 0 && (
+                                    <div className="space-y-1.5">
+                                        <div className="flex justify-between text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                                            <span>Offer/Promotion Discount</span>
+                                            <span>-${discountFromOffers.toFixed(2)}</span>
+                                        </div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {selectedOffers.map((o: Offer) => (
+                                                <span key={o.id} className="text-[9px] bg-emerald-50 dark:bg-emerald-955/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/30 font-black uppercase">
+                                                    {o.name || o.title}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <p className="text-[10px] leading-relaxed text-slate-400 italic">
+                                            "Discounts apply to accommodation charges only. Optional activities and additional services are charged at their regular price."
+                                        </p>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-between text-sm font-black text-slate-800 dark:text-white pt-1 border-t border-slate-100 dark:border-slate-850">
+                                    <span>Accommodation Subtotal</span>
+                                    <span>${(baseAccommodationPrice - discountFromOffers).toFixed(2)}</span>
+                                </div>
                             </div>
-                            {breakfast && (
-                                <div className="flex justify-between text-sm font-bold text-slate-600 dark:text-slate-400">
-                                    <span>Breakfast Fee</span>
-                                    <span>${breakfastTotal}</span>
+
+                            {/* SECTION 2: ADDITIONAL SERVICES */}
+                            {(breakfast || activitiesTotal > 0) && (
+                                <div className="space-y-2.5 pt-2 border-t border-slate-150/80 dark:border-slate-800/80">
+                                    <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                                        Additional Services
+                                    </p>
+                                    
+                                    {breakfast && (
+                                        <div className="flex justify-between text-sm font-bold text-slate-655 dark:text-slate-400">
+                                            <span>Breakfast Fee</span>
+                                            <span>+${breakfastTotal.toFixed(2)}</span>
+                                        </div>
+                                    )}
+
+                                    {activitiesTotal > 0 && (
+                                        <div className="space-y-1.5">
+                                            <div className="flex justify-between text-sm font-bold text-slate-655 dark:text-slate-400">
+                                                <span>Extra Activities</span>
+                                                <span>+${activitiesTotal.toFixed(2)}</span>
+                                            </div>
+                                            <div className="space-y-1 pl-4 border-l-2 border-sky-100 dark:border-sky-950/40">
+                                                {selectedActivities.map((a: Activity) => (
+                                                    <div key={a.id} className="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400">
+                                                        <span>• {a.name}</span>
+                                                        <span>${(a.price || 0).toFixed(2)}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
-                            {activitiesTotal > 0 && (
-                                <div className="space-y-1">
-                                    <div className="flex justify-between text-sm font-bold text-slate-600 dark:text-slate-400">
-                                        <span>Extra Activities</span>
-                                        <span>${activitiesTotal}</span>
-                                    </div>
-                                    <div className="flex flex-wrap gap-1">
-                                        {selectedActivities.map((a: Activity) => (
-                                            <span key={a.id} className="text-[9px] bg-sky-50 dark:bg-sky-955/30 text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded-full border border-sky-100 dark:border-sky-900/30 font-black uppercase">
-                                                {a.name}
-                                            </span>
-                                        ))}
-                                    </div>
+
+                            {/* SECTION 3: ORDER TOTAL */}
+                            <div className="space-y-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+                                <div className="flex justify-between text-lg font-black text-slate-900 dark:text-white">
+                                    <span>Final Total</span>
+                                    <span className="text-sky-650 dark:text-sky-400">${totalPrice.toFixed(2)}</span>
                                 </div>
-                            )}
-                            {discountFromOffers > 0 && (
-                                <div className="space-y-1">
-                                    <div className="flex justify-between text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                                        <span>Offers Discount</span>
-                                        <span>-${discountFromOffers.toFixed(0)}</span>
-                                    </div>
-                                    <div className="flex flex-wrap gap-1">
-                                        {selectedOffers.map((o: Offer) => (
-                                            <span key={o.id} className="text-[9px] bg-emerald-50 dark:bg-emerald-955/30 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/30 font-black uppercase">
-                                                {o.name || o.title}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                            <div className="flex justify-between text-lg font-black text-slate-900 dark:text-white pt-2 border-t border-slate-100 dark:border-slate-800/80">
-                                <span>Total</span>
-                                <span className="text-sky-600 dark:text-sky-455">${totalPrice}</span>
                             </div>
                         </div>
 
@@ -341,15 +372,148 @@ const CheckoutModal = ({
                     </div>
                 ) : (
                     <div className="space-y-6 animate-slide-up">
-                        <PaymentSelector selectedMethod={paymentMethod} onSelect={onPaymentMethodChange} />
-
-                        <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/50 flex items-start gap-3">
-                            <Shield className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-                            <p className="text-xs font-bold text-amber-700 dark:text-amber-400 leading-relaxed text-left">
-                                All transactions are secured and encrypted. Payment info is never stored on our servers.
+                        {/* Selector title */}
+                        <div className="text-left">
+                            <h4 className="text-sm font-extrabold text-slate-850 dark:text-slate-200 uppercase tracking-wider">
+                                Select Payment Option
+                            </h4>
+                            <p className="text-xs text-slate-500 mt-1">
+                                Choose how you would like to settle the reservation:
                             </p>
                         </div>
 
+                        {/* Option cards */}
+                        <div className="space-y-4">
+                            {/* Option 1: 20% Deposit */}
+                            <div
+                                onClick={() => onPaymentMethodChange("esewa_deposit")}
+                                className={`p-5 rounded-3xl border-2 transition-all duration-300 cursor-pointer relative text-left ${
+                                    paymentMethod === "esewa_deposit"
+                                        ? "border-sky-500 bg-sky-500/5 shadow-md shadow-sky-500/5"
+                                        : "border-slate-150 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-950/10"
+                                }`}
+                            >
+                                <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-sky-100 dark:bg-sky-950 text-sky-655 dark:text-sky-400 border border-sky-200/30 dark:border-sky-900/30">
+                                    Recommended
+                                </span>
+                                
+                                <div className="flex items-center gap-3">
+                                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                                        paymentMethod === "esewa_deposit" ? "border-sky-500 bg-sky-500" : "border-slate-350"
+                                    }`}>
+                                        {paymentMethod === "esewa_deposit" && <span className="h-2 w-2 rounded-full bg-white" />}
+                                    </div>
+                                    <div>
+                                        <h5 className="font-extrabold text-sm text-slate-900 dark:text-white">Option 1: 20% Down Payment</h5>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Pay deposit online, balance upon arrival</p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 pt-4 border-t border-slate-150/70 dark:border-slate-800/80 grid grid-cols-2 gap-4 text-xs font-bold text-slate-550 dark:text-slate-400">
+                                    <div>
+                                        <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Due Now</p>
+                                        <p className="text-sm font-black text-sky-600 dark:text-sky-455">
+                                            ${(totalPrice * 0.2).toFixed(2)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Due At Arrival</p>
+                                        <p className="text-sm font-black text-slate-700 dark:text-slate-300">
+                                            ${(totalPrice * 0.8).toFixed(2)}
+                                        </p>
+                                    </div>
+                                </div>
+                                <p className="text-[10px] text-slate-400 mt-2.5 leading-snug">
+                                    * Settle the 80% remaining balance at check-in via Cash or eSewa.
+                                </p>
+                            </div>
+
+                            {/* Option 2: Pay in Full */}
+                            <div
+                                onClick={() => onPaymentMethodChange("esewa_full")}
+                                className={`p-5 rounded-3xl border-2 transition-all duration-300 cursor-pointer relative text-left ${
+                                    paymentMethod === "esewa_full"
+                                        ? "border-sky-500 bg-sky-500/5 shadow-md shadow-sky-500/5"
+                                        : "border-slate-150 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-950/10"
+                                }`}
+                            >
+                                <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950 text-emerald-655 dark:text-emerald-400 border border-emerald-200/30 dark:border-emerald-900/30">
+                                    Save 5%
+                                </span>
+
+                                <div className="flex items-center gap-3">
+                                    <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                                        paymentMethod === "esewa_full" ? "border-sky-500 bg-sky-500" : "border-slate-350"
+                                    }`}>
+                                        {paymentMethod === "esewa_full" && <span className="h-2 w-2 rounded-full bg-white" />}
+                                    </div>
+                                    <div>
+                                        <h5 className="font-extrabold text-sm text-slate-900 dark:text-white">Option 2: Pay in Full</h5>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Settle entire booking now with instant discount</p>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 pt-4 border-t border-slate-150/70 dark:border-slate-800/80 grid grid-cols-3 gap-2 text-xs font-bold text-slate-550 dark:text-slate-400">
+                                    <div>
+                                        <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Subtotal</p>
+                                        <p className="text-slate-500 line-through">
+                                            ${totalPrice.toFixed(2)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Discount</p>
+                                        <p className="text-emerald-600 dark:text-emerald-400">
+                                            -${(totalPrice * 0.05).toFixed(2)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Payable Now</p>
+                                        <p className="text-sm font-black text-sky-600 dark:text-sky-455">
+                                            ${(totalPrice * 0.95).toFixed(2)}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Cancellation Policy Box */}
+                        <div className="p-4 rounded-3xl border border-sky-100 dark:border-sky-900/30 bg-sky-50/10 dark:bg-sky-950/10 space-y-2 text-left">
+                            <div className="flex items-start gap-3">
+                                <Sparkles className="h-5 w-5 text-sky-500 shrink-0 mt-0.5" />
+                                <div className="space-y-1">
+                                    <p className="text-xs font-extrabold text-slate-800 dark:text-slate-200">Cancellation & Refund Policy</p>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
+                                        If the booking is cancelled according to the property's cancellation policy, any payment made (deposit or full payment) will be fully refunded.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            {/* Expandable policy details */}
+                            <details className="group px-8">
+                                <summary className="text-[10px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-wider cursor-pointer list-none flex items-center gap-1 select-none hover:opacity-85">
+                                    <span>View Complete Cancellation Policy</span>
+                                    <span className="transition-transform group-open:rotate-180">▼</span>
+                                </summary>
+                                <div className="mt-2 text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800/80 pt-2 space-y-1.5 list-disc list-inside">
+                                    <p>• Cancel up to 24 hours before check-in time to receive a 100% full refund.</p>
+                                    <p>• Cancellations requested within 24 hours of check-in are subject to a one-night fee.</p>
+                                    <p>• Refund processing takes between 3 to 5 business days back to your eSewa account.</p>
+                                </div>
+                            </details>
+                        </div>
+
+                        {/* eSewa secure payment badge */}
+                        <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/10 text-xs text-slate-655 dark:text-slate-400 font-bold">
+                            <div className="flex items-center gap-2">
+                                <span className="text-emerald-500 font-black tracking-widest text-sm">🟢 eSewa</span>
+                                <span>Secure Gateway</span>
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                <Shield size={12} className="text-emerald-500" /> Secured Transaction
+                            </span>
+                        </div>
+
+                        {/* Back / Pay buttons */}
                         <div className="flex gap-4 pt-2">
                             <button
                                 onClick={() => onStepChange("summary")}
@@ -371,7 +535,7 @@ const CheckoutModal = ({
                                         <Loader2 className="h-4.5 w-4.5 animate-spin" /> Confirming...
                                     </>
                                 ) : (
-                                    <>Confirm & Reserve Stay</>
+                                    <>Proceed to Pay</>
                                 )}
                             </button>
                         </div>

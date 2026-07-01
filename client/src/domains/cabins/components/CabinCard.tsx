@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, CheckCircle2, Clock, ShieldCheck, Compass } from "lucide-react";
+import { MapPin, Calendar, CheckCircle2, Clock, ShieldCheck, Compass, Printer } from "lucide-react";
 import type { Cabin } from "@shared/types/cabin";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { useCancelBooking, useUser } from "@shared/hooks";
 import ReviewForm from "../details/ReviewForm";
+import InvoiceModal from "../../../shared/modals/InvoiceModal";
 
 interface CabinCardProps {
   cabin: Cabin & {
@@ -14,14 +15,7 @@ interface CabinCardProps {
   };
   variant?: "tall" | "small" | "default";
   className?: string;
-  booking?: {
-    id: string;
-    start_date: string;
-    end_date: string;
-    status?: string;
-    total_price?: number;
-    realStatus?: string;
-  };
+  booking?: any;
 }
 
 const CabinCard = ({ cabin, variant = "default", className = "", booking }: CabinCardProps) => {
@@ -30,6 +24,7 @@ const CabinCard = ({ cabin, variant = "default", className = "", booking }: Cabi
   const { user } = useUser();
   const { cancel, isCancelling } = useCancelBooking();
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
   const handleCancelBooking = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -98,7 +93,7 @@ const CabinCard = ({ cabin, variant = "default", className = "", booking }: Cabi
   return (
     <div className={`group relative flex flex-col ${isTall ? "row-span-2" : ""} ${className}`}>
       <Link
-        to={`/cabin/${cabin.id}${booking ? `?bookingId=${booking.id}` : ""}`}
+        to={`/cabin/${cabin.id}`}
         className={`relative overflow-hidden rounded-2xl md:rounded-3xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-500 ease-out flex-1 ${isTall ? "aspect-[4/5] md:aspect-auto" : "aspect-[4/3]"
           } ${glowClass}`}
       >
@@ -153,15 +148,23 @@ const CabinCard = ({ cabin, variant = "default", className = "", booking }: Cabi
 
       {/* Action Buttons for Booking (My Trip Section) */}
       {booking && (
-        <div className="flex gap-2.5 mt-3 w-full shrink-0">
+        <div className="flex gap-2.5 mt-3 w-full shrink-0 flex-wrap">
           {booking.realStatus === "booked" && (
-            <button
-              onClick={handleCancelBooking}
-              disabled={isCancelling}
-              className="flex-1 py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white dark:bg-rose-950/30 dark:hover:bg-rose-600 dark:text-rose-400 font-extrabold text-[11px] uppercase tracking-wider transition-all border border-rose-100 dark:border-rose-900/50 hover:border-rose-600 disabled:opacity-50 cursor-pointer"
-            >
-              {isCancelling ? "Cancelling..." : "Cancel Stay"}
-            </button>
+            <>
+              <button
+                onClick={handleCancelBooking}
+                disabled={isCancelling}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white dark:bg-rose-955/30 dark:hover:bg-rose-600 dark:text-rose-455 font-extrabold text-[11px] uppercase tracking-wider transition-all border border-rose-100 dark:border-rose-900/50 hover:border-rose-600 disabled:opacity-50 cursor-pointer"
+              >
+                {isCancelling ? "Cancelling..." : "Cancel"}
+              </button>
+              <Link
+                to={`/cabin/${cabin.id}?bookingId=${booking.id}`}
+                className="flex-1 py-2.5 px-4 text-center rounded-xl bg-sky-50/50 hover:bg-sky-600 border border-sky-100/50 dark:border-sky-900/30 text-sky-700 hover:text-white dark:bg-sky-955/30 dark:hover:bg-sky-600 dark:text-sky-400 font-extrabold text-[11px] uppercase tracking-wider transition-all cursor-pointer"
+              >
+                Reschedule
+              </Link>
+            </>
           )}
           {(booking.realStatus === "checked-in" || booking.realStatus === "checked-out") && (
             <button
@@ -170,12 +173,33 @@ const CabinCard = ({ cabin, variant = "default", className = "", booking }: Cabi
                 e.stopPropagation();
                 setIsReviewModalOpen(true);
               }}
-              className="flex-1 py-2.5 px-4 rounded-xl bg-sky-50/50 hover:bg-sky-600 border border-sky-100 dark:border-sky-900/30 text-sky-700 hover:text-white dark:bg-sky-950/30 dark:hover:bg-sky-600 dark:text-sky-400 font-extrabold text-[11px] uppercase tracking-wider transition-all cursor-pointer"
+              className="flex-1 py-2.5 px-4 rounded-xl bg-sky-50/50 hover:bg-sky-600 border border-sky-100/50 dark:border-sky-900/30 text-sky-700 hover:text-white dark:bg-sky-955/30 dark:hover:bg-sky-600 dark:text-sky-400 font-extrabold text-[11px] uppercase tracking-wider transition-all cursor-pointer"
             >
               Share Experience
             </button>
           )}
+          {(booking.payment_status === "paid" || booking.payment_status === "fully_paid") && (
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsInvoiceOpen(true);
+              }}
+              className="flex-1 py-2.5 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-705 dark:text-slate-300 font-extrabold text-[11px] uppercase tracking-wider transition-all border border-slate-150/50 dark:border-slate-800 cursor-pointer flex items-center justify-center gap-1"
+            >
+              <Printer size={12} className="text-sky-500 shrink-0" />
+              Invoice
+            </button>
+          )}
         </div>
+      )}
+
+      {/* Invoice Modal Overlay */}
+      {isInvoiceOpen && (
+        <InvoiceModal
+          booking={booking}
+          onClose={() => setIsInvoiceOpen(false)}
+        />
       )}
 
       {/* Review Dialog Modal */}

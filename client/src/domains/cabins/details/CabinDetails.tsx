@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, useMemo, Suspense } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useEffect, useMemo, Suspense, useRef } from "react";
+import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { useUser, useCreateBooking, useCabins, useUpdateBooking, useBookings } from "@shared/hooks";
 import type { Cabin, Activity, Offer } from "@shared/types";
 import { useProfile } from "../../../hooks/useProfile";
@@ -9,6 +9,7 @@ import { useCabin } from "../hooks/useCabin";
 import { useCabinAvailability } from "../hooks/useCabinAvailability";
 import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
 import { usePayment } from "../../payments/usePayment";
+import type { PaymentMethod } from "../../payments/payment.types";
 import { getBookingRealStatus } from "@shared/utils/bookingUtils";
 import toast from "react-hot-toast";
 import { Check, Compass, ArrowLeft, Star, MapPin, Calendar } from "lucide-react";
@@ -48,6 +49,8 @@ const CabinDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const location = useLocation();
+    const stateBooking = location.state?.bookingState;
     const bookingId = searchParams.get("bookingId");
 
     const { data: cabin, isLoading: loadingCabin } = useCabin(id);
@@ -79,14 +82,16 @@ const CabinDetails = () => {
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isProfileIncompleteModalOpen, setIsProfileIncompleteModalOpen] = useState(false);
     const [checkoutStep, setCheckoutStep] = useState<"activities" | "summary" | "payment">("summary");
-    const [paymentMethod, setPaymentMethod] = useState<string>("");
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("esewa_deposit");
 
     // Calendar date state (synced from context or existing booking)
     const [startDate, setStartDate] = useState<Date | null>(() => {
+        if (stateBooking?.startDate) return new Date(stateBooking.startDate);
         if (existingBooking) return parseDateString(existingBooking.start_date);
         return filters?.dateRange?.startDate ? new Date(filters.dateRange.startDate) : null
     });
     const [endDate, setEndDate] = useState<Date | null>(() => {
+        if (stateBooking?.endDate) return new Date(stateBooking.endDate);
         if (existingBooking) return parseDateString(existingBooking.end_date);
         return filters?.dateRange?.endDate ? new Date(filters.dateRange.endDate) : null
     });
@@ -152,9 +157,15 @@ useEffect(() => {
     };
 }, [cabin?.id, clientId, startDate, endDate]);
 
-    const [breakfast, setBreakfast] = useState(existingBooking?.has_breakfast || false);
+    const isStateRestored = useRef(false);
+
+    const [breakfast, setBreakfast] = useState(() => {
+        if (stateBooking && typeof stateBooking.breakfast === "boolean") return stateBooking.breakfast;
+        return existingBooking?.has_breakfast || false;
+    });
 
     const [selectedOffers, setSelectedOffers] = useState<Offer[]>(() => {
+        if (stateBooking?.selectedOffers) return stateBooking.selectedOffers;
         if (existingBooking?.extra_offers) {
             return typeof existingBooking.extra_offers === "string"
                 ? JSON.parse(existingBooking.extra_offers)
@@ -163,6 +174,7 @@ useEffect(() => {
         return [];
     });
     const [selectedActivities, setSelectedActivities] = useState<Activity[]>(() => {
+        if (stateBooking?.selectedActivities) return stateBooking.selectedActivities;
         if (existingBooking?.extra_activities) {
             return typeof existingBooking.extra_activities === "string"
                 ? JSON.parse(existingBooking.extra_activities)
@@ -173,6 +185,10 @@ useEffect(() => {
 
     useEffect(() => {
         if (isUpdateMode) return;
+        if (stateBooking && !isStateRestored.current) {
+            isStateRestored.current = true;
+            return;
+        }
         if (startDate && endDate && cabin?.offers) {
             setSelectedOffers(cabin.offers);
         } else {
@@ -769,7 +785,10 @@ useEffect(() => {
     const handleConfirmBooking = () => {
         if (!startDate || !endDate || !user || !paymentMethod) return;
 
-        const isEsewa = paymentMethod === "esewa";
+        const isEsewa = paymentMethod.startsWith("esewa");
+        const finalPrice = paymentMethod === "esewa_full"
+            ? totalPrice * 0.95
+            : totalPrice;
 
         const bookingData = {
             guest_id: user.id,
@@ -779,7 +798,7 @@ useEffect(() => {
             cabin_id: cabin.id,
             start_date: formatDateString(startDate),
             end_date: formatDateString(endDate),
-            total_price: totalPrice,
+            total_price: finalPrice,
             has_breakfast: breakfast,
             extra_activities: selectedActivities,
             extra_offers: selectedOffers,
@@ -813,8 +832,11 @@ useEffect(() => {
 
                     if (isEsewa) {
                         toast.loading("Redirecting to eSewa...");
-                        // Trigger eSewa redirect using the newly created booking ID
-                        void payNow("esewa", totalPrice, newBooking.id);
+                        const payableAmount = paymentMethod === "esewa_deposit"
+                            ? totalPrice * 0.2
+                            : totalPrice * 0.95;
+                        // Trigger eSewa redirect using the newly created booking ID and correct amount
+                        void payNow(paymentMethod, payableAmount, newBooking.id);
                         return;
                     }
 
@@ -968,6 +990,13 @@ useEffect(() => {
                                 fullName={fullName}
                                 phone={phone}
                                 onClose={() => setIsProfileIncompleteModalOpen(false)}
+                                bookingState={{
+                                    startDate: startDate ? startDate.toISOString() : null,
+                                    endDate: endDate ? endDate.toISOString() : null,
+                                    breakfast,
+                                    selectedActivities,
+                                    selectedOffers
+                                }}
                             />
                         </Suspense>
                     )}

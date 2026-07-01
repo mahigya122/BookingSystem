@@ -1,7 +1,7 @@
 import { useProfile } from "../../hooks/useProfile";
 import { User, Mail, Shield, Loader2, Lock, Camera, Compass } from "lucide-react";
 import { useScrollToTop } from "@shared/hooks/useScrollToTop";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useCabinFiltersContext } from "../cabins/contexts/CabinFiltersContext";
 
 const ClientProfile = () => {
@@ -12,9 +12,20 @@ const ClientProfile = () => {
   } = useProfile();
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { setIsSearching } = useCabinFiltersContext();
 
-  const handleSaveProfile = (e: React.FormEvent) => { e.preventDefault(); save(); };
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const success = await save();
+    if (success) {
+      const fromPath = location.state?.from;
+      const bookingState = location.state?.bookingState;
+      if (fromPath) {
+        navigate(fromPath, { state: { bookingState } });
+      }
+    }
+  };
   const handleUpdatePassword = (e: React.FormEvent) => { e.preventDefault(); updatePass(); };
 
   const handleViewTrips = () => {
