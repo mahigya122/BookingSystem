@@ -1,25 +1,43 @@
-import { Shield } from "lucide-react";
-import InfoPageLayout from "../component/InfoPageLayout";
+import InfoPageLayout, { InfoParagraph } from "../component/InfoPageLayout";
+import InfoPageSkeleton from "../component/InfoPageSkeleton";
+import { useSimulatedLoad } from "./useSimulatedLoad";
 
-const PrivacyPage = () => (
-  <InfoPageLayout
-    title="Privacy Policy"
-    subtitle="Your trust is our most valuable asset."
-    icon={Shield}
-  >
-    <p className="text-xl md:text-2xl leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
-      At CabinHub, we take your privacy as seriously as your comfort. This
-      policy outlines how we protect and manage your data.
-    </p>
-    <p className="text-xl md:text-2xl leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
-      We only collect information essential to providing our services, such as
-      booking details and communication preferences.
-    </p>
-    <p className="text-xl md:text-2xl leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
-      We never sell your data to third parties. Your information is encrypted
-      and stored in secure, world-class data centers.
-    </p>
-  </InfoPageLayout>
-);
+const PrivacyPage = () => {
+  const isLoading = useSimulatedLoad();
+  if (isLoading) return <InfoPageSkeleton />;
+
+  return (
+    <InfoPageLayout
+      label="Privacy Policy"
+      title="Your trust is our most valuable asset."
+      subtitle="Last updated June 2026"
+    >
+      <InfoParagraph>
+        We only collect what's needed to run a booking — your account details,
+        stay dates, payment confirmation, and messages with your host. We don't
+        collect more than that just because we could.
+      </InfoParagraph>
+      <InfoParagraph>
+        Your data is encrypted in transit and at rest, and access inside
+        CabinHub is limited to the people who need it to support your stay —
+        mainly our concierge and trust & safety teams.
+      </InfoParagraph>
+      <InfoParagraph>
+        We never sell guest or host data to third parties. Where we do share
+        data — payment processing, for instance — it's with vetted providers
+        bound by their own confidentiality obligations, and only for the purpose
+        of completing your booking.
+      </InfoParagraph>
+      <InfoParagraph>
+        You can request a copy of your data or ask us to delete your account at
+        any time from your Profile settings, or by reaching out through the{" "}
+        <a href="/contact" className="text-sky-500 underline">
+          Contact page
+        </a>
+        .
+      </InfoParagraph>
+    </InfoPageLayout>
+  );
+};
 
 export default PrivacyPage;

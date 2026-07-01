@@ -1,25 +1,34 @@
-import { Cookie } from "lucide-react";
-import InfoPageLayout from "../component/InfoPageLayout";
+import InfoPageLayout, { InfoParagraph } from "../component/InfoPageLayout";
+import InfoPageSkeleton from "../component/InfoPageSkeleton";
+import { useSimulatedLoad } from "./useSimulatedLoad";
 
-const CookiesPage = () => (
-  <InfoPageLayout
-    title="Cookie Policy"
-    subtitle="Enhancing your digital journey."
-    icon={Cookie}
-  >
-    <p className="text-xl md:text-2xl leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
-      We use cookies to remember your preferences and provide a more
-      personalized browsing experience.
-    </p>
-    <p className="text-xl md:text-2xl leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
-      You can manage your cookie settings at any time through your browser
-      preferences.
-    </p>
-    <p className="text-xl md:text-2xl leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
-      We only use essential and performance-enhancing cookies to make our
-      platform faster and more intuitive.
-    </p>
-  </InfoPageLayout>
-);
+const CookiesPage = () => {
+  const isLoading = useSimulatedLoad();
+  if (isLoading) return <InfoPageSkeleton />;
+
+  return (
+    <InfoPageLayout
+      label="Cookie Policy"
+      title="Enhancing your digital journey."
+      subtitle="Last updated June 2026"
+    >
+      <InfoParagraph>
+        We use essential cookies to keep you signed in, remember your search
+        filters on the Explore page, and keep your cart/checkout state intact if
+        you navigate away mid-booking.
+      </InfoParagraph>
+      <InfoParagraph>
+        A small set of performance cookies help us understand which cabins and
+        destinations guests browse most, so we know where to focus curation
+        next. These never contain personal or payment data.
+      </InfoParagraph>
+      <InfoParagraph>
+        You can clear or block cookies at any time through your browser settings
+        — note that blocking essential cookies may sign you out or reset saved
+        filters.
+      </InfoParagraph>
+    </InfoPageLayout>
+  );
+};
 
 export default CookiesPage;

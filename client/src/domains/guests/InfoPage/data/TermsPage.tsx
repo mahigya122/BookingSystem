@@ -1,25 +1,39 @@
-import { FileText } from "lucide-react";
-import InfoPageLayout from "../component/InfoPageLayout";
+import InfoPageLayout, { InfoParagraph } from "../component/InfoPageLayout";
+import InfoPageSkeleton from "../component/InfoPageSkeleton";
+import { useSimulatedLoad } from "./useSimulatedLoad";
 
-const TermsPage = () => (
-  <InfoPageLayout
-    title="Terms of Service"
-    subtitle="The foundation of our community."
-    icon={FileText}
-  >
-    <p className="text-xl md:text-2xl leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
-      By using CabinHub, you agree to respect the natural environments and local
-      communities that host our cabins.
-    </p>
-    <p className="text-xl md:text-2xl leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
-      Our terms ensure a fair and transparent relationship between guests,
-      hosts, and our platform.
-    </p>
-    <p className="text-xl md:text-2xl leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
-      Please review our guest conduct guidelines and booking conditions to
-      ensure a harmonious experience for everyone.
-    </p>
-  </InfoPageLayout>
-);
+const TermsPage = () => {
+  const isLoading = useSimulatedLoad();
+  if (isLoading) return <InfoPageSkeleton />;
+
+  return (
+    <InfoPageLayout
+      label="Terms of Service"
+      title="The foundation of our community."
+      subtitle="Last updated June 2026"
+    >
+      <InfoParagraph>
+        By creating a CabinHub account or booking a cabin, you agree to treat
+        listed properties, their hosts, and the surrounding communities with the
+        same respect you'd expect as a guest yourself.
+      </InfoParagraph>
+      <InfoParagraph>
+        Bookings are a contract between you and the host, facilitated by
+        CabinHub. Cancellation terms, pricing, and house rules are set per
+        listing and shown before you confirm — read them, since they govern
+        refunds if plans change.
+      </InfoParagraph>
+      <InfoParagraph>
+        Misuse of the platform — fraudulent bookings, harassment of hosts or
+        guests, or circumventing our payment system — can result in suspension
+        of your account without refund.
+      </InfoParagraph>
+      <InfoParagraph>
+        We may update these terms as the platform evolves. Material changes will
+        be communicated by email before they take effect.
+      </InfoParagraph>
+    </InfoPageLayout>
+  );
+};
 
 export default TermsPage;

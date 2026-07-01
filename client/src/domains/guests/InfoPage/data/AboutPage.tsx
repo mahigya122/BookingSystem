@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { layoutConfig, pageSpacing } from "@shared/utils/spacing";
 import SectionHeader from "@shared/components/ui/SectionHeader";
 import { Compass, MapPinned, ShieldCheck } from "lucide-react";
-import HeroSection from "src/domains/cabins/explore/HeroSection";
-import AboutPageSkeletion from 
-import { useSimulatedLoad } from "../_components/useSimulatedLoad";
+import PageHero from "../component/PageHero";
+import AboutPageSkeleton from "../component/AboutPageSkeleton";
+import { useSimulatedLoad } from "./useSimulatedLoad";
 
 const STATS = [
   { value: "500+", label: "Cabins Listed" },
