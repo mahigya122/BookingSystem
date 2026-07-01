@@ -8,6 +8,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { LEGACY_INFO_SLUG_MAP } from "../../../app/path";
 
 const footerLinks = {
   Support: ["Help Center", "FAQs", "Contact"],
@@ -43,7 +44,7 @@ const Footer = () => {
 
   const handleLinkClick = (lnk: string) => {
     const slug = lnk.toLowerCase().replace(/ /g, "-");
-    const targetPath = `/info/${slug}`;
+    const targetPath = LEGACY_INFO_SLUG_MAP[slug] || `/info/${slug}`;
 
     if (location.pathname === targetPath) {
       window.scrollTo({ top: 0, behavior: "smooth" });
