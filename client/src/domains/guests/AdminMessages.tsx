@@ -37,7 +37,7 @@ export default function AdminMessages() {
     null,
   );
   const [input, setInput] = useState("");
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const { conversations } = useSupportConversations("admin", user?.id ?? null);
   const { messages, sendMessage, bottomRef } = useSupportMessages(

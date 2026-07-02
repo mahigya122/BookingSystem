@@ -35,7 +35,7 @@ export default function GuestMessages() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [adminId, setAdminId] = useState<string | null>(null);
   const [input, setInput] = useState("");
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const { messages, sendMessage, bottomRef } = useSupportMessages(
     conversationId,

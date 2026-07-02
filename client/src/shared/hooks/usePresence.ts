@@ -64,12 +64,15 @@ export function useWatchPresence(userId: string | null) {
 }
 
 // Typing indicator
+// Typing indicator
 export function useTyping(conversationId: string | null, myUserId: string | null) {
     const [otherIsTyping, setOtherIsTyping] = useState(false)
     const channelRef = useRef<RealtimeChannel | null>(null)
+    const isJoinedRef = useRef(false)
 
     useEffect(() => {
         if (!conversationId || !myUserId) return
+        isJoinedRef.current = false
 
         const channel = supabase.channel(`typing:${conversationId}`, {
             config: { presence: { key: myUserId } }
@@ -85,6 +88,7 @@ export function useTyping(conversationId: string | null, myUserId: string | null
             })
             .subscribe((status) => {
                 if (status === 'SUBSCRIBED') {
+                    isJoinedRef.current = true
                     channel.track({ typing: false })
                 }
             })
@@ -92,13 +96,15 @@ export function useTyping(conversationId: string | null, myUserId: string | null
         channelRef.current = channel
 
         return () => {
+            isJoinedRef.current = false
             supabase.removeChannel(channel)
             channelRef.current = null
         }
     }, [conversationId, myUserId])
 
-    // Reuses the already-subscribed channel — this is the actual fix
+    // Guarded: no-op until the channel has actually joined
     const setTyping = (typing: boolean) => {
+        if (!isJoinedRef.current) return
         channelRef.current?.track({ typing })
     }
 
