@@ -32,9 +32,10 @@ export function useSupportMessages(conversationId: string | null, senderRole: Se
                 table: 'support_messages',
                 filter: `conversation_id=eq.${conversationId}`,
             }, (payload) => {
+                const incoming = payload.new as SupportMessage;
                 setMessages(prev => {
                     if (prev.find(m => m.id === payload.new.id)) return prev
-                    return [...prev, payload.new as SupportMessage]
+                    return [...prev, incoming]
                 })
 
                 // Mark as read immediately since conversation is open
@@ -51,8 +52,12 @@ export function useSupportMessages(conversationId: string | null, senderRole: Se
                 table: 'support_messages',
                 filter: `conversation_id=eq.${conversationId}`,
             }, (payload) => {
+                const updated = payload.new as SupportMessage 
                 setMessages(prev =>
-                    prev.map(m => m.id === payload.new.id ? { ...m, is_read: payload.new.is_read } : m)
+                    prev.map(m => m.id === updated.id 
+                        ? { ...m, is_read: updated.is_read, delivered_at: updated.delivered_at, seen_at: updated.seen_at } 
+                        : m
+                    )
                 )
             })
             .subscribe()

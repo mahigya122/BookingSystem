@@ -1,66 +1,227 @@
-import { motion } from "framer-motion";
-import { Bot, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSupportMessages } from "@shared/hooks/useSupportMessages";
+import { useDeliveryReceipts } from "@shared/hooks/useDeliveryReceipts";
+import {
+  useOnlinePresence,
+  useWatchPresence,
+  useTyping,
+  formatLastSeen,
+} from "@shared/hooks/usePresence";
+import {
+  getTickStatus,
+  MessageTicks,
+} from "@shared/components/support/MessageTicks";
+import { supabase } from "@shared/services/supabase";
+import { useUser } from "@shared/hooks";
 
-interface Props {
-    role: "user" | "assistant";
-    content: string;
-    userInitials?: string;
+function TypingDots() {
+  return (
+    <div className="flex justify-start">
+      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="w-2 h-2 rounded-full bg-slate-400 animate-bounce"
+            style={{ animationDelay: `${i * 0.15}s` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
 
-const GuestMessage = ({ role, content, userInitials }: Props) => {
-    const isUser = role === "user";
+export default function GuestMessages() {
+  const { user } = useUser();
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [adminId, setAdminId] = useState<string | null>(null);
+  const [input, setInput] = useState("");
 
-    return (
-        <div className={`flex items-end gap-2.5 ${isUser ? "justify-end" : "justify-start"}`}>
-            {/* AI Avatar (left side of AI message) */}
-            {!isUser && (
-                <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shrink-0 shadow-sm border border-white/20 dark:border-slate-800"
-                    aria-hidden="true"
-                >
-                    <Bot size={16} strokeWidth={2} />
-                </div>
-            )}
+  const { messages, sendMessage, bottomRef } = useSupportMessages(
+    conversationId,
+    "guest",
+  );
 
-            <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                className={`max-w-[75%] rounded-[1.5rem] border px-4 py-3 whitespace-pre-wrap text-[14px] leading-relaxed shadow-sm`}
-                style={
-                    isUser
-                        ? {
-                            background:
-                                "linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)",
-                            borderColor: "transparent",
-                            color: "white",
-                        }
-                        : {
-                            background:
-                                "color-mix(in srgb, var(--app-surface-elevated) 95%, white)",
-                            borderColor: "var(--app-border)",
-                            color: "var(--app-text-main)",
-                            backdropFilter: "blur(12px)",
-                        }
-                }
-            >
-                {content}
-            </motion.div>
+  useOnlinePresence();
+  useDeliveryReceipts("guest", user?.id ?? null);
 
-            {/* User Avatar (right side of User message) */}
-            {isUser && (
-                <div 
-                    className="w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-tr from-sky-400 to-sky-500 text-white shrink-0 shadow-sm border border-white/20 dark:border-slate-800"
-                    aria-label="Your Profile Picture"
-                >
-                    {userInitials && userInitials !== "G" ? (
-                        <span className="font-extrabold text-[11px] uppercase tracking-wider">{userInitials}</span>
-                    ) : (
-                        <User size={15} strokeWidth={2} />
-                    )}
-                </div>
-            )}
+  const { isOnline, lastSeenAt } = useWatchPresence(adminId);
+  const { otherIsTyping, setTyping } = useTyping(
+    conversationId,
+    user?.id ?? null,
+  );
+
+  // Find or create conversation + get admin id
+  useEffect(() => {
+    if (!user) return;
+
+    const init = async () => {
+      const { data: existing } = await supabase
+        .from("support_conversations")
+        .select("id")
+        .eq("guest_id", user.id)
+        .maybeSingle();
+
+      if (existing) {
+        setConversationId(existing.id);
+      } else {
+        try {
+          const { data: created, error } = await supabase
+            .from("support_conversations")
+            .insert({ guest_id: user.id, subject: "Direct Message" })
+            .select("id")
+            .single();
+          if (error) throw error;
+          if (created) setConversationId(created.id);
+        } catch {
+          // Unique constraint hit — another request created it first, so just fetch it
+          const { data: refetched } = await supabase
+            .from("support_conversations")
+            .select("id")
+            .eq("guest_id", user.id)
+            .single();
+          if (refetched) setConversationId(refetched.id);
+        }
+      }
+
+      const { data: admin } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("role", "admin")
+        .limit(1)
+        .single();
+      if (admin) setAdminId(admin.id);
+    };
+
+    init();
+  }, [user]);
+
+  const handleSend = async () => {
+    if (!input.trim() || !user) return;
+    setTyping(false);
+    await sendMessage(input, user.id);
+    setInput("");
+  };
+
+  const handleTyping = (val: string) => {
+    setInput(val);
+    setTyping(val.length > 0);
+  };
+
+  // Last message I sent that the admin has already seen — avatar goes under this one only
+  const lastSeenOwnMessageId = messages.reduce<string | null>(
+    (acc, m) => (m.sender_role === "guest" && m.seen_at ? m.id : acc),
+    null,
+  );
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-80px)] bg-slate-50 dark:bg-slate-900">
+      {/* Header */}
+      <div className="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 px-6 py-3 flex items-center gap-3">
+        <div className="relative">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-sm font-bold">
+            S
+          </div>
+          <span
+            className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-800 ${
+              isOnline ? "bg-green-500" : "bg-slate-300"
+            }`}
+          />
         </div>
-    );
-};
+        <div>
+          <p className="font-semibold text-sm text-slate-800 dark:text-white">
+            Support
+          </p>
+          <p className="text-xs text-slate-400">
+            {isOnline ? (
+              <span className="text-green-500 font-medium">Online</span>
+            ) : (
+              formatLastSeen(lastSeenAt)
+            )}
+          </p>
+        </div>
+      </div>
 
-export default GuestMessage;
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5">
+        {messages.length === 0 && (
+          <div className="flex justify-center pt-8">
+            <p className="text-xs text-slate-400 bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-100 dark:border-slate-700">
+              Send a message to start the conversation
+            </p>
+          </div>
+        )}
+
+        {messages.map((msg, i) => {
+          const isMe = msg.sender_role === "guest";
+          const nextMsg = messages[i + 1];
+          const isLastInGroup =
+            !nextMsg || nextMsg.sender_role !== msg.sender_role;
+          const showSeenAvatar = isMe && msg.id === lastSeenOwnMessageId;
+
+          return (
+            <div key={msg.id}>
+              <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-[70%] flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                >
+                  <div
+                    className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                      isMe
+                        ? "bg-sky-500 text-white rounded-br-sm"
+                        : "bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-100 dark:border-slate-700 rounded-bl-sm"
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
+                  {isLastInGroup && (
+                    <div
+                      className={`flex items-center gap-1 mt-1 px-1 ${isMe ? "flex-row-reverse" : "flex-row"}`}
+                    >
+                      <span className="text-[10px] text-slate-400">
+                        {new Date(msg.created_at).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                      {isMe && <MessageTicks status={getTickStatus(msg)} />}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {showSeenAvatar && (
+                <div className="flex justify-end pr-1 mt-0.5">
+                  <div className="w-4 h-4 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-[8px] font-bold">
+                    S
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {otherIsTyping && <TypingDots />}
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Input */}
+      <div className="bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 px-4 py-3 flex items-center gap-3">
+        <input
+          value={input}
+          onChange={(e) => handleTyping(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+          onBlur={() => setTyping(false)}
+          placeholder="Message support..."
+          className="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300"
+        />
+        <button
+          onClick={handleSend}
+          disabled={!input.trim()}
+          className="bg-sky-500 hover:bg-sky-600 disabled:opacity-40 text-white rounded-xl px-4 py-2.5 text-sm font-medium transition-colors"
+        >
+          Send
+        </button>
+      </div>
+    </div>
+  );
+}

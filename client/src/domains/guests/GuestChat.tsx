@@ -5,7 +5,7 @@ import { X, Bot } from "lucide-react";
 import { useProfile } from "../../hooks/useProfile";
 
 import GuestInput from "./GuestInput";
-import GuestMessage from "./GuestMessage";
+import GuestChatBubble from "./GuestChatBubble";
 
 interface Message {
   role: "user" | "assistant";
@@ -388,7 +388,7 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
             {/* MESSAGES */}
             <div className="flex-1 space-y-4 overflow-y-auto p-4 md:p-6 custom-scrollbar-hide">
               {messages.map((msg, i) => (
-                <GuestMessage
+                <GuestChatBubble
                   key={i}
                   role={msg.role}
                   content={msg.content}

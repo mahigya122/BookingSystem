@@ -40,6 +40,9 @@ interface PromoBannerProps {
     trigger?: "auto" | "logo" | "login";
 }
 
+// Global tracking variable to ensure only one PromoBanner can be active at a time
+let activeBannerInstance: any = null;
+
 export const PromoBanner = ({ onCtaClick, triggerKey, trigger = "auto" }: PromoBannerProps) => {
     const [phase, setPhase] = useState<"hidden" | "entering" | "visible" | "leaving">("hidden");
     const [secs, setSecs] = useState(8);
@@ -51,10 +54,17 @@ export const PromoBanner = ({ onCtaClick, triggerKey, trigger = "auto" }: PromoB
         if (timerRef.current) clearTimeout(timerRef.current);
         if (countRef.current) clearInterval(countRef.current);
         setPhase("leaving");
-        setTimeout(() => setPhase("hidden"), 400);
+        setTimeout(() => {
+            setPhase("hidden");
+            if (activeBannerInstance === timerRef) {
+                activeBannerInstance = null;
+            }
+        }, 400);
     };
 
     const launch = () => {
+        if (activeBannerInstance !== null) return;
+        activeBannerInstance = timerRef;
         setSecs(8);
         setPhase("entering");
         setTimeout(() => setPhase("visible"), 60);
@@ -69,7 +79,21 @@ export const PromoBanner = ({ onCtaClick, triggerKey, trigger = "auto" }: PromoB
         timerRef.current = setTimeout(dismiss, AUTO_DISMISS_MS);
     };
 
+    // Clean up all timers and global active status when this instance unmounts
     useEffect(() => {
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+            if (countRef.current) clearInterval(countRef.current);
+            if (activeBannerInstance === timerRef) {
+                activeBannerInstance = null;
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        // If another banner is already active, don't schedule a launch
+        if (activeBannerInstance !== null) return;
+
         // "auto" trigger = first visit or page refresh (sessionStorage resets on both)
         if (trigger === "auto") {
             const alreadyShown = sessionStorage.getItem(SESSION_KEY);
@@ -78,8 +102,6 @@ export const PromoBanner = ({ onCtaClick, triggerKey, trigger = "auto" }: PromoB
             const t = setTimeout(launch, 800);
             return () => {
                 clearTimeout(t);
-                if (timerRef.current) clearTimeout(timerRef.current);
-                if (countRef.current) clearInterval(countRef.current);
             };
         }
 
@@ -89,8 +111,6 @@ export const PromoBanner = ({ onCtaClick, triggerKey, trigger = "auto" }: PromoB
             const t = setTimeout(launch, 800);
             return () => {
                 clearTimeout(t);
-                if (timerRef.current) clearTimeout(timerRef.current);
-                if (countRef.current) clearInterval(countRef.current);
             };
         }
 
@@ -101,8 +121,6 @@ export const PromoBanner = ({ onCtaClick, triggerKey, trigger = "auto" }: PromoB
             const t = setTimeout(launch, 150);
             return () => {
                 clearTimeout(t);
-                if (timerRef.current) clearTimeout(timerRef.current);
-                if (countRef.current) clearInterval(countRef.current);
             };
         }
     }, [triggerKey, trigger]);

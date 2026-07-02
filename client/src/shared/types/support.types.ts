@@ -1,5 +1,6 @@
 export type SenderRole = 'guest' | 'admin'
 export type ConversationStatus = 'open' | 'resolved' | 'closed'
+export type TickStatus = 'sent' | 'delivered' | 'seen'
 
 export interface SupportConversation {
     id: string
@@ -25,6 +26,8 @@ export interface SupportMessage {
     sender_role: SenderRole
     content: string
     is_read: boolean
+    delivered_at: string | null
+    seen_at: string | null
     created_at: string
     sender?: {
         id: string

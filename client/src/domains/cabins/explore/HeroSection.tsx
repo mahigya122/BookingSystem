@@ -59,7 +59,7 @@ const wordVariant = () => ({
 });
 
 const HeroSection = () => {
-    const { user } = useUser();
+    const { user, isLoading } = useUser();
     const { setIsSearching, setSidebarOpen } = useCabinFiltersContext();
     const navigate = useNavigate();
 
@@ -70,19 +70,28 @@ const HeroSection = () => {
     };
 
     // Track previous user id to detect login events
-    const prevUserIdRef = useRef<string | undefined>(user?.id);
+    const prevUserIdRef = useRef<string | undefined>(undefined);
+    const hasInitializedRef = useRef(false);
     const [loginKey, setLoginKey] = useState(0);
 
     useEffect(() => {
+        if (isLoading) return;
+
         const currentUserId = user?.id;
         const prevUserId = prevUserIdRef.current;
+
+        if (!hasInitializedRef.current) {
+            prevUserIdRef.current = currentUserId;
+            hasInitializedRef.current = true;
+            return;
+        }
 
         // Transition from logged-out (undefined) to logged-in (has an id)
         if (prevUserId === undefined && currentUserId !== undefined) {
             setLoginKey(k => k + 1);
         }
         prevUserIdRef.current = currentUserId;
-    }, [user?.id]);
+    }, [user?.id, isLoading]);
 
     const welcomeTitle = user ? `Welcome back, ${user.email?.split("@")[0]}!` : "Your Next Escape Awaits";
 

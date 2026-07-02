@@ -55,5 +55,5 @@ export const LegacyInfoRedirect = lazy(
 );
 
 export const GuestMessages = lazy(
-  () => import("../domains/guests/GuestsMessageindex"),
+  () => import("../domains/guests/GuestMessage"),
 );
