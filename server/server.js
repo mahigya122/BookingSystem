@@ -1,4 +1,5 @@
 import express from "express";
+import { supabase } from "./lib/supabase.js";
 import cors from "cors";
 import dotenv from "dotenv";
 import crypto from "crypto";
@@ -121,9 +122,19 @@ app.get("/api/esewa/success", async (req, res) => {
         const calculatedSignature = generateSignature(message);
         if (calculatedSignature !== signature) return res.redirect(`${FRONTEND_URL}/payment/failure`);
 
+        const { data: existingBooking } = await supabase
+            .from("bookings")
+            .select("payment_method")
+            .eq("id", transaction_uuid)
+            .single();
+
+        const methodToSave = (existingBooking && existingBooking.payment_method && existingBooking.payment_method.startsWith("esewa"))
+            ? existingBooking.payment_method
+            : "esewa";
+
         await patchBookingReservation(transaction_uuid, {
             payment_status: "paid",
-            payment_method: "esewa",
+            payment_method: methodToSave,
             paid_at: new Date().toISOString(),
             transaction_id: `ESEWA-${transaction_code || Date.now()}`,
         });
