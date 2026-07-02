@@ -1,31 +1,42 @@
+import { Send } from "lucide-react";
+import type { Ref } from "react";
+
 interface Props {
     value: string;
     onChange: (value: string) => void;
     onSend: () => void;
     disabled?: boolean;
+    inputRef?: Ref<HTMLInputElement>;
 }
 
-const SQLInput = ({ value, onChange, onSend, disabled = false }: Props) => {
+const SQLInput = ({
+    value,
+    onChange,
+    onSend,
+    disabled = false,
+    inputRef,
+}: Props) => {
     return (
-        <div className="flex gap-2 rounded-2xl border p-1.5 shadow-sm" style={{ borderColor: "var(--app-border)", background: "color-mix(in srgb, var(--app-surface-elevated) 88%, transparent)" }}>
+        <div className="flex items-center gap-2 p-1">
             <input
+                ref={inputRef}
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                placeholder="Ask anything about bookings, cabins, or guests..."
-                className="flex-1 rounded-xl border px-3.5 py-2.5 outline-none transition"
-                style={{
-                    background: "color-mix(in srgb, var(--app-surface) 88%, transparent)",
-                    borderColor: "var(--app-border)",
-                    color: "var(--app-text-main)",
+                onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                        onSend();
+                    }
                 }}
+                placeholder="Ask anything about bookings, cabins, or guests..."
+                className="flex-1 bg-transparent px-4 py-3 text-sm font-medium outline-none transition dark:text-white placeholder:text-slate-400"
             />
 
             <button
                 onClick={onSend}
-                disabled={disabled}
-                className="btn btn-primary rounded-xl px-4 disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={disabled || !value.trim()}
+                className="flex h-8 w-8 items-center justify-center rounded-2xl bg-sky-500 text-white transition-all hover:bg-sky-600 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 shadow-lg shadow-sky-500/20 shrink-0"
             >
-                {disabled ? "Sending..." : "Send"}
+                <Send size={18} />
             </button>
         </div>
     );

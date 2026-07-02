@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSupportMessages } from "@shared/hooks/useSupportMessages";
 import { useDeliveryReceipts } from "@shared/hooks/useDeliveryReceipts";
 import {
@@ -35,6 +35,7 @@ export default function GuestMessages() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [adminId, setAdminId] = useState<string | null>(null);
   const [input, setInput] = useState("");
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const { messages, sendMessage, bottomRef } = useSupportMessages(
     conversationId,
@@ -105,6 +106,10 @@ export default function GuestMessages() {
   const handleTyping = (val: string) => {
     setInput(val);
     setTyping(val.length > 0);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    if (val.length > 0) {
+      typingTimeoutRef.current = setTimeout(() => setTyping(false), 3000);
+    }
   };
 
   // Last message I sent that the admin has already seen — avatar goes under this one only
@@ -150,7 +155,6 @@ export default function GuestMessages() {
             </p>
           </div>
         )}
-
         {messages.map((msg, i) => {
           const isMe = msg.sender_role === "guest";
           const nextMsg = messages[i + 1];
@@ -160,7 +164,19 @@ export default function GuestMessages() {
 
           return (
             <div key={msg.id}>
-              <div className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+              <div
+                className={`flex items-end gap-2 ${isMe ? "justify-end" : "justify-start"}`}
+              >
+                {!isMe && (
+                  <div
+                    className={`w-7 h-7 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0 ${
+                      isLastInGroup ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    S
+                  </div>
+                )}
+
                 <div
                   className={`max-w-[70%] flex flex-col ${isMe ? "items-end" : "items-start"}`}
                 >
@@ -187,10 +203,20 @@ export default function GuestMessages() {
                     </div>
                   )}
                 </div>
+
+                {isMe && (
+                  <div
+                    className={`w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white text-xs font-bold shrink-0 ${
+                      isLastInGroup ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    G
+                  </div>
+                )}
               </div>
 
               {showSeenAvatar && (
-                <div className="flex justify-end pr-1 mt-0.5">
+                <div className="flex justify-end pr-9 mt-0.5">
                   <div className="w-4 h-4 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-[8px] font-bold">
                     S
                   </div>
@@ -198,8 +224,7 @@ export default function GuestMessages() {
               )}
             </div>
           );
-        })}
-
+        })}{" "}
         {otherIsTyping && <TypingDots />}
         <div ref={bottomRef} />
       </div>

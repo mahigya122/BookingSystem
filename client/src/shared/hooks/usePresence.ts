@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { supabase } from '@shared/services/supabase'
+import type { RealtimeChannel } from '@supabase/supabase-js'
 
 // Online / Last seen
 export function useOnlinePresence() {
@@ -65,6 +66,7 @@ export function useWatchPresence(userId: string | null) {
 // Typing indicator
 export function useTyping(conversationId: string | null, myUserId: string | null) {
     const [otherIsTyping, setOtherIsTyping] = useState(false)
+    const channelRef = useRef<RealtimeChannel | null>(null)
 
     useEffect(() => {
         if (!conversationId || !myUserId) return
@@ -76,24 +78,28 @@ export function useTyping(conversationId: string | null, myUserId: string | null
         channel
             .on('presence', { event: 'sync' }, () => {
                 const state = channel.presenceState<{ typing: boolean }>()
-                // Check if anyone OTHER than me is typing
                 const othersTyping = Object.entries(state)
                     .filter(([key]) => key !== myUserId)
                     .some(([, presences]) => presences.some(p => p.typing))
                 setOtherIsTyping(othersTyping)
             })
-            .subscribe()
+            .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    channel.track({ typing: false })
+                }
+            })
 
-        return () => { supabase.removeChannel(channel) }
+        channelRef.current = channel
+
+        return () => {
+            supabase.removeChannel(channel)
+            channelRef.current = null
+        }
     }, [conversationId, myUserId])
 
-    // Call this from the input box
+    // Reuses the already-subscribed channel — this is the actual fix
     const setTyping = (typing: boolean) => {
-        if (!conversationId || !myUserId) return
-        const channel = supabase.channel(`typing:${conversationId}`, {
-            config: { presence: { key: myUserId } }
-        })
-        channel.track({ typing })
+        channelRef.current?.track({ typing })
     }
 
     return { otherIsTyping, setTyping }

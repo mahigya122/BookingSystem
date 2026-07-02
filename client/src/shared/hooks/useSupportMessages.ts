@@ -21,6 +21,15 @@ export function useSupportMessages(conversationId: string | null, senderRole: Se
         supabase.rpc('reset_unread', {
             p_conversation_id: conversationId,
             p_role: senderRole,
+        }).then(({ error }) => {
+            if (error) console.error('reset_unread failed:', error)
+        })
+
+        supabase.rpc('mark_seen', {
+            p_conversation_id: conversationId,
+            p_role: senderRole,
+        }).then(({ error }) => {
+            if (error) console.error('mark_seen failed:', error)
         })
 
         // Realtime: new messages
@@ -32,9 +41,9 @@ export function useSupportMessages(conversationId: string | null, senderRole: Se
                 table: 'support_messages',
                 filter: `conversation_id=eq.${conversationId}`,
             }, (payload) => {
-                const incoming = payload.new as SupportMessage;
+                const incoming = payload.new as SupportMessage
                 setMessages(prev => {
-                    if (prev.find(m => m.id === payload.new.id)) return prev
+                    if (prev.find(m => m.id === incoming.id)) return prev
                     return [...prev, incoming]
                 })
 
@@ -42,20 +51,29 @@ export function useSupportMessages(conversationId: string | null, senderRole: Se
                 supabase.rpc('reset_unread', {
                     p_conversation_id: conversationId,
                     p_role: senderRole,
+                }).then(({ error }) => {
+                    if (error) console.error('reset_unread failed:', error)
+                })
+
+                supabase.rpc('mark_seen', {
+                    p_conversation_id: conversationId,
+                    p_role: senderRole,
+                }).then(({ error }) => {
+                    if (error) console.error('mark_seen failed:', error)
                 })
             })
 
-            // Realtime: read receipt updates (is_read flips to true)
+            // Realtime: read receipt updates (delivered_at / seen_at changes)
             .on('postgres_changes', {
                 event: 'UPDATE',
                 schema: 'public',
                 table: 'support_messages',
                 filter: `conversation_id=eq.${conversationId}`,
             }, (payload) => {
-                const updated = payload.new as SupportMessage 
+                const updated = payload.new as SupportMessage
                 setMessages(prev =>
-                    prev.map(m => m.id === updated.id 
-                        ? { ...m, is_read: updated.is_read, delivered_at: updated.delivered_at, seen_at: updated.seen_at } 
+                    prev.map(m => m.id === updated.id
+                        ? { ...m, is_read: updated.is_read, delivered_at: updated.delivered_at, seen_at: updated.seen_at }
                         : m
                     )
                 )

@@ -1,7 +1,4 @@
-import { X } from "lucide-react";
-
 import SQLChat from "./SQLChat";
-
 import { useAIChat } from "../../ai/AIChatContext";
 
 const AIChatDrawer = () => {
@@ -20,7 +17,7 @@ const AIChatDrawer = () => {
 
       {/* DRAWER */}
       <div
-        className={`fixed right-0 top-0 z-50 h-screen w-[440px] transform border-l shadow-2xl transition-transform duration-300 ${
+        className={`fixed right-0 top-0 z-50 h-screen w-full sm:w-[440px] transform border-l shadow-2xl transition-transform duration-300 ${
           open
             ? "translate-x-0"
             : "translate-x-full"
@@ -31,25 +28,9 @@ const AIChatDrawer = () => {
           boxShadow: "-28px 0 80px -38px rgba(0, 0, 0, 0.55)",
         }}
       >
-        {/* HEADER */}
-        <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--app-border)" }}>
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.35em]" style={{ borderColor: "var(--app-border)", color: "var(--app-primary)", background: "color-mix(in srgb, var(--app-primary) 8%, transparent)" }}>
-              FlowAI
-            </div>
-          </div>
-
-          <button
-            onClick={() => setOpen(false)}
-            className="btn btn-ghost h-10 w-10 p-0"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* CHAT */}
-        <div className="h-[calc(100vh-64px)] p-3">
-          <SQLChat isOpen={open} />
+        {/* CHAT BODY (FULL SCREEN) */}
+        <div className="h-full relative overflow-hidden">
+          <SQLChat isOpen={open} onClose={() => setOpen(false)} />
         </div>
       </div>
     </>

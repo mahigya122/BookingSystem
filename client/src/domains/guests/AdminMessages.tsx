@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useSupportMessages } from "@shared/hooks/useSupportMessages";
 import { useSupportConversations } from "@shared/hooks/useSupportConversations";
 import { useDeliveryReceipts } from "@shared/hooks/useDeliveryReceipts";
@@ -37,6 +37,7 @@ export default function AdminMessages() {
     null,
   );
   const [input, setInput] = useState("");
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   const { conversations } = useSupportConversations("admin", user?.id ?? null);
   const { messages, sendMessage, bottomRef } = useSupportMessages(
@@ -71,6 +72,10 @@ export default function AdminMessages() {
   const handleTyping = (val: string) => {
     setInput(val);
     setTyping(val.length > 0);
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    if (val.length > 0) {
+      typingTimeoutRef.current = setTimeout(() => setTyping(false), 3000);
+    }
   };
 
   // Last message I (admin) sent that the guest has already seen
@@ -229,11 +234,21 @@ export default function AdminMessages() {
                           </div>
                         )}
                       </div>
+
+                      {isMe && (
+                        <div
+                          className={`w-7 h-7 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-xs font-bold shrink-0 ${
+                            isLastInGroup ? "opacity-100" : "opacity-0"
+                          }`}
+                        >
+                          A
+                        </div>
+                      )}
                     </div>
 
                     {showSeenAvatar && (
-                      <div className="flex justify-end pr-1 mt-0.5">
-                        <div className="w-4 h-4 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-[8px] font-bold">
+                      <div className="flex justify-end pr-9 mt-0.5">
+                        <div className="w-4 h-4 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-[8px] font-bold">
                           {activeConv.guest?.full_name?.[0]?.toUpperCase() ??
                             "G"}
                         </div>

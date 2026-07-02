@@ -1,26 +1,59 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 import { useAIChat } from "../../../domains/admin/ai/AIChatContext";
 
 const AdminAIFloatButton = () => {
   const { open, setOpen } = useAIChat();
   const [showBubble, setShowBubble] = useState(false);
   const [constraints, setConstraints] = useState({ left: 0, right: 0, top: 0, bottom: 0 });
+  const isDraggingRef = useRef(false);
+
+  // Load initial position from localStorage and clamp it to the current viewport constraints
+  const getInitialPosition = () => {
+    const saved = localStorage.getItem("admin-ai-float-position");
+    if (saved) {
+      try {
+        const { x, y } = JSON.parse(saved);
+        const maxLeft = -window.innerWidth + 120;
+        const maxRight = 20;
+        const maxTop = -window.innerHeight + 120;
+        const maxBottom = 20;
+        return {
+          x: Math.max(maxLeft, Math.min(maxRight, x)),
+          y: Math.max(maxTop, Math.min(maxBottom, y)),
+        };
+      } catch (e) {}
+    }
+    return { x: 0, y: 0 };
+  };
+
+  const initialPos = getInitialPosition();
+  const x = useMotionValue(initialPos.x);
+  const y = useMotionValue(initialPos.y);
 
   useEffect(() => {
     const updateConstraints = () => {
+      const maxLeft = -window.innerWidth + 120;
+      const maxRight = 20;
+      const maxTop = -window.innerHeight + 120;
+      const maxBottom = 20;
+
       setConstraints({
-        left: -window.innerWidth + 120,
-        right: 20,
-        top: -window.innerHeight + 120,
-        bottom: 20,
+        left: maxLeft,
+        right: maxRight,
+        top: maxTop,
+        bottom: maxBottom,
       });
+
+      // Keep current position bounded on resize
+      x.set(Math.max(maxLeft, Math.min(maxRight, x.get())));
+      y.set(Math.max(maxTop, Math.min(maxBottom, y.get())));
     };
 
     updateConstraints();
     window.addEventListener("resize", updateConstraints);
     return () => window.removeEventListener("resize", updateConstraints);
-  }, []);
+  }, [x, y]);
 
   useEffect(() => {
     const showTimer = setTimeout(() => {
@@ -44,6 +77,24 @@ const AdminAIFloatButton = () => {
       drag
       dragConstraints={constraints}
       dragMomentum={false}
+      style={{ x, y }}
+      onDragStart={() => {
+        isDraggingRef.current = true;
+      }}
+      onTap={() => {
+        if (isDraggingRef.current) return;
+        setOpen(true);
+        setShowBubble(false);
+      }}
+      onDragEnd={() => {
+        setTimeout(() => {
+          isDraggingRef.current = false;
+        }, 100);
+        localStorage.setItem(
+          "admin-ai-float-position",
+          JSON.stringify({ x: x.get(), y: y.get() })
+        );
+      }}
       className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end gap-3 cursor-grab active:cursor-grabbing select-none"
     >
 
@@ -86,11 +137,7 @@ const AdminAIFloatButton = () => {
       {/* ===================== */}
       {/* 🤖 FLOATING AI BUTTON */}
       {/* ===================== */}
-      <button
-        onClick={() => {
-          setOpen(true);
-          setShowBubble(false);
-        }}
+      <div
         className="
           relative
           group
@@ -99,6 +146,7 @@ const AdminAIFloatButton = () => {
           hover:-translate-y-1
           active:scale-95
           transition-all duration-300
+          cursor-pointer
         "
         title="Chat with AI"
       >
@@ -106,6 +154,7 @@ const AdminAIFloatButton = () => {
         <img
           src="https://cdn-icons-png.flaticon.com/512/8943/8943377.png"
           alt="AI Assistant"
+          draggable="false"
           className="
             relative z-10
             w-16 h-16 md:w-20 md:h-20
@@ -128,7 +177,7 @@ const AdminAIFloatButton = () => {
             animate-pulse
           "
         />
-      </button>
+      </div>
     </motion.div>
   );
 };
