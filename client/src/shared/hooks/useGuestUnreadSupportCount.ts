@@ -7,6 +7,19 @@ export function useGuestUnreadSupportCount(userId: string | null) {
     useEffect(() => {
         if (!userId) return
 
+        const topic = `guest-unread:${userId}`
+
+        // Defensive: if a channel with this exact topic already exists
+        // (e.g. from a fast remount that hasn't finished cleanup yet),
+        // remove it first — otherwise supabase.channel() returns the
+        // already-subscribed instance and .on() throws.
+        const existing = supabase.getChannels().find(
+            (ch) => ch.topic === `realtime:${topic}`
+        )
+        if (existing) {
+            supabase.removeChannel(existing)
+        }
+
         const fetchCount = async () => {
             const { data } = await supabase
                 .from('support_conversations')
@@ -19,7 +32,7 @@ export function useGuestUnreadSupportCount(userId: string | null) {
         fetchCount()
 
         const channel = supabase
-            .channel(`guest-unread:${userId}`)
+            .channel(topic)
             .on('postgres_changes', {
                 event: 'UPDATE',
                 schema: 'public',
