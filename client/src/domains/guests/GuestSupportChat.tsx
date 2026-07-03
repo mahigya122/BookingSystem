@@ -13,6 +13,30 @@ import {
 } from "@shared/components/support/MessageTicks";
 import { supabase } from "@shared/services/supabase";
 import { useUser } from "@shared/hooks";
+import { Headset } from "lucide-react";
+
+const ME_STYLE = { grad: "from-sky-400 to-blue-600", ring: "ring-sky-200" };
+const ADMIN_STYLE = { grad: "from-emerald-400 to-teal-600", ring: "ring-emerald-200" };
+
+function Avatar({
+  style,
+  initial,
+  size = "w-9 h-9",
+  textSize = "text-sm",
+}: {
+  style: { grad: string; ring: string };
+  initial: string;
+  size?: string;
+  textSize?: string;
+}) {
+  return (
+    <div
+      className={`${size} rounded-full bg-gradient-to-br ${style.grad} flex items-center justify-center text-white font-bold ${textSize} shrink-0 ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ${style.ring}`}
+    >
+      {initial}
+    </div>
+  );
+}
 
 function TypingDots() {
   return (
@@ -30,28 +54,33 @@ function TypingDots() {
   );
 }
 
-export default function GuestMessages() {
+interface Props {
+  isOpen: boolean;
+}
+
+export default function GuestSupportChat({ isOpen }: Props) {
   const { user } = useUser();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [adminId, setAdminId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const { messages, sendMessage, bottomRef } = useSupportMessages(
-    conversationId,
-    "guest",
-  );
+  const { messages, sendMessage, bottomRef } = useSupportMessages(conversationId, "guest");
 
   useOnlinePresence();
   useDeliveryReceipts("guest", user?.id ?? null);
 
   const { isOnline, lastSeenAt } = useWatchPresence(adminId);
-  const { otherIsTyping, setTyping } = useTyping(
-    conversationId,
-    user?.id ?? null,
-  );
+  const { otherIsTyping, setTyping } = useTyping(conversationId, user?.id ?? null);
 
-  // Find or create conversation + get admin id
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => inputRef.current?.focus(), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (!user) return;
 
@@ -74,7 +103,6 @@ export default function GuestMessages() {
           if (error) throw error;
           if (created) setConversationId(created.id);
         } catch {
-          // Unique constraint hit — another request created it first, so just fetch it
           const { data: refetched } = await supabase
             .from("support_conversations")
             .select("id")
@@ -112,140 +140,127 @@ export default function GuestMessages() {
     }
   };
 
-  // Last message I sent that the admin has already seen — avatar goes under this one only
   const lastSeenOwnMessageId = messages.reduce<string | null>(
     (acc, m) => (m.sender_role === "guest" && m.seen_at ? m.id : acc),
     null,
   );
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] bg-slate-50 dark:bg-slate-900">
-      {/* Header */}
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 px-6 py-3 flex items-center gap-3">
+    <div className="flex h-full flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950/10">
+      {/* HEADER */}
+      <div
+        className="flex items-center gap-3 px-6 py-4 border-b bg-white/60 dark:bg-slate-950/60 backdrop-blur-md shrink-0"
+        style={{ borderColor: "var(--app-border)" }}
+      >
         <div className="relative">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-sm font-bold">
-            S
+          <div className="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/10 border border-white/20 dark:border-slate-800">
+            <Headset size={20} strokeWidth={2} />
           </div>
           <span
-            className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-800 ${
-              isOnline ? "bg-green-500" : "bg-slate-300"
+            className={`absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-950 ${
+              isOnline ? "bg-emerald-500" : "bg-slate-300"
             }`}
           />
         </div>
-        <div>
-          <p className="font-semibold text-sm text-slate-800 dark:text-white">
+        <div className="flex flex-col">
+          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-0.5">
             Support
-          </p>
-          <p className="text-xs text-slate-400">
-            {isOnline ? (
-              <span className="text-green-500 font-medium">Online</span>
+          </span>
+          <span className="text-sm md:text-base font-black text-slate-800 dark:text-white leading-tight">
+            Human Support
+          </span>
+          <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+            {otherIsTyping ? (
+              <span className="text-emerald-500">typing...</span>
+            ) : isOnline ? (
+              <span className="text-emerald-500">Online</span>
             ) : (
               formatLastSeen(lastSeenAt)
             )}
-          </p>
+          </span>
         </div>
       </div>
 
-      {/* Messages */}
+      {/* MESSAGES */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5">
         {messages.length === 0 && (
           <div className="flex justify-center pt-8">
             <p className="text-xs text-slate-400 bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-100 dark:border-slate-700">
-              Send a message to start the conversation
+              Send a message to reach our team
             </p>
           </div>
         )}
         {messages.map((msg, i) => {
           const isMe = msg.sender_role === "guest";
           const nextMsg = messages[i + 1];
-          const isLastInGroup =
-            !nextMsg || nextMsg.sender_role !== msg.sender_role;
+          const isLastInGroup = !nextMsg || nextMsg.sender_role !== msg.sender_role;
           const showSeenAvatar = isMe && msg.id === lastSeenOwnMessageId;
 
           return (
             <div key={msg.id}>
-              <div
-                className={`flex items-end gap-2 ${isMe ? "justify-end" : "justify-start"}`}
-              >
+              <div className={`flex items-end gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
                 {!isMe && (
-                  <div
-                    className={`w-7 h-7 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold shrink-0 ${
-                      isLastInGroup ? "opacity-100" : "opacity-0"
-                    }`}
-                  >
-                    S
+                  <div className={isLastInGroup ? "opacity-100" : "opacity-0"}>
+                    <Avatar style={ADMIN_STYLE} initial="S" size="w-7 h-7" textSize="text-xs" />
                   </div>
                 )}
-
-                <div
-                  className={`max-w-[70%] flex flex-col ${isMe ? "items-end" : "items-start"}`}
-                >
+                <div className={`max-w-[75%] flex flex-col ${isMe ? "items-end" : "items-start"}`}>
                   <div
                     className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                       isMe
                         ? "bg-sky-500 text-white rounded-br-sm"
-                        : "bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-100 dark:border-slate-700 rounded-bl-sm"
+                        : "bg-emerald-100 text-emerald-950 rounded-bl-sm dark:bg-emerald-900/40 dark:text-emerald-50"
                     }`}
                   >
                     {msg.content}
                   </div>
                   {isLastInGroup && (
-                    <div
-                      className={`flex items-center gap-1 mt-1 px-1 ${isMe ? "flex-row-reverse" : "flex-row"}`}
-                    >
+                    <div className={`flex items-center gap-1 mt-1 px-1 ${isMe ? "flex-row-reverse" : "flex-row"}`}>
                       <span className="text-[10px] text-slate-400">
-                        {new Date(msg.created_at).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {new Date(msg.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </span>
                       {isMe && <MessageTicks status={getTickStatus(msg)} />}
                     </div>
                   )}
                 </div>
-
                 {isMe && (
-                  <div
-                    className={`w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white text-xs font-bold shrink-0 ${
-                      isLastInGroup ? "opacity-100" : "opacity-0"
-                    }`}
-                  >
-                    G
+                  <div className={isLastInGroup ? "opacity-100" : "opacity-0"}>
+                    <Avatar style={ME_STYLE} initial="G" size="w-7 h-7" textSize="text-xs" />
                   </div>
                 )}
               </div>
-
               {showSeenAvatar && (
                 <div className="flex justify-end pr-9 mt-0.5">
-                  <div className="w-4 h-4 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-[8px] font-bold">
-                    S
-                  </div>
+                  <Avatar style={ADMIN_STYLE} initial="S" size="w-4 h-4" textSize="text-[8px]" />
                 </div>
               )}
             </div>
           );
-        })}{" "}
+        })}
         {otherIsTyping && <TypingDots />}
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div className="bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 px-4 py-3 flex items-center gap-3">
-        <input
-          value={input}
-          onChange={(e) => handleTyping(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-          onBlur={() => setTyping(false)}
-          placeholder="Message support..."
-          className="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300"
-        />
-        <button
-          onClick={handleSend}
-          disabled={!input.trim()}
-          className="bg-sky-500 hover:bg-sky-600 disabled:opacity-40 text-white rounded-xl px-4 py-2.5 text-sm font-medium transition-colors"
-        >
-          Send
-        </button>
+      {/* INPUT */}
+      <div className="p-4 shrink-0">
+        <div className="rounded-[2rem] border border-emerald-100 dark:border-emerald-800/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl p-2 shadow-lg shadow-emerald-500/10 flex items-center gap-2">
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => handleTyping(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+            onBlur={() => setTyping(false)}
+            placeholder="Message support..."
+            className="flex-1 bg-transparent px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none"
+          />
+          <button
+            onClick={handleSend}
+            disabled={!input.trim()}
+            className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors shrink-0"
+          >
+            →
+          </button>
+        </div>
       </div>
     </div>
   );

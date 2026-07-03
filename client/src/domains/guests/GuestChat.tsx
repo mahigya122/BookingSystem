@@ -15,6 +15,7 @@ interface Message {
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  hideOwnClose?: boolean;
 }
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
@@ -98,7 +99,7 @@ const DashedCircle = ({ className }: { className?: string }) => (
 
 const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
 
-const GuestChat = ({ isOpen, onClose }: Props) => {
+const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
   const { user } = useUser();
   const { profile } = useProfile();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -315,15 +316,17 @@ const GuestChat = ({ isOpen, onClose }: Props) => {
         </div>
 
         {/* CLOSE BUTTON */}
-        <button
-          onClick={onClose}
-          className="h-10 w-10 rounded-2xl border bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-850 flex items-center justify-center transition-all duration-300 shadow-sm active:scale-95 cursor-pointer"
-          style={{
-            borderColor: "var(--app-border)",
-          }}
-        >
-          <X size={20} className="text-slate-600 dark:text-slate-300" />
-        </button>
+        {!hideOwnClose && (
+          <button
+            onClick={onClose}
+            className="h-10 w-10 rounded-2xl border bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-850 flex items-center justify-center transition-all duration-300 shadow-sm active:scale-95 cursor-pointer"
+            style={{
+              borderColor: "var(--app-border)",
+            }}
+          >
+            <X size={20} className="text-slate-600 dark:text-slate-300" />
+          </button>
+        )}
       </div>
 
       {/* DECORATIVE BLUR CIRCLES (Matching Layout) */}

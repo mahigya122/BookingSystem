@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./AdminNavbar";
 import Sidebar from "./AdminSidebar";
@@ -6,6 +7,7 @@ import AdminAIFloatButton from "@shared/components/ui/AdminAIFloatButton";
 import { AIChatProvider, useAIChat } from "../domains/admin/ai/AIChatContext";
 import { AdminSidebarProvider } from "../domains/admin/contexts/AdminSidebarContext";
 import { useScrollToTop } from "@shared/hooks/useScrollToTop";
+import DashboardSkeleton from "../domains/admin/components/dashboard/DashboardSkeleton";
 
 const DashboardLayoutContent = () => {
   const containerRef = useScrollToTop();
@@ -30,7 +32,9 @@ const DashboardLayoutContent = () => {
           className="flex-1 overflow-y-auto px-4 py-6 md:py-16 scroll-smooth w-full"
         >
           <div className="w-full mx-auto">
-            <Outlet />
+            <Suspense fallback={<DashboardSkeleton />}>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
       </div>

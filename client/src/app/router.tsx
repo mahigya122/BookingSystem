@@ -13,7 +13,6 @@ import {
   MyBookings,
   PaymentSuccess,
   PaymentFailure,
-  GuestMessages,
   AboutPage,
   HelpCenterPage,
   FAQsPage,
@@ -67,14 +66,7 @@ export const router = createBrowserRouter([
               </ProtectedRoute>
             ),
           },
-          {
-            path: "/messages",
-            element: (
-              <ProtectedRoute requiredRole="guest">
-                <GuestMessages />
-              </ProtectedRoute>
-            ),
-          },
+
         ],
       },
 

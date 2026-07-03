@@ -3,8 +3,20 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import ProtectedRoute from "@shared/components/layout/ProtectedRoute";
 import DashboardLayout from "../layouts/DashboardLayout";
 
-// Trigger background preload for the primary entry Dashboard page
-import("../domains/admin/pages/Home").catch(() => { });
+// Trigger background preload for the primary entry Dashboard page when the browser is idle
+if (typeof window !== "undefined") {
+  window.addEventListener("load", () => {
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(() => {
+        import("../domains/admin/pages/Home").catch(() => { });
+      });
+    } else {
+      setTimeout(() => {
+        import("../domains/admin/pages/Home").catch(() => { });
+      }, 1000);
+    }
+  });
+}
 import {
   Home,
   Booking,

@@ -54,6 +54,3 @@ export const LegacyInfoRedirect = lazy(
   () => import("../domains/guests/InfoPage/data/LegacyInfoRedirect"),
 );
 
-export const GuestMessages = lazy(
-  () => import("../domains/guests/GuestMessage"),
-);

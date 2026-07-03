@@ -45,18 +45,13 @@ export default function AdminMessages() {
     "admin",
   );
 
-  // My presence
   useOnlinePresence();
-
-  // Marks incoming messages "delivered" for ANY conversation, not just the open one
   useDeliveryReceipts("admin", user?.id ?? null);
 
-  // Watch guest's presence
   const { isOnline, lastSeenAt } = useWatchPresence(
     activeConv?.guest_id ?? null,
   );
 
-  // Typing
   const { otherIsTyping, setTyping } = useTyping(
     activeConv?.id ?? null,
     user?.id ?? null,
@@ -78,17 +73,16 @@ export default function AdminMessages() {
     }
   };
 
-  // Last message I (admin) sent that the guest has already seen
   const lastSeenOwnMessageId = messages.reduce<string | null>(
     (acc, m) => (m.sender_role === "admin" && m.seen_at ? m.id : acc),
     null,
   );
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="flex h-screen bg-blue-50/30 dark:bg-slate-900">
       {/* Sidebar */}
-      <div className="w-72 bg-white dark:bg-slate-800 border-r border-slate-100 dark:border-slate-700 flex flex-col">
-        <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
+      <div className="w-72 bg-white dark:bg-slate-800 border-r border-blue-100 dark:border-slate-700 flex flex-col">
+        <div className="px-5 py-4 border-b border-blue-100 dark:border-slate-700">
           <p className="font-semibold text-slate-800 dark:text-white text-sm">
             Support Inbox
           </p>
@@ -110,9 +104,9 @@ export default function AdminMessages() {
                 setActiveConv(conv);
                 setInput("");
               }}
-              className={`w-full text-left px-4 py-3.5 border-b border-slate-50 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-3 ${
+              className={`w-full text-left px-4 py-3.5 border-b border-blue-50 dark:border-slate-700 hover:bg-blue-50/60 dark:hover:bg-slate-700 transition-colors flex items-center gap-3 ${
                 activeConv?.id === conv.id
-                  ? "bg-rose-50 dark:bg-rose-950 border-l-4 border-l-rose-500"
+                  ? "bg-blue-50 dark:bg-blue-950/40 border-l-4 border-l-sky-400"
                   : ""
               }`}
             >
@@ -125,7 +119,7 @@ export default function AdminMessages() {
                     {conv.guest?.full_name ?? "Guest"}
                   </p>
                   {conv.unread_by_admin > 0 && (
-                    <span className="ml-2 bg-rose-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                    <span className="ml-2 bg-sky-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
                       {conv.unread_by_admin}
                     </span>
                   )}
@@ -140,18 +134,18 @@ export default function AdminMessages() {
       </div>
 
       {/* Chat */}
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900">
         {activeConv ? (
           <>
             {/* Header */}
-            <div className="bg-white dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 px-6 py-3 flex items-center gap-3">
+            <div className="bg-white dark:bg-slate-800 border-b border-blue-100 dark:border-slate-700 px-6 py-3 flex items-center gap-3">
               <div className="relative">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-sm font-bold">
                   {activeConv.guest?.full_name?.[0]?.toUpperCase() ?? "G"}
                 </div>
                 <span
                   className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-800 ${
-                    isOnline ? "bg-green-500" : "bg-slate-300"
+                    isOnline ? "bg-emerald-500" : "bg-slate-300"
                   }`}
                 />
               </div>
@@ -161,11 +155,11 @@ export default function AdminMessages() {
                 </p>
                 <p className="text-xs text-slate-400">
                   {otherIsTyping ? (
-                    <span className="text-green-500 font-medium">
+                    <span className="text-emerald-500 font-medium">
                       typing...
                     </span>
                   ) : isOnline ? (
-                    <span className="text-green-500 font-medium">Online</span>
+                    <span className="text-emerald-500 font-medium">Online</span>
                   ) : (
                     formatLastSeen(lastSeenAt)
                   )}
@@ -174,10 +168,10 @@ export default function AdminMessages() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 bg-blue-50/20 dark:bg-slate-900">
               {messages.length === 0 && (
                 <div className="flex justify-center pt-8">
-                  <p className="text-xs text-slate-400 bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-100 dark:border-slate-700">
+                  <p className="text-xs text-slate-400 bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-blue-100 dark:border-slate-700">
                     No messages yet
                   </p>
                 </div>
@@ -212,8 +206,8 @@ export default function AdminMessages() {
                         <div
                           className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                             isMe
-                              ? "bg-rose-500 text-white rounded-br-sm"
-                              : "bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-100 dark:border-slate-700 rounded-bl-sm"
+                              ? "bg-emerald-500 text-white rounded-br-sm"
+                              : "bg-sky-100 text-sky-950 rounded-bl-sm dark:bg-sky-900/40 dark:text-sky-50"
                           }`}
                         >
                           {msg.content}
@@ -237,7 +231,7 @@ export default function AdminMessages() {
 
                       {isMe && (
                         <div
-                          className={`w-7 h-7 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-xs font-bold shrink-0 ${
+                          className={`w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white text-xs font-bold shrink-0 ${
                             isLastInGroup ? "opacity-100" : "opacity-0"
                           }`}
                         >
@@ -248,7 +242,7 @@ export default function AdminMessages() {
 
                     {showSeenAvatar && (
                       <div className="flex justify-end pr-9 mt-0.5">
-                        <div className="w-4 h-4 rounded-full bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center text-white text-[8px] font-bold">
+                        <div className="w-4 h-4 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-white text-[8px] font-bold">
                           {activeConv.guest?.full_name?.[0]?.toUpperCase() ??
                             "G"}
                         </div>
@@ -263,7 +257,7 @@ export default function AdminMessages() {
             </div>
 
             {/* Input */}
-            <div className="bg-white dark:bg-slate-800 border-t border-slate-100 dark:border-slate-700 px-4 py-3 flex items-center gap-3">
+            <div className="bg-white dark:bg-slate-800 border-t border-blue-100 dark:border-slate-700 px-4 py-3 flex items-center gap-3">
               <input
                 value={input}
                 onChange={(e) => handleTyping(e.target.value)}
@@ -272,12 +266,12 @@ export default function AdminMessages() {
                 }
                 onBlur={() => setTyping(false)}
                 placeholder={`Reply to ${activeConv.guest?.full_name ?? "guest"}...`}
-                className="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
+                className="flex-1 bg-blue-50/60 dark:bg-slate-700 text-slate-800 dark:text-white placeholder-slate-400 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim()}
-                className="bg-rose-500 hover:bg-rose-600 disabled:opacity-40 text-white rounded-xl px-4 py-2.5 text-sm font-medium transition-colors"
+                className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-white rounded-xl px-4 py-2.5 text-sm font-medium transition-colors"
               >
                 Send
               </button>
@@ -285,7 +279,7 @@ export default function AdminMessages() {
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center gap-2">
-            <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-2xl">
+            <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-slate-800 flex items-center justify-center text-2xl">
               💬
             </div>
             <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
