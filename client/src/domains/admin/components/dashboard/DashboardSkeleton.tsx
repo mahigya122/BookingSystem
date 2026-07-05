@@ -28,8 +28,8 @@ const DashboardSkeleton = () => {
 
             {/* Charts */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                <div className="h-[400px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
-                <div className="h-[400px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+                <div className="h-[350px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+                <div className="h-[350px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
             </div>
 
             {/* Tables */}

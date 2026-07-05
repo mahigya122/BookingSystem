@@ -18,7 +18,7 @@ const Cabins = () => {
   const [sort, setSort] = useState("recent");
 
   const { cabins = [], totalCount = 0, isLoading } = useCabins(currentPage, 10, filter, sort);
-  const { bookings = [], isLoading: isBookingsLoading } = useBookings();
+  const { bookings = [] } = useBookings(undefined, undefined, "upcoming");
 
   const totalPages = Math.ceil(totalCount / 10);
 
@@ -97,7 +97,7 @@ const Cabins = () => {
             setSelectedSection(section);
           }}
           activeBookingByCabinId={activeBookingByCabinId}
-          isLoading={isLoading || isBookingsLoading}
+          isLoading={isLoading}
         />
 
         <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">

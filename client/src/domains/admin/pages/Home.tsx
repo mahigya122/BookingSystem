@@ -193,8 +193,8 @@ const Dashboard = () => {
           <Suspense
             fallback={
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <div className="h-[300px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
-                <div className="h-[300px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+                <div className="h-[350px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+                <div className="h-[350px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
               </div>
             }
           >
