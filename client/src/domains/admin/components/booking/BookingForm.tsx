@@ -1,8 +1,11 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { 
   CalendarDays, 
   CheckCircle2, 
   ChevronRight, 
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Sparkles, 
   UserRound, 
   CreditCard, 
@@ -12,12 +15,13 @@ import {
   MapPin, 
   Check 
 } from "lucide-react";
-import { useCreateBooking, useCabins, useSettings, useGuests } from "@shared/hooks";
+import { useCreateBooking, useCabins, useSettings, useGuests, useLocations } from "@shared/hooks";
 import { useCabinAvailability } from "../../../cabins/hooks/useCabinAvailability";
 import CabinCalendar from "../../../../shared/components/ui/CabinCalendar";
 import type { Cabin } from "@shared/types/cabin";
 import type { Guest } from "@shared/types/guest";
 import type { Activity } from "@shared/types/activity";
+import type { Location } from "@shared/types/location";
 import type { Offer } from "@shared/types/offer";
 import toast from "react-hot-toast";
 import PaymentSelector from "../../../payments/PaymentSelector";
@@ -67,11 +71,19 @@ const BookingForm = () => {
   const { createBooking, isPending } = useCreateBooking();
   const { cabins = [], isLoading: isLoadingCabins } = useCabins();
   const { guests = [], isLoading: isLoadingGuests } = useGuests(1, 1000, "", "name-az");
+  const { locations = [], isLoading: isLoadingLocations } = useLocations();
   const { settings } = useSettings();
 
   const [form, setForm] = useState<BookingFormState>(INITIAL_FORM_STATE);
   const [error, setError] = useState("");
   const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  // Location selector state
+  const [selectedLocationId, setSelectedLocationId] = useState("");
+
+  // Cabins layout expansion & scrolling states
+  const [isCabinGridExpanded, setIsCabinGridExpanded] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   // Guest Autocomplete Search & Creation States
   const [guestSearch, setGuestSearch] = useState("");
@@ -111,6 +123,25 @@ const BookingForm = () => {
   }, [form.cabin_id, selectedCabin]);
 
   const bookedDatesSet = useMemo(() => new Set<string>(availability?.booked_dates || []), [availability]);
+
+  // Compile selected guest's bookings by date to support colored visual states on the calendar
+  const userBookingsByDate = useMemo(() => {
+    const bookingMap = new Map<string, string>();
+    if (!form.guest_id || !availability?.bookings) return bookingMap;
+
+    availability.bookings.forEach((booking: any) => {
+      if (booking.guest_id === form.guest_id) {
+        const start = new Date(booking.start_date);
+        const end = new Date(booking.end_date);
+        const temp = new Date(start);
+        while (temp <= end) {
+          bookingMap.set(formatDateString(temp), booking.status);
+          temp.setDate(temp.getDate() + 1);
+        }
+      }
+    });
+    return bookingMap;
+  }, [form.guest_id, availability]);
 
   // Filter guests list locally for autocomplete
   const filteredGuests = useMemo(() => {
@@ -173,10 +204,17 @@ const BookingForm = () => {
     }));
   };
 
+  // Filter cabins by capacity and location selection
   const filteredCabins = useMemo(() => {
-    if (!form.capacity) return cabins;
-    return cabins.filter((cabin: Cabin) => cabin.capacity >= Number(form.capacity));
-  }, [form.capacity, cabins]);
+    let result = cabins;
+    if (form.capacity) {
+      result = result.filter((cabin: Cabin) => cabin.capacity >= Number(form.capacity));
+    }
+    if (selectedLocationId) {
+      result = result.filter((cabin: Cabin) => cabin.location_id === selectedLocationId);
+    }
+    return result;
+  }, [form.capacity, selectedLocationId, cabins]);
 
   // Pricing calculations engine matching the guest side logic
   const pricing = useMemo(() => {
@@ -215,6 +253,19 @@ const BookingForm = () => {
       total,
     };
   }, [form, selectedCabin, settings?.breakfast_price, selectedActivities, selectedOffers]);
+
+  // Carousel scrolling navigation
+  const handleScrollLeft = () => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: -300, behavior: "smooth" });
+    }
+  };
+
+  const handleScrollRight = () => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  };
 
   // Insert guest dynamically into guest directory
   const handleRegisterGuest = async (e: React.FormEvent) => {
@@ -477,7 +528,7 @@ const BookingForm = () => {
                       <button
                         type="button"
                         onClick={() => setIsCreatingGuest(false)}
-                        className="text-xs font-bold text-slate-400 hover:text-slate-600"
+                        className="text-xs font-bold text-slate-455 hover:text-slate-600"
                       >
                         Cancel
                       </button>
@@ -569,9 +620,91 @@ const BookingForm = () => {
               </div>
             </div>
 
-            {/* Horizontal Cabins Carousel Slider */}
-            <div className="space-y-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-455">Choose Cabin:</span>
+            {/* LOCATION pills selection BEFORE Cabin Portfolio */}
+            <div className="space-y-2 border-b pb-4" style={{ borderColor: "var(--app-border)" }}>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-455 block mb-1">📍 Select Location Filter:</span>
+              {isLoadingLocations ? (
+                <div className="h-10 flex items-center text-xs font-bold text-slate-400">Loading locations...</div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLocationId("")}
+                    className={`px-4 py-2 rounded-full text-xs font-black transition-all cursor-pointer ${
+                      !selectedLocationId
+                        ? "bg-sky-500 text-white shadow-md shadow-sky-500/15"
+                        : "bg-slate-100 text-slate-500 dark:bg-slate-800 hover:bg-slate-200"
+                    }`}
+                  >
+                    All Locations
+                  </button>
+                  {locations.map((loc: Location) => (
+                    <button
+                      key={loc.id}
+                      type="button"
+                      onClick={() => setSelectedLocationId(loc.id)}
+                      className={`px-4 py-2 rounded-full text-xs font-black transition-all cursor-pointer ${
+                        selectedLocationId === loc.id
+                          ? "bg-sky-500 text-white shadow-md shadow-sky-500/15"
+                          : "bg-slate-100 text-slate-500 dark:bg-slate-800 hover:bg-slate-200"
+                      }`}
+                    >
+                      📍 {loc.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Cabin Selector Slider / Grid Expansion */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-455">Choose Cabin:</span>
+                
+                {/* Expand and Carousel controls layout */}
+                <div className="flex items-center gap-3">
+                  {!isCabinGridExpanded && (
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={handleScrollLeft}
+                        className="p-1.5 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-slate-600 dark:text-slate-400 transition-all cursor-pointer"
+                        title="Scroll Left"
+                      >
+                        <ChevronLeft size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleScrollRight}
+                        className="p-1.5 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-slate-600 dark:text-slate-400 transition-all cursor-pointer"
+                        title="Scroll Right"
+                      >
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setIsCabinGridExpanded(!isCabinGridExpanded)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-400 transition-all hover:bg-slate-50 cursor-pointer"
+                    title={isCabinGridExpanded ? "Collapse to Slider" : "Expand to Grid"}
+                  >
+                    {isCabinGridExpanded ? (
+                      <>
+                        <ChevronUp size={14} />
+                        <span>Collapse Grid (Row)</span>
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown size={14} />
+                        <span>Expand Grid (3x3)</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
               {isLoadingCabins ? (
                 <div className="h-44 flex items-center justify-center bg-slate-50 dark:bg-slate-950/20 border-2 border-dashed rounded-3xl" style={{ borderColor: "var(--app-border)" }}>
                   <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
@@ -580,8 +713,9 @@ const BookingForm = () => {
                   </div>
                 </div>
               ) : filteredCabins.length > 0 ? (
-                <div className="relative group/carousel">
-                  <div className="flex gap-4 overflow-x-auto pb-4 pt-1 snap-x scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+                isCabinGridExpanded ? (
+                  /* Expanded 3x3 Grid format */
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 animate-fade-in">
                     {filteredCabins.map((cabin: Cabin) => {
                       const isSelected = form.cabin_id === cabin.id;
                       return (
@@ -589,13 +723,12 @@ const BookingForm = () => {
                           key={cabin.id}
                           type="button"
                           onClick={() => setForm(prev => ({ ...prev, cabin_id: cabin.id }))}
-                          className={`w-72 shrink-0 snap-start text-left rounded-3xl border-2 p-4 cursor-pointer transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-48 bg-white dark:bg-slate-900 ${
+                          className={`w-full text-left rounded-3xl border-2 p-4 cursor-pointer transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-48 bg-white dark:bg-slate-900 ${
                             isSelected
                               ? "border-sky-500 shadow-xl shadow-sky-500/10 scale-[1.01]"
                               : "border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
                           }`}
                         >
-                          {/* Image & metadata */}
                           <div className="flex gap-3 w-full">
                             <img
                               src={getOptimizedImageUrl(cabin.image_url, 'avatar')}
@@ -614,29 +747,79 @@ const BookingForm = () => {
                             </div>
                           </div>
 
-                          {/* Price & selection state */}
                           <div className="flex justify-between items-end mt-4 w-full">
                             <div>
                               <span className="text-slate-455 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest block leading-none mb-1">Rate / Night</span>
                               <span className="text-base font-black text-slate-900 dark:text-white">${cabin.price_per_night}</span>
                             </div>
-                            
-                            {isSelected ? (
+                            {isSelected && (
                               <div className="h-8 w-8 rounded-full bg-sky-500 text-white flex items-center justify-center shadow-lg shadow-sky-500/20">
                                 <Check size={16} className="stroke-[3]" />
                               </div>
-                            ) : (
-                              <span className="text-[10px] font-black uppercase text-sky-500 opacity-0 group-hover/carousel:opacity-100 hover:opacity-100 transition-opacity">Select Cabin</span>
                             )}
                           </div>
                         </button>
                       );
                     })}
                   </div>
-                </div>
+                ) : (
+                  /* Slider Horizontal Carousel view */
+                  <div className="relative">
+                    <div 
+                      ref={carouselRef}
+                      className="flex gap-4 overflow-x-auto pb-4 pt-1 snap-x scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 scroll-smooth"
+                    >
+                      {filteredCabins.map((cabin: Cabin) => {
+                        const isSelected = form.cabin_id === cabin.id;
+                        return (
+                          <button
+                            key={cabin.id}
+                            type="button"
+                            onClick={() => setForm(prev => ({ ...prev, cabin_id: cabin.id }))}
+                            className={`w-72 shrink-0 snap-start text-left rounded-3xl border-2 p-4 cursor-pointer transition-all duration-300 relative overflow-hidden flex flex-col justify-between h-48 bg-white dark:bg-slate-900 ${
+                              isSelected
+                                ? "border-sky-500 shadow-xl shadow-sky-500/10 scale-[1.01]"
+                                : "border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                            }`}
+                          >
+                            <div className="flex gap-3 w-full">
+                              <img
+                                src={getOptimizedImageUrl(cabin.image_url, 'avatar')}
+                                alt={cabin.name}
+                                className="w-16 h-16 rounded-2xl object-cover border border-slate-100 dark:border-slate-800"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-black text-slate-900 dark:text-white truncate">{cabin.name}</h4>
+                                <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-1">
+                                  <MapPin size={10} className="text-sky-500" />
+                                  <span className="truncate">{cabin.location?.name || "Premium Retreat"}</span>
+                                </div>
+                                <span className="inline-block mt-2 text-[10px] font-black bg-slate-50 dark:bg-slate-850 px-2 py-0.5 rounded-full text-slate-450">
+                                  👥 Max Cap: {cabin.capacity}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between items-end mt-4 w-full">
+                              <div>
+                                <span className="text-slate-455 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest block leading-none mb-1">Rate / Night</span>
+                                <span className="text-base font-black text-slate-900 dark:text-white">${cabin.price_per_night}</span>
+                              </div>
+                              {isSelected && (
+                                <div className="h-8 w-8 rounded-full bg-sky-500 text-white flex items-center justify-center shadow-lg shadow-sky-500/20">
+                                  <Check size={16} className="stroke-[3]" />
+                                </div>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )
               ) : (
                 <div className="h-44 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950/20 border-2 border-dashed rounded-3xl p-6 text-center" style={{ borderColor: "var(--app-border)" }}>
-                  <p className="text-xs font-bold text-slate-455">No cabins match this filter capacity</p>
+                  <p className="text-xs font-bold text-slate-455">No cabins match this filter capacity/location</p>
                 </div>
               )}
             </div>
@@ -654,7 +837,8 @@ const BookingForm = () => {
                     endDate={form.end_date ? new Date(form.end_date) : null}
                     currentMonth={currentMonth}
                     bookedDatesSet={bookedDatesSet}
-                    userBookingsByDate={new Map()}
+                    userBookingsByDate={userBookingsByDate}
+                    otherSelectionsByDate={new Set()}
                     onDayClick={handleDayClick}
                     onPrevMonth={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
                     onNextMonth={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}

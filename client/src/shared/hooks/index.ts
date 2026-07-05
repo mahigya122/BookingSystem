@@ -30,4 +30,5 @@ export { useUpdateSettings } from "./setting/useUpdateSettings";
 // Utility Hooks
 export * from './usePagination';
 export { useOffers } from "./useOffers";
+export { useLocations } from "./useLocations";
 export { useDashboardStats } from "./useDashboardStats";

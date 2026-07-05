@@ -99,8 +99,8 @@ const Dashboard = () => {
         <DashboardSkeleton />
       ) : (
         <>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 mb-8">
-            <div className="space-y-0">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 mb-4">
+            <div className="space-y-1">
               <p
                 className="text-sky-500 text-sm font-bold"
                 style={{ fontFamily: "'Dancing Script', cursive" }}
