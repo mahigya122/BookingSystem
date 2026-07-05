@@ -14,3 +14,4 @@ export const Offers = lazy(() => import("../domains/admin/pages/Offers"));
 export const Activities = lazy(() => import("../domains/admin/pages/Activities"));
 export const Reviews = lazy(() => import("../domains/admin/pages/Reviews"));
 export const Messages = lazy(() => import("../domains/guests/AdminMessages"));
+export const AdminDashboard = lazy(() => import('../domains/admin/pages/Home'));

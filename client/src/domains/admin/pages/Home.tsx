@@ -99,18 +99,18 @@ const Dashboard = () => {
         <DashboardSkeleton />
       ) : (
         <>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-            <div className="space-y-0.5">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 mb-8">
+            <div className="space-y-0">
               <p
                 className="text-sky-500 text-sm font-bold"
                 style={{ fontFamily: "'Dancing Script', cursive" }}
               >
-                Management Dashboard ✨
+                Management Dashboard 
               </p>
-              <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
                 System <span className="text-sky-500">Overview</span>
               </h1>
-              <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-lg leading-relaxed mt-2 mb-4 md:mb-0">
+              <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-lg leading-relaxed mt-2 mb-2 md:mb-0">
                 Real-time analytics and operational control for your elite cabin network.
               </p>
             </div>

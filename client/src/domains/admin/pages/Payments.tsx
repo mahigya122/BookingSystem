@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
 import { useBookings } from "@shared/hooks";
-import { CreditCard, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import PaymentStatusBadge from "../../payments/PaymentStatusBadge";
 import AdminPaymentActions from "../../payments/AdminPaymentActions";
 
@@ -60,7 +60,6 @@ const PaymentsPage = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-            <CreditCard className="h-10 w-10 text-emerald-600" />
             Payments
           </h1>
           <p className="text-slate-500 font-bold mt-1 uppercase text-xs tracking-widest">
