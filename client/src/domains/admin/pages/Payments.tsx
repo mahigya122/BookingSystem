@@ -13,6 +13,22 @@ const PaymentsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState<SortType>("recent");
+  const [sortOpen, setSortOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
+
+  const sortOptions = [
+    { value: "recent", label: "Recent" },
+    { value: "earlier", label: "Earlier" },
+    { value: "price-high", label: "Price: High to Low" },
+    { value: "price-low", label: "Price: Low to High" },
+  ] as const;
+
+  const statusOptions = [
+    { value: "all", label: "All Status" },
+    { value: "paid", label: "Paid" },
+    { value: "pending", label: "Pending" },
+    { value: "refunded", label: "Refunded" },
+  ] as const;
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -77,65 +93,91 @@ const PaymentsPage = () => {
             />
           </div>
 
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortType)}
-            className="font-bold text-xs outline-none transition-all cursor-pointer w-full sm:w-auto focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
-            style={{
-              backgroundColor: "#E2F8E9",
-              color: "#374151",
-              borderColor: "#C2F0CD",
-              borderWidth: "1px",
-              borderStyle: "solid",
-              height: "32px",
-              borderRadius: "9999px",
-              paddingTop: "0px",
-              paddingBottom: "0px",
-              paddingLeft: "14px",
-              paddingRight: "28px",
-              appearance: "none",
-              backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 10px center",
-              backgroundSize: "12px",
-              boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.02)"
-            }}
-          >
-            <option value="recent" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Recent</option>
-            <option value="earlier" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Earlier</option>
-            <option value="price-high" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Price: High to Low</option>
-            <option value="price-low" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Price: Low to High</option>
-          </select>
+          {/* SORT DROPDOWN */}
+          <div className="relative w-full sm:w-auto">
+            <button
+              onClick={() => {
+                setSortOpen(!sortOpen);
+                setStatusOpen(false);
+              }}
+              className="font-bold text-xs outline-none transition-all cursor-pointer w-full sm:w-auto flex items-center justify-between gap-2 px-3.5 h-8 bg-[#E2F8E9] text-[#374151] border border-[#C2F0CD] hover:bg-[#D4F6DF] rounded-full active:scale-95 shadow-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
+            >
+              <span>{sortOptions.find(o => o.value === sortBy)?.label}</span>
+              <span className={`text-[9px] text-[#4B5563] transition-transform duration-200 ${sortOpen ? 'rotate-180' : ''}`}>▼</span>
+            </button>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="font-bold text-xs outline-none transition-all cursor-pointer w-full sm:w-auto focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
-            style={{
-              backgroundColor: "#E2F8E9",
-              color: "#374151",
-              borderColor: "#C2F0CD",
-              borderWidth: "1px",
-              borderStyle: "solid",
-              height: "32px",
-              borderRadius: "9999px",
-              paddingTop: "0px",
-              paddingBottom: "0px",
-              paddingLeft: "14px",
-              paddingRight: "28px",
-              appearance: "none",
-              backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 10px center",
-              backgroundSize: "12px",
-              boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.02)"
-            }}
-          >
-            <option value="all" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>All Status</option>
-            <option value="paid" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Paid</option>
-            <option value="pending" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Pending</option>
-            <option value="refunded" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Refunded</option>
-          </select>
+            {sortOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setSortOpen(false)} />
+                <div 
+                  className="absolute right-0 z-50 mt-1.5 w-full sm:w-48 overflow-hidden rounded-2xl border border-[#C2F0CD] bg-[#E2F8E9] shadow-xl animate-in fade-in zoom-in-95 duration-150"
+                >
+                  {sortOptions.map((opt) => {
+                    const isSelected = sortBy === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => {
+                          setSortBy(opt.value);
+                          setSortOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-all border-b last:border-0 border-[#C2F0CD]/40 flex items-center justify-between ${
+                          isSelected 
+                            ? "bg-[#C6F0D1] text-[#166534]" 
+                            : "text-[#374151] hover:bg-[#D4F6DF]"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* STATUS DROPDOWN */}
+          <div className="relative w-full sm:w-auto">
+            <button
+              onClick={() => {
+                setStatusOpen(!statusOpen);
+                setSortOpen(false);
+              }}
+              className="font-bold text-xs outline-none transition-all cursor-pointer w-full sm:w-auto flex items-center justify-between gap-2 px-3.5 h-8 bg-[#E2F8E9] text-[#374151] border border-[#C2F0CD] hover:bg-[#D4F6DF] rounded-full active:scale-95 shadow-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
+            >
+              <span>{statusOptions.find(o => o.value === statusFilter)?.label}</span>
+              <span className={`text-[9px] text-[#4B5563] transition-transform duration-200 ${statusOpen ? 'rotate-180' : ''}`}>▼</span>
+            </button>
+
+            {statusOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setStatusOpen(false)} />
+                <div 
+                  className="absolute right-0 z-50 mt-1.5 w-full sm:w-48 overflow-hidden rounded-2xl border border-[#C2F0CD] bg-[#E2F8E9] shadow-xl animate-in fade-in zoom-in-95 duration-150"
+                >
+                  {statusOptions.map((opt) => {
+                    const isSelected = statusFilter === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => {
+                          setStatusFilter(opt.value);
+                          setStatusOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-all border-b last:border-0 border-[#C2F0CD]/40 flex items-center justify-between ${
+                          isSelected 
+                            ? "bg-[#C6F0D1] text-[#166534]" 
+                            : "text-[#374151] hover:bg-[#D4F6DF]"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

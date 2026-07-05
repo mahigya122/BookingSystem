@@ -107,7 +107,7 @@ export const router = createBrowserRouter([
       {
         path: "/admin/*",
         loader: () => {
-          window.location.href = "/admin/index.html";
+          window.location.href = "/admin";
           return null;
         },
         element: null,

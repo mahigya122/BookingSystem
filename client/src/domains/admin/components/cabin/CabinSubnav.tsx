@@ -14,6 +14,7 @@ const CabinSubnav = ({
   onAddCabin,
 }: Props) => {
   const [active, setActive] = useState("all");
+  const [open, setOpen] = useState(false);
 
   const sortLabelMap: Record<string, string> = {
     recent: "Recently Added",
@@ -63,36 +64,44 @@ const CabinSubnav = ({
       {/* RIGHT SIDE */}
       <div className="flex items-center gap-3 w-full md:w-auto justify-end">
         {/* SORT DROPDOWN */}
-        <select
-          value={currentSort}
-          onChange={(e) => onSortChange(e.target.value)}
-          className="font-bold text-xs outline-none transition-all cursor-pointer min-w-[150px] w-full sm:w-auto focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
-          style={{
-            backgroundColor: "#E2F8E9",
-            color: "#374151",
-            borderColor: "#C2F0CD",
-            borderWidth: "1px",
-            borderStyle: "solid",
-            height: "32px",
-            borderRadius: "9999px",
-            paddingTop: "0px",
-            paddingBottom: "0px",
-            paddingLeft: "14px",
-            paddingRight: "28px",
-            appearance: "none",
-            backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`,
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "right 10px center",
-            backgroundSize: "12px",
-            boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.02)"
-          }}
-        >
-          {Object.entries(sortLabelMap).map(([key, label]) => (
-            <option key={key} value={key} className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>
-              {label}
-            </option>
-          ))}
-        </select>
+        <div className="relative w-full sm:w-auto">
+          <button
+            onClick={() => setOpen(!open)}
+            className="font-bold text-xs outline-none transition-all cursor-pointer min-w-[150px] w-full sm:w-auto flex items-center justify-between gap-2 px-3.5 h-8 bg-[#E2F8E9] text-[#374151] border border-[#C2F0CD] hover:bg-[#D4F6DF] rounded-full active:scale-95 shadow-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
+          >
+            <span>{sortLabelMap[currentSort] || "Sort"}</span>
+            <span className={`text-[9px] text-[#4B5563] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▼</span>
+          </button>
+
+          {open && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+              <div 
+                className="absolute right-0 z-50 mt-1.5 w-full sm:w-52 overflow-hidden rounded-2xl border border-[#C2F0CD] bg-[#E2F8E9] shadow-xl animate-in fade-in zoom-in-95 duration-150"
+              >
+                {Object.entries(sortLabelMap).map(([key, label]) => {
+                  const isSelected = currentSort === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        onSortChange(key);
+                        setOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-all border-b last:border-0 border-[#C2F0CD]/40 flex items-center justify-between ${
+                        isSelected 
+                          ? "bg-[#C6F0D1] text-[#166534]" 
+                          : "text-[#374151] hover:bg-[#D4F6DF]"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
 
         {/* ADD CABIN BUTTON */}
         <button

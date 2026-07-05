@@ -13,6 +13,14 @@ export default function GuestSubnav({
   currentSort,
 }: Props) {
   const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const sortLabelMap: Record<GuestSortType, string> = {
+    recent: "Recently Added",
+    earlier: "Earlier",
+    "name-az": "Name A-Z",
+    "name-za": "Name Z-A",
+  };
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -65,35 +73,44 @@ export default function GuestSubnav({
         </div>
 
         {/* SORT DROPDOWN */}
-        <select
-          value={currentSort}
-          onChange={(e) => onSortChange(e.target.value as GuestSortType)}
-          className="font-bold text-xs outline-none transition-all cursor-pointer w-full sm:w-auto focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
-          style={{
-            backgroundColor: "#E2F8E9",
-            color: "#374151",
-            borderColor: "#C2F0CD",
-            borderWidth: "1px",
-            borderStyle: "solid",
-            height: "32px",
-            borderRadius: "9999px",
-            paddingTop: "0px",
-            paddingBottom: "0px",
-            paddingLeft: "14px",
-            paddingRight: "28px",
-            appearance: "none",
-            backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`,
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "right 10px center",
-            backgroundSize: "12px",
-            boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.02)"
-          }}
-        >
-          <option value="recent" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Recently Added</option>
-          <option value="earlier" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Earlier</option>
-          <option value="name-az" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Name A-Z</option>
-          <option value="name-za" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Name Z-A</option>
-        </select>
+        <div className="relative w-full sm:w-auto">
+          <button
+            onClick={() => setOpen(!open)}
+            className="font-bold text-xs outline-none transition-all cursor-pointer w-full sm:w-auto flex items-center justify-between gap-2 px-3.5 h-8 bg-[#E2F8E9] text-[#374151] border border-[#C2F0CD] hover:bg-[#D4F6DF] rounded-full active:scale-95 shadow-sm focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
+          >
+            <span>{sortLabelMap[currentSort] || "Sort"}</span>
+            <span className={`text-[9px] text-[#4B5563] transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▼</span>
+          </button>
+
+          {open && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+              <div 
+                className="absolute right-0 z-50 mt-1.5 w-full sm:w-48 overflow-hidden rounded-2xl border border-[#C2F0CD] bg-[#E2F8E9] shadow-xl animate-in fade-in zoom-in-95 duration-150"
+              >
+                {(Object.keys(sortLabelMap) as GuestSortType[]).map((key) => {
+                  const isSelected = currentSort === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        onSortChange(key);
+                        setOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-xs font-bold transition-all border-b last:border-0 border-[#C2F0CD]/40 flex items-center justify-between ${
+                        isSelected 
+                          ? "bg-[#C6F0D1] text-[#166534]" 
+                          : "text-[#374151] hover:bg-[#D4F6DF]"
+                      }`}
+                    >
+                      {sortLabelMap[key]}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

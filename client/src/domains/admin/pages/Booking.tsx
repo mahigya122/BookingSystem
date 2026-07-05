@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState, Suspense } from "react";
 
 import BookingSubnav from "../components/booking/BookingSubnav";
