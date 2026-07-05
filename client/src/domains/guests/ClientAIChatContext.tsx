@@ -12,6 +12,8 @@ interface ClientAIChatContextType {
   activeTab: ChatTab;
   setActiveTab: Dispatch<SetStateAction<ChatTab>>;
   unreadSupportCount: number;
+  pendingSupportMessage: string | null;
+  setPendingSupportMessage: Dispatch<SetStateAction<string | null>>;
 }
 
 const ClientAIChatContext = createContext<ClientAIChatContextType | undefined>(undefined);
@@ -19,6 +21,7 @@ const ClientAIChatContext = createContext<ClientAIChatContextType | undefined>(u
 export const ClientAIChatProvider = ({ children }: { children: ReactNode }) => {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<ChatTab>("ai");
+  const [pendingSupportMessage, setPendingSupportMessage] = useState<string | null>(null);
   const { user } = useUser();
   const unreadSupportCount = useGuestUnreadSupportCount(user?.id ?? null);
 
@@ -27,7 +30,7 @@ export const ClientAIChatProvider = ({ children }: { children: ReactNode }) => {
   }, [user, unreadSupportCount]);
 
   return (
-    <ClientAIChatContext.Provider value={{ open, setOpen, activeTab, setActiveTab, unreadSupportCount }}>
+    <ClientAIChatContext.Provider value={{ open, setOpen, activeTab, setActiveTab, unreadSupportCount, pendingSupportMessage, setPendingSupportMessage }}>
       {children}
     </ClientAIChatContext.Provider>
   );

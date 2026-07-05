@@ -20,7 +20,7 @@ async function getBookingsContext(userId, message, history) {
 
         // Try to extract potential email, guest ID (UUID) or booking ID (UUID) from the message and history
         const allTexts = [message, ...((history || []).map(h => h.content))].join(" ");
-        
+
         // UUID regex: matches 8-4-4-4-12 hex format
         const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
         const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
@@ -40,7 +40,7 @@ async function getBookingsContext(userId, message, history) {
                     .from("guests")
                     .select("id, full_name, email, phone")
                     .eq("id", uuid);
-                
+
                 if (guestData && guestData.length > 0) {
                     guestInfo = guestData[0];
                     targetGuestId = guestInfo.id;
@@ -62,7 +62,7 @@ async function getBookingsContext(userId, message, history) {
                             cabins (name)
                         `)
                         .eq("id", uuid);
-                    
+
                     if (bookingData && bookingData.length > 0) {
                         specificBooking = bookingData[0];
                         if (specificBooking.guests) {
@@ -81,7 +81,7 @@ async function getBookingsContext(userId, message, history) {
                     .from("guests")
                     .select("id, full_name, email, phone")
                     .ilike("email", email.trim());
-                
+
                 if (guestData && guestData.length > 0) {
                     guestInfo = guestData[0];
                     targetGuestId = guestInfo.id;
@@ -108,7 +108,7 @@ async function getBookingsContext(userId, message, history) {
                 `)
                 .eq("guest_id", targetGuestId)
                 .order("start_date", { ascending: true });
-            
+
             if (bookingsData) {
                 guestBookings = bookingsData;
             }
@@ -276,13 +276,13 @@ router.post("/chat", async (req, res) => {
                 const ratings = ratingMap[cabin.id];
                 const avgRating = ratings ? (ratings.sum / ratings.count).toFixed(1) : "No ratings yet";
                 const cabinActivities = activityMap[cabin.id] || [];
-                
+
                 // For "free breakfast", we'll check if it's in the description or assume luxury cabins (price > 500) have it
                 const hasFreeBreakfast = cabin.description.toLowerCase().includes("breakfast") || cabin.price_per_night > 500;
 
                 // Shorten description to further save tokens
-                const shortDesc = cabin.description.length > 120 
-                    ? cabin.description.substring(0, 120) + "..." 
+                const shortDesc = cabin.description.length > 120
+                    ? cabin.description.substring(0, 120) + "..."
                     : cabin.description;
 
                 // Occupancy levels
@@ -317,14 +317,14 @@ router.post("/chat", async (req, res) => {
 
         // If logged in, handle persistence
         if (userId && userId !== "anonymous") {
-            const conversation = cid 
-                ? { id: cid } 
+            const conversation = cid
+                ? { id: cid }
                 : await getOrCreateConversation(userId);
             cid = conversation.id;
-            
+
             // Save user message
             await saveMessage(cid, "user", message);
-            
+
             // Get history for context
             const prevMessages = await getMessages(cid);
             history = prevMessages.map(m => ({ role: m.role, content: m.content }));
@@ -355,6 +355,22 @@ Guidelines:
 - Avoid repetitive phrasing. If you've mentioned a price, don't repeat the same logic in the same sentence.
 - Keep answers focused on the guest's experience.
 
+Restricted Topics — Redirect to Human Support:
+If the guest asks about any of the following, do NOT attempt to answer. Instead, respond with
+EXACTLY this marker as the first line, followed by a short, warm one-sentence explanation:
+###HUMAN_SUPPORT_NEEDED###
+[your one-sentence message here]
+
+Trigger this redirect for:
+- Billing disputes, refunds, or payment issues
+- Cancelling or modifying an existing booking
+- Complaints about staff, service quality, or a stay
+- Requests to change personal account details (email, phone, payment method)
+- Safety concerns, emergencies, or urgent issues requiring a real person
+- Any request for guest-specific private data not explicitly provided in the context below
+
+Example redirect message: "I'm not able to access that kind of account or billing detail for privacy and security reasons — let me connect you with our support team who can help directly."
+
 Key Information:
 - Booking: Guests can book directly on the website by clicking the "Reserve" button on any cabin page.
 - Payment: We accept all major credit cards and Google Pay.
@@ -381,11 +397,21 @@ Specific questions you should be ready to answer:
           `;
 
         console.log("[Guest AI] Requesting completion from AI service...");
-        const { reply } = await generateChatReply({
+        const { reply: rawReply } = await generateChatReply({
             messages: history,
             systemPrompt,
             temperature: 0.7
         });
+
+        // Detect the redirect marker and split it out before saving/returning
+        const MARKER = "###HUMAN_SUPPORT_NEEDED###";
+        let reply = rawReply;
+        let needsHumanSupport = false;
+
+        if (rawReply.trim().startsWith(MARKER)) {
+            needsHumanSupport = true;
+            reply = rawReply.replace(MARKER, "").trim();
+        }
 
         // If logged in, save assistant reply
         if (cid && userId && userId !== "anonymous") {
@@ -399,6 +425,7 @@ Specific questions you should be ready to answer:
 
         return res.json({
             reply,
+            needsHumanSupport,
             conversationId: cid,
             history: history.length > 0 ? history : undefined
         });

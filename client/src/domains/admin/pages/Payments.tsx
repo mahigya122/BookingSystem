@@ -59,19 +59,20 @@ const PaymentsPage = () => {
               placeholder="Search guest or ID..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full sm:w-64 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-xs font-bold"
+              className="w-full sm:w-64 outline-none transition-all text-xs font-bold focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 placeholder-slate-500"
               style={{
-                backgroundColor: "#d1fae5",
-                color: "#0f172a",
-                borderColor: "#6ee7b7",
+                backgroundColor: "#F4F0FF",
+                color: "#374151",
+                borderColor: "#E4D9FF",
                 borderWidth: "1px",
                 borderStyle: "solid",
                 height: "32px",
-                borderRadius: "12px",
+                borderRadius: "9999px",
                 paddingTop: "0px",
                 paddingBottom: "0px",
-                paddingLeft: "12px",
-                paddingRight: "12px"
+                paddingLeft: "16px",
+                paddingRight: "16px",
+                boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.02)"
               }}
             />
           </div>
@@ -79,19 +80,25 @@ const PaymentsPage = () => {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as SortType)}
-            className="font-bold text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer w-full sm:w-auto"
+            className="font-bold text-xs outline-none transition-all cursor-pointer w-full sm:w-auto focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
             style={{
-              backgroundColor: "#d1fae5",
-              color: "#0f172a",
-              borderColor: "#6ee7b7",
+              backgroundColor: "#E2F8E9",
+              color: "#374151",
+              borderColor: "#C2F0CD",
               borderWidth: "1px",
               borderStyle: "solid",
               height: "32px",
-              borderRadius: "12px",
+              borderRadius: "9999px",
               paddingTop: "0px",
               paddingBottom: "0px",
-              paddingLeft: "12px",
-              paddingRight: "12px"
+              paddingLeft: "14px",
+              paddingRight: "28px",
+              appearance: "none",
+              backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 10px center",
+              backgroundSize: "12px",
+              boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.02)"
             }}
           >
             <option value="recent" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Recent</option>
@@ -103,19 +110,25 @@ const PaymentsPage = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="font-bold text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer w-full sm:w-auto"
+            className="font-bold text-xs outline-none transition-all cursor-pointer w-full sm:w-auto focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-400"
             style={{
-              backgroundColor: "#d1fae5",
-              color: "#0f172a",
-              borderColor: "#6ee7b7",
+              backgroundColor: "#E2F8E9",
+              color: "#374151",
+              borderColor: "#C2F0CD",
               borderWidth: "1px",
               borderStyle: "solid",
               height: "32px",
-              borderRadius: "12px",
+              borderRadius: "9999px",
               paddingTop: "0px",
               paddingBottom: "0px",
-              paddingLeft: "12px",
-              paddingRight: "12px"
+              paddingLeft: "14px",
+              paddingRight: "28px",
+              appearance: "none",
+              backgroundImage: `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%234B5563' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 10px center",
+              backgroundSize: "12px",
+              boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.02)"
             }}
           >
             <option value="all" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>All Status</option>

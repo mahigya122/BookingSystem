@@ -11,6 +11,7 @@ import {
 } from "@shared/components/support/MessageTicks";
 import { supabase } from "@shared/services/supabase";
 import { useUser } from "@shared/hooks";
+import { useClientAIChat } from "./ClientAIChatContext";
 
 const ME_STYLE = { grad: "from-sky-400 to-blue-600", ring: "ring-sky-200" };
 const ADMIN_STYLE = { grad: "from-emerald-400 to-teal-600", ring: "ring-emerald-200" };
@@ -58,6 +59,7 @@ interface Props {
 
 export default function GuestSupportChat({ isOpen, isActive }: Props) {
   const { user } = useUser();
+  const { pendingSupportMessage, setPendingSupportMessage } = useClientAIChat();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -124,6 +126,15 @@ export default function GuestSupportChat({ isOpen, isActive }: Props) {
 
     init();
   }, [user]);
+
+  // Pre-fill input when redirected here from the AI concierge with a pending question
+  useEffect(() => {
+    if (isOpen && isActive && pendingSupportMessage) {
+      setInput(pendingSupportMessage);
+      setPendingSupportMessage(null);
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [isOpen, isActive, pendingSupportMessage, setPendingSupportMessage]);
 
   const handleSend = async () => {
     if (!input.trim() || !user) return;

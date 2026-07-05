@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useUser } from "@shared/hooks";
-import { Bot, User } from "lucide-react";
+import { Bot, User, MessageCircle } from "lucide-react";
 import { useProfile } from "../../hooks/useProfile";
+import { useClientAIChat } from "./ClientAIChatContext";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
   created_at?: string;
+  needsHumanSupport?: boolean;
 }
 
 interface Props {
@@ -69,6 +71,7 @@ function TypingDots() {
 const GuestChat = ({ isOpen, isActive }: Props) => {
   const { user } = useUser();
   const { profile } = useProfile();
+  const { setActiveTab, setPendingSupportMessage } = useClientAIChat();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -197,7 +200,12 @@ const GuestChat = ({ isOpen, isActive }: Props) => {
       }
 
       if (Array.isArray(data.history)) {
-        setMessages(data.history);
+        const patchedHistory = data.history.map((m: Message, idx: number) =>
+    idx === data.history.length - 1 && m.role === "assistant"
+      ? { ...m, needsHumanSupport: data.needsHumanSupport ?? false }
+      : m
+  );
+  setMessages(patchedHistory);
       } else {
         setMessages((prev) => [
           ...prev,
@@ -205,6 +213,7 @@ const GuestChat = ({ isOpen, isActive }: Props) => {
             role: "assistant",
             content: data.reply || "Sorry, I couldn't generate a response.",
             created_at: new Date().toISOString(),
+            needsHumanSupport: data.needsHumanSupport ?? false,
           },
         ]);
       }
@@ -225,6 +234,13 @@ const GuestChat = ({ isOpen, isActive }: Props) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRedirectToSupport = (msgIndex: number) => {
+    const originalQuestion =
+      messages[msgIndex - 1]?.role === "user" ? messages[msgIndex - 1].content : "";
+    setPendingSupportMessage(originalQuestion);
+    setActiveTab("support");
   };
 
   useEffect(() => {
@@ -266,6 +282,17 @@ const GuestChat = ({ isOpen, isActive }: Props) => {
                   >
                     {msg.content}
                   </div>
+
+                  {!isMe && msg.needsHumanSupport && (
+                    <button
+                      onClick={() => handleRedirectToSupport(i)}
+                      className="mt-1.5 flex items-center gap-1.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3.5 py-1.5 transition-colors"
+                    >
+                      <MessageCircle size={12} />
+                      Contact Support Team
+                    </button>
+                  )}
+
                   {isLastInGroup && (
                     <div className={`flex items-center gap-1 mt-1 px-1 ${isMe ? "flex-row-reverse" : "flex-row"}`}>
                       <span className="text-[10px] text-slate-400">

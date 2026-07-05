@@ -175,7 +175,21 @@ const Offers = () => {
                     placeholder="Search offers..."
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
-                    className="h-8 px-3 border border-emerald-300 dark:border-emerald-800 rounded-xl text-xs bg-emerald-100 dark:bg-emerald-950/40 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold placeholder-slate-450 text-slate-900 dark:text-white w-64"
+                    className="w-full sm:w-64 outline-none transition-all text-xs font-bold focus:ring-2 focus:ring-purple-500/20 focus:border-purple-400 placeholder-slate-500"
+                    style={{
+                      backgroundColor: "#F4F0FF",
+                      color: "#374151",
+                      borderColor: "#E4D9FF",
+                      borderWidth: "1px",
+                      borderStyle: "solid",
+                      height: "32px",
+                      borderRadius: "9999px",
+                      paddingTop: "0px",
+                      paddingBottom: "0px",
+                      paddingLeft: "16px",
+                      paddingRight: "16px",
+                      boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.02)"
+                    }}
                 />
             </div>
             <button 
