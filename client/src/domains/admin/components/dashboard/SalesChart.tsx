@@ -33,14 +33,14 @@ const SalesChart = ({title = "Revenue Analytics", data}: Props) => {
     };
 
     return(
-        <div className="card h-full flex flex-col">
+        <div className="card bg-white dark:bg-slate-900 border-indigo-200/80 dark:border-indigo-900/40 h-full flex flex-col">
             <div className="card-header">
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">{title}</h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Year-to-date</span>
+                <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">{title}</h2>
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Year-to-date</span>
             </div>
 
             <div className="card-body flex-1">
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={240}>
                     <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                         <defs>
                             <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">

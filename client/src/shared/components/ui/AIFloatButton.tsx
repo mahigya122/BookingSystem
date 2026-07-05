@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 import { useClientAIChat } from "../../../domains/guests/ClientAIChatContext";
 
+
 const AIFloatButton = () => {
-  const { open, setOpen } = useClientAIChat();
+  const { open, setOpen, unreadSupportCount } = useClientAIChat();
   const [showBubble, setShowBubble] = useState(false);
   const [constraints, setConstraints] = useState({ left: 0, right: 0, top: 0, bottom: 0 });
   const isDraggingRef = useRef(false);
@@ -135,49 +136,55 @@ const AIFloatButton = () => {
       </AnimatePresence>
 
       {/* ===================== */}
-      {/* FLOATING AI BUTTON */}
-      {/* ===================== */}
-      <div
-        className="
-          relative
-          group
-          flex
-          items-center justify-center
-          hover:-translate-y-1
-          active:scale-95
-          transition-all duration-300
-          cursor-pointer
-        "
-        title="Chat with AI"
-      >
-        {/* Cute Chatbot icon */}
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/8943/8943377.png"
-          alt="AI Assistant"
-          draggable="false"
-          className="
-            relative z-10
-            w-12 h-12 md:w-20 md:h-20
-            object-contain
-            drop-shadow-[0_8px_16px_rgba(56,189,248,0.4)]
-            group-hover:drop-shadow-[0_12px_24px_rgba(56,189,248,0.6)]
-            group-hover:scale-110
-            transition-all duration-300
-          "
-        />
+{/* FLOATING AI BUTTON */}
+{/* ===================== */}
+<div
+  className="
+    relative
+    group
+    flex
+    items-center justify-center
+    hover:-translate-y-1
+    active:scale-95
+    transition-all duration-300
+    cursor-pointer
+  "
+  title="Chat with AI"
+>
+  {/* Cute Chatbot icon */}
+  <img
+    src="https://cdn-icons-png.flaticon.com/512/8943/8943377.png"
+    alt="AI Assistant"
+    draggable="false"
+    className="
+      relative z-10
+      w-12 h-12 md:w-20 md:h-20
+      object-contain
+      drop-shadow-[0_8px_16px_rgba(56,189,248,0.4)]
+      group-hover:drop-shadow-[0_12px_24px_rgba(56,189,248,0.6)]
+      group-hover:scale-110
+      transition-all duration-300
+    "
+  />
 
-        {/*  Online dot */}
-        <div
-          className="
-          absolute top-1 right-1 z-20
-          h-3.5 w-3.5
-        rounded-full
-        bg-emerald-400
-        border-2 border-white dark:border-slate-900
-        animate-pulse
-        "
-        />
-      </div>
+  {/* Unread support badge */}
+  {unreadSupportCount > 0 && (
+    <div
+      className="
+      absolute -top-1.5 -right-1.5 z-20
+      min-w-[18px] h-[18px] px-1
+      rounded-full
+      bg-rose-500
+      border-2 border-white dark:border-slate-900
+      text-white text-[9px] font-bold
+      flex items-center justify-center
+      shadow-md shadow-rose-500/40
+      "
+    >
+      {unreadSupportCount > 9 ? "9+" : unreadSupportCount}
+    </div>
+  )}
+</div>
     </motion.div>
   );
 };

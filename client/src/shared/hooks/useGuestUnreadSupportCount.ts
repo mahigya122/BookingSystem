@@ -21,12 +21,21 @@ export function useGuestUnreadSupportCount(userId: string | null) {
         }
 
         const fetchCount = async () => {
-            const { data } = await supabase
+            const { data, error } = await supabase
                 .from('support_conversations')
                 .select('unread_by_guest')
                 .eq('guest_id', userId)
-                .maybeSingle()
-            setCount(data?.unread_by_guest ?? 0)
+
+            if (error) {
+                console.error('unread count fetch failed:', error)
+                return
+            }
+
+            const total = (data ?? []).reduce(
+                (sum, row) => sum + (row.unread_by_guest ?? 0),
+                0
+            )
+            setCount(total)
         }
 
         fetchCount()
@@ -34,12 +43,12 @@ export function useGuestUnreadSupportCount(userId: string | null) {
         const channel = supabase
             .channel(topic)
             .on('postgres_changes', {
-                event: 'UPDATE',
+                event: '*',
                 schema: 'public',
                 table: 'support_conversations',
-                filter: `guest_id=eq.${userId}`,
             }, (payload) => {
-                setCount(payload.new.unread_by_guest ?? 0)
+                console.log('Realtime update received in useGuestUnreadSupportCount:', payload)
+                fetchCount()
             })
             .subscribe()
 

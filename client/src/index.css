@@ -127,24 +127,26 @@ body::before {
 /* -------------------------------- */
 
 .card {
-  @apply rounded-[2rem] border backdrop-blur-xl transition-all duration-500;
-  background: var(--app-surface);
+  @apply rounded-3xl border transition-all duration-300;
+  background: #ffffff;
   border-color: var(--app-border);
-  box-shadow: var(--shadow-card);
+}
+
+.dark .card {
+  background: #0f172a;
 }
 
 .card:hover {
-  @apply -translate-y-1.5 shadow-2xl border-sky-200/30 dark:border-sky-800/20;
-  box-shadow: 0 40px 80px -30px rgba(15, 23, 42, 0.15);
+  @apply border-sky-300/40 dark:border-sky-800/30;
 }
 
 .card-header {
-  @apply px-10 py-6 flex items-center justify-between border-b;
+  @apply px-6 py-4 flex items-center justify-between border-b;
   border-color: var(--app-border);
 }
 
 .card-body {
-  @apply p-10;
+  @apply p-6;
 }
 
 table {

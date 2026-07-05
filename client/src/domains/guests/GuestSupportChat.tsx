@@ -3,9 +3,7 @@ import { useSupportMessages } from "@shared/hooks/useSupportMessages";
 import { useDeliveryReceipts } from "@shared/hooks/useDeliveryReceipts";
 import {
   useOnlinePresence,
-  useWatchPresence,
   useTyping,
-  formatLastSeen,
 } from "@shared/hooks/usePresence";
 import {
   getTickStatus,
@@ -13,7 +11,6 @@ import {
 } from "@shared/components/support/MessageTicks";
 import { supabase } from "@shared/services/supabase";
 import { useUser } from "@shared/hooks";
-import { Headset } from "lucide-react";
 
 const ME_STYLE = { grad: "from-sky-400 to-blue-600", ring: "ring-sky-200" };
 const ADMIN_STYLE = { grad: "from-emerald-400 to-teal-600", ring: "ring-emerald-200" };
@@ -56,22 +53,25 @@ function TypingDots() {
 
 interface Props {
   isOpen: boolean;
+  isActive?: boolean;
 }
 
-export default function GuestSupportChat({ isOpen }: Props) {
+export default function GuestSupportChat({ isOpen, isActive }: Props) {
   const { user } = useUser();
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [adminId, setAdminId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const { messages, sendMessage, bottomRef } = useSupportMessages(conversationId, "guest");
+  const { messages, sendMessage, bottomRef } = useSupportMessages(
+    conversationId,
+    "guest",
+    isOpen && isActive
+  );
 
   useOnlinePresence();
   useDeliveryReceipts("guest", user?.id ?? null);
 
-  const { isOnline, lastSeenAt } = useWatchPresence(adminId);
   const { otherIsTyping, setTyping } = useTyping(conversationId, user?.id ?? null);
 
   useEffect(() => {
@@ -80,6 +80,15 @@ export default function GuestSupportChat({ isOpen }: Props) {
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && isActive) {
+      const timer = setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isActive, bottomRef]);
 
   useEffect(() => {
     if (!user) return;
@@ -111,14 +120,6 @@ export default function GuestSupportChat({ isOpen }: Props) {
           if (refetched) setConversationId(refetched.id);
         }
       }
-
-      const { data: admin } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("role", "admin")
-        .limit(1)
-        .single();
-      if (admin) setAdminId(admin.id);
     };
 
     init();
@@ -147,40 +148,6 @@ export default function GuestSupportChat({ isOpen }: Props) {
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950/10">
-      {/* HEADER */}
-      <div
-        className="flex items-center gap-3 px-6 py-4 border-b bg-white/60 dark:bg-slate-950/60 backdrop-blur-md shrink-0"
-        style={{ borderColor: "var(--app-border)" }}
-      >
-        <div className="relative">
-          <div className="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center bg-gradient-to-tr from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/10 border border-white/20 dark:border-slate-800">
-            <Headset size={20} strokeWidth={2} />
-          </div>
-          <span
-            className={`absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-950 ${
-              isOnline ? "bg-emerald-500" : "bg-slate-300"
-            }`}
-          />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-0.5">
-            Support
-          </span>
-          <span className="text-sm md:text-base font-black text-slate-800 dark:text-white leading-tight">
-            Human Support
-          </span>
-          <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
-            {otherIsTyping ? (
-              <span className="text-emerald-500">typing...</span>
-            ) : isOnline ? (
-              <span className="text-emerald-500">Online</span>
-            ) : (
-              formatLastSeen(lastSeenAt)
-            )}
-          </span>
-        </div>
-      </div>
-
       {/* MESSAGES */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5">
         {messages.length === 0 && (

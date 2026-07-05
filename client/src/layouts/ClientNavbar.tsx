@@ -2,20 +2,16 @@ import { useNavigate } from "react-router-dom";
 import { useUser, useLogout } from "@shared/hooks";
 import ThemeToggle from "@shared/components/ui/ThemeToggle";
 import { useCabinFiltersContext } from "../domains/cabins/contexts/CabinFiltersContext";
-import { Mountain, LogOut, MessageCircle } from "lucide-react";
+import { Mountain, LogOut } from "lucide-react";
 import { scrollToTop } from "@shared/hooks/useScrollToTop";
 import { useState } from "react";
 import { PromoBanner } from "../domains/cabins/explore/PromoBanner";
-import { useClientAIChat } from "../domains/guests/ClientAIChatContext";
-import { useGuestUnreadSupportCount } from "@shared/hooks/useGuestUnreadSupportCount";
 
 
 const ClientNavbar = () => {
   const { user } = useUser();
   const { logout } = useLogout();
   const navigate = useNavigate();
-  const { setOpen, setActiveTab } = useClientAIChat();
-  const unreadSupport = useGuestUnreadSupportCount(user?.id ?? null);
 
   const { clearFilters, setIsSearching, setSidebarOpen } =
     useCabinFiltersContext();
@@ -65,27 +61,11 @@ const ClientNavbar = () => {
         </div>
 
         {/* RIGHT SIDE */}
-        <div className="flex items-center gap-4">
+        <div className={`flex items-center ${user ? "gap-2" : "gap-4"}`}>
           <ThemeToggle />
 
           {user ? (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setActiveTab("support");
-                  setOpen(true);
-                }}
-                className="relative p-1.5 text-slate-500 hover:text-sky-500 dark:text-slate-400 dark:hover:text-sky-400 transition-all duration-300 active:scale-90 flex items-center justify-center drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"
-                title="Messages"
-              >
-                <MessageCircle size={22} />
-                {unreadSupport > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-emerald-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                    {unreadSupport > 9 ? "9+" : unreadSupport}
-                  </span>
-                )}
-              </button>
-
+            <>
               <button
                 onClick={() => navigate("/profile")}
                 className="p-1.5 text-slate-500 hover:text-sky-500 dark:text-slate-400 dark:hover:text-sky-400 transition-all duration-300 active:scale-90 text-sm flex items-center justify-center drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"
@@ -103,7 +83,7 @@ const ClientNavbar = () => {
               >
                 <LogOut size={22} />
               </button>
-            </div>
+            </>
           ) : (
             <button
               onClick={() => navigate("/login")}

@@ -170,17 +170,23 @@ const Offers = () => {
         </div>
         <div className="flex items-center gap-3">
             <div className="relative">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input 
                     type="text" 
                     placeholder="Search offers..."
                     value={searchInput}
                     onChange={(e) => setSearchInput(e.target.value)}
-                    className="pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-sky-500/20 outline-none transition-all w-64"
+                    className="h-8 px-3 border border-emerald-300 dark:border-emerald-800 rounded-xl text-xs bg-emerald-100 dark:bg-emerald-950/40 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold placeholder-slate-450 text-slate-900 dark:text-white w-64"
                 />
             </div>
-            <button onClick={() => setIsAdding(!isAdding)} className={`btn ${isAdding ? "btn-secondary" : "btn-primary"} h-10 px-4`}>
-                {isAdding ? "Cancel" : <><Plus size={18} /> Add Offer</>}
+            <button 
+                onClick={() => setIsAdding(!isAdding)} 
+                className={`h-8 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95 shadow-sm flex items-center justify-center ${
+                  isAdding 
+                    ? "bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-700 dark:text-slate-200 hover:bg-slate-50" 
+                    : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-sky-600 dark:hover:bg-sky-400 dark:hover:text-white"
+                }`}
+            >
+                {isAdding ? "Cancel" : <><Plus size={14} className="mr-1" /> Add Offer</>}
             </button>
         </div>
       </div>

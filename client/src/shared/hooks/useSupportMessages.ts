@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@shared/services/supabase'
 import type { SupportMessage, SenderRole } from '@shared/types/support.types'
 
-export function useSupportMessages(conversationId: string | null, senderRole: SenderRole) {
+export function useSupportMessages(conversationId: string | null, senderRole: SenderRole, isActive: boolean = true) {
     const [messages, setMessages] = useState<SupportMessage[]>([])
     const bottomRef = useRef<HTMLDivElement>(null)
+    const prevConversationIdRef = useRef<string | null>(null)
 
     useEffect(() => {
         if (!conversationId) return
@@ -18,19 +19,14 @@ export function useSupportMessages(conversationId: string | null, senderRole: Se
             .then(({ data }) => { if (data) setMessages(data as SupportMessage[]) })
 
         // Mark as read when opened
-        supabase.rpc('reset_unread', {
-            p_conversation_id: conversationId,
-            p_role: senderRole,
-        }).then(({ error }) => {
-            if (error) console.error('reset_unread failed:', error)
-        })
-
-        supabase.rpc('mark_seen', {
-            p_conversation_id: conversationId,
-            p_role: senderRole,
-        }).then(({ error }) => {
-            if (error) console.error('mark_seen failed:', error)
-        })
+        if (isActive) {
+            supabase.rpc('reset_unread', {
+                p_conversation_id: conversationId,
+                p_role: senderRole,
+            }).then(({ error }) => {
+                if (error) console.error('reset_unread failed:', error)
+            })
+        }
 
         // Realtime: new messages
         const channel = supabase
@@ -48,19 +44,14 @@ export function useSupportMessages(conversationId: string | null, senderRole: Se
                 })
 
                 // Mark as read immediately since conversation is open
-                supabase.rpc('reset_unread', {
-                    p_conversation_id: conversationId,
-                    p_role: senderRole,
-                }).then(({ error }) => {
-                    if (error) console.error('reset_unread failed:', error)
-                })
-
-                supabase.rpc('mark_seen', {
-                    p_conversation_id: conversationId,
-                    p_role: senderRole,
-                }).then(({ error }) => {
-                    if (error) console.error('mark_seen failed:', error)
-                })
+                if (isActive) {
+                    supabase.rpc('reset_unread', {
+                        p_conversation_id: conversationId,
+                        p_role: senderRole,
+                    }).then(({ error }) => {
+                        if (error) console.error('reset_unread failed:', error)
+                    })
+                }
             })
 
             // Realtime: read receipt updates (delivered_at / seen_at changes)
@@ -81,12 +72,20 @@ export function useSupportMessages(conversationId: string | null, senderRole: Se
             .subscribe()
 
         return () => { supabase.removeChannel(channel) }
-    }, [conversationId, senderRole])
+    }, [conversationId, senderRole, isActive])
 
-    // Auto scroll to bottom
+    // Auto scroll — instant on conversation switch, smooth on new messages
     useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-    }, [messages])
+        const isNewConversation = prevConversationIdRef.current !== conversationId
+        prevConversationIdRef.current = conversationId
+
+        requestAnimationFrame(() => {
+            bottomRef.current?.scrollIntoView({
+                behavior: isNewConversation ? 'auto' : 'smooth',
+                block: 'end',
+            })
+        })
+    }, [messages, conversationId])
 
     const sendMessage = async (content: string, senderId: string) => {
         if (!conversationId || !content.trim()) return

@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./AdminNavbar";
 import Sidebar from "./AdminSidebar";
 import AIChatDrawer from "../domains/admin/components/ai/AIChatDrawer";
@@ -12,9 +12,11 @@ import DashboardSkeleton from "../domains/admin/components/dashboard/DashboardSk
 const DashboardLayoutContent = () => {
   const containerRef = useScrollToTop();
   const { open: aiOpen } = useAIChat();
+  const location = useLocation();
+  const isMessagesPage = location.pathname === "/messages";
 
   return (
-    <div className="h-screen flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <div className="h-screen flex flex-col bg-sky-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       {/* NAVBAR */}
       <Navbar />
 
@@ -29,9 +31,13 @@ const DashboardLayoutContent = () => {
         {/* MAIN CONTENT */}
         <main
           ref={containerRef as React.RefObject<HTMLElement>}
-          className="flex-1 overflow-y-auto px-4 py-6 md:py-16 scroll-smooth w-full"
+          className={`flex-1 w-full ${
+            isMessagesPage
+              ? "h-full overflow-hidden flex flex-col"
+              : "overflow-y-auto px-4 pt-4 md:pt-6 pb-8 scroll-smooth"
+          }`}
         >
-          <div className="w-full mx-auto">
+          <div className={isMessagesPage ? "h-full w-full" : "w-full mx-auto"}>
             <Suspense fallback={<DashboardSkeleton />}>
               <Outlet />
             </Suspense>

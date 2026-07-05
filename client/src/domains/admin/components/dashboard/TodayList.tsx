@@ -37,19 +37,19 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 		);
 
 	return (
-		<div className="card card-accent">
+		<div className="card bg-white dark:bg-slate-900 border-rose-200/80 dark:border-rose-900/40">
 			<div className="card-header">
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
                     Recent Activity Log
                 </h2>
-                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                     Live Feed
                 </span>
 			</div>
 
 			<div className="divide-y divide-slate-100 dark:divide-slate-800">
 				{items.length === 0 ? (
-					<div className="p-12 text-center text-slate-400 font-bold text-sm">
+					<div className="p-8 text-center text-slate-400 font-bold text-xs">
                         No activity recorded in this window
                     </div>
 				) : (
@@ -76,12 +76,12 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 						return (
 							<div
 								key={booking.id}
-								className="flex items-center justify-between gap-4 px-8 py-5 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group"
+								className="flex items-center justify-between gap-3 px-5 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group"
 							>
-								<div className="flex items-center gap-6">
-									<div style={{ minWidth: "100px" }}>
+								<div className="flex items-center gap-4">
+									<div style={{ minWidth: "90px" }}>
                                         <span
-                                            className={`badge ${
+                                            className={`badge text-[10px] ${
                                                 mergedStatus === "cancelled"
                                                     ? "badge-danger"
                                                     : badge === "Departed"
@@ -96,14 +96,14 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
                                     </div>
 
 									<div className="flex flex-col">
-										<span className="font-bold text-slate-900 dark:text-slate-100">
+										<span className="text-xs font-bold text-slate-900 dark:text-slate-100">
 											{booking.guests?.full_name ?? "Unknown guest"}
 										</span>
-										<div className="flex items-center gap-2 mt-0.5">
-                                            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+										<div className="flex items-center gap-1.5 mt-0.5">
+                                            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
                                                 {new Date(booking.start_date).toLocaleDateString()} — {new Date(booking.end_date).toLocaleDateString()}
                                             </span>
-                                            <span className="text-[10px] font-bold text-slate-300 dark:text-slate-600 uppercase">
+                                            <span className="text-[9px] font-bold text-slate-300 dark:text-slate-600 uppercase">
                                                 • {formatNights(booking.start_date, booking.end_date)}
                                             </span>
                                         </div>

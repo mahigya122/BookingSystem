@@ -1,15 +1,18 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
 import { useBookings } from "@shared/hooks";
-import { CreditCard, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { CreditCard, ChevronLeft, ChevronRight } from "lucide-react";
 import PaymentStatusBadge from "../../payments/PaymentStatusBadge";
 import AdminPaymentActions from "../../payments/AdminPaymentActions";
+
+import type { SortType } from "@shared/types/booking";
 
 const PaymentsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState<SortType>("recent");
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -22,7 +25,7 @@ const PaymentsPage = () => {
     currentPage,
     10,
     "all",
-    "recent",
+    sortBy,
     searchTerm,
     statusFilter
   );
@@ -32,7 +35,7 @@ const PaymentsPage = () => {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter]);
+  }, [searchTerm, statusFilter, sortBy]);
 
 
 
@@ -51,25 +54,74 @@ const PaymentsPage = () => {
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
           <div className="relative flex-1 sm:flex-initial">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Search guest or ID..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-all w-full sm:w-64 text-sm"
+              className="w-full sm:w-64 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-xs font-bold"
+              style={{
+                backgroundColor: "#d1fae5",
+                color: "#0f172a",
+                borderColor: "#6ee7b7",
+                borderWidth: "1px",
+                borderStyle: "solid",
+                height: "32px",
+                borderRadius: "12px",
+                paddingTop: "0px",
+                paddingBottom: "0px",
+                paddingLeft: "12px",
+                paddingRight: "12px"
+              }}
             />
           </div>
 
           <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortType)}
+            className="font-bold text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer w-full sm:w-auto"
+            style={{
+              backgroundColor: "#d1fae5",
+              color: "#0f172a",
+              borderColor: "#6ee7b7",
+              borderWidth: "1px",
+              borderStyle: "solid",
+              height: "32px",
+              borderRadius: "12px",
+              paddingTop: "0px",
+              paddingBottom: "0px",
+              paddingLeft: "12px",
+              paddingRight: "12px"
+            }}
+          >
+            <option value="recent" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Recent</option>
+            <option value="earlier" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Earlier</option>
+            <option value="price-high" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Price: High to Low</option>
+            <option value="price-low" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Price: Low to High</option>
+          </select>
+
+          <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer w-full sm:w-auto"
+            className="font-bold text-xs outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all cursor-pointer w-full sm:w-auto"
+            style={{
+              backgroundColor: "#d1fae5",
+              color: "#0f172a",
+              borderColor: "#6ee7b7",
+              borderWidth: "1px",
+              borderStyle: "solid",
+              height: "32px",
+              borderRadius: "12px",
+              paddingTop: "0px",
+              paddingBottom: "0px",
+              paddingLeft: "12px",
+              paddingRight: "12px"
+            }}
           >
-            <option value="all">All Status</option>
-            <option value="paid">Paid</option>
-            <option value="pending">Pending</option>
-            <option value="refunded">Refunded</option>
+            <option value="all" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>All Status</option>
+            <option value="paid" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Paid</option>
+            <option value="pending" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Pending</option>
+            <option value="refunded" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100" style={{ color: "#0f172a", backgroundColor: "#ffffff" }}>Refunded</option>
           </select>
         </div>
       </div>

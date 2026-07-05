@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Check } from "lucide-react";
 import type { GuestSortType } from "@shared/types/guest";
 
 interface Props {
@@ -47,16 +48,19 @@ export default function GuestSubnav({
 
   return (
     <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
-      <div className="flex items-center gap-1 p-1 surface-panel-strong rounded-2xl shadow-sm">
+      {/* LEFT: TITLE CONTAINER */}
+      <div className="flex items-center gap-1.5 p-1 bg-white/80 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/80 rounded-xl shadow-sm">
         <button
-          className="px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider text-white shadow-sm"
+          className="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider text-white shadow-sm cursor-default"
           style={{ background: "linear-gradient(135deg, var(--app-primary), var(--app-secondary))" }}
         >
             All Guest Records
         </button>
       </div>
 
+      {/* RIGHT SIDE */}
       <div className="flex items-center gap-3 w-full md:w-auto">
+        {/* SEARCH */}
         <div className="relative flex-1 md:w-64">
           <input
             value={search}
@@ -64,31 +68,39 @@ export default function GuestSubnav({
               setSearch(e.target.value);
             }}
             placeholder="Search directory..."
-            className="w-full pl-9 pr-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium"
+            className="w-full h-8 px-3 border border-emerald-250 dark:border-emerald-800 rounded-xl text-xs bg-emerald-50 dark:bg-emerald-950/20 outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-bold placeholder-slate-400 text-slate-900 dark:text-white"
           />
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></span>
         </div>
 
+        {/* SORT DROPDOWN */}
         <div className="relative">
           <button
             onClick={() => setOpen((p) => !p)}
-            className="btn btn-secondary flex items-center gap-2 px-4 py-2 rounded-2xl text-sm shadow-sm transition-all active:scale-95"
+            className="h-8 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-250 dark:border-emerald-800 flex items-center justify-between gap-2 px-3.5 rounded-xl text-xs font-bold text-slate-900 dark:text-white hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors shadow-sm active:scale-95 min-w-[130px]"
           >
-            <span className="text-xs">{sortLabel(currentSort)}</span>
-            <span className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`}>▾</span>
+            <span>{sortLabel(currentSort)}</span>
+            <span className={`text-[9px] text-slate-500 transition-transform duration-250 ${open ? 'rotate-180' : ''}`}>▼</span>
           </button>
 
           {open && (
-            <div className="absolute right-0 z-50 mt-2 w-48 overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700 bg-[color-mix(in_srgb,var(--app-surface-elevated)_95%,black)] shadow-xl animate-in fade-in zoom-in-95 duration-150">
-              {["recent", "earlier", "name-az", "name-za"].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => handleSort(s as GuestSortType)}
-                  className="w-full px-4 py-2.5 text-left text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-primary-600 dark:hover:text-primary-400 border-b last:border-0 border-slate-100 dark:border-slate-800/50"
-                >
-                  {sortLabel(s as GuestSortType)}
-                </button>
-              ))}
+            <div className="absolute right-0 z-50 mt-1.5 w-48 overflow-hidden rounded-xl border border-emerald-250 dark:border-emerald-800 bg-white dark:bg-slate-950 shadow-xl animate-in fade-in zoom-in-95 duration-150">
+              {["recent", "earlier", "name-az", "name-za"].map((s) => {
+                const isSelected = currentSort === s;
+                return (
+                  <button
+                    key={s}
+                    onClick={() => handleSort(s as GuestSortType)}
+                    className={`w-full flex items-center justify-between px-4 py-2 text-xs font-bold transition-colors border-b last:border-0 border-slate-100 dark:border-slate-850 capitalize ${
+                      isSelected
+                        ? "text-emerald-700 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-900/30"
+                        : "text-slate-700 dark:text-slate-300 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <span>{sortLabel(s as GuestSortType)}</span>
+                    {isSelected && <Check size={12} className="text-emerald-600 dark:text-emerald-400" />}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

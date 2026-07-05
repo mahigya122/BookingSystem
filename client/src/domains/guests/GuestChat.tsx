@@ -1,21 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useUser } from "@shared/hooks";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Bot } from "lucide-react";
+import { Bot, User } from "lucide-react";
 import { useProfile } from "../../hooks/useProfile";
-
-import GuestInput from "./GuestInput";
-import GuestChatBubble from "./GuestChatBubble";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
+  created_at?: string;
 }
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   hideOwnClose?: boolean;
+  isActive?: boolean;
 }
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
@@ -27,79 +25,48 @@ const FALLBACK_SUGGESTIONS = [
   "How do I book a cabin?",
 ];
 
-const Airplane = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 80 80" fill="none">
-    <path
-      d="M10 40 L70 15 L60 40 L70 65 Z"
-      fill="currentColor"
-      opacity="0.18"
-    />
-    <path
-      d="M60 40 L30 50 L35 40 L30 30 Z"
-      fill="currentColor"
-      opacity="0.25"
-    />
-  </svg>
-);
+const ME_STYLE = { grad: "from-sky-400 to-blue-600", ring: "ring-sky-200" };
+const AI_STYLE = { grad: "from-sky-500 to-indigo-600", ring: "ring-sky-300" };
 
-const Palm = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 100 140" fill="none">
-    <rect
-      x="46"
-      y="60"
-      width="8"
-      height="80"
-      rx="4"
-      fill="#38bdf8"
-      opacity="0.2"
-    />
-    <ellipse
-      cx="50"
-      cy="55"
-      rx="30"
-      ry="18"
-      fill="#7dd3fc"
-      opacity="0.15"
-      transform="rotate(-20 50 55)"
-    />
-    <ellipse
-      cx="50"
-      cy="50"
-      rx="26"
-      ry="14"
-      fill="#0ea5e9"
-      opacity="0.15"
-      transform="rotate(15 50 50)"
-    />
-    <ellipse
-      cx="50"
-      cy="45"
-      rx="22"
-      ry="12"
-      fill="#38bdf8"
-      opacity="0.2"
-      transform="rotate(-35 50 45)"
-    />
-  </svg>
-);
+function Avatar({
+  style,
+  initial,
+  icon,
+  size = "w-9 h-9",
+  textSize = "text-sm",
+}: {
+  style: { grad: string; ring: string };
+  initial?: string;
+  icon?: React.ReactNode;
+  size?: string;
+  textSize?: string;
+}) {
+  return (
+    <div
+      className={`${size} rounded-full bg-gradient-to-br ${style.grad} flex items-center justify-center text-white font-bold ${textSize} shrink-0 ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-900 ${style.ring}`}
+    >
+      {icon ? icon : initial}
+    </div>
+  );
+}
 
-const DashedCircle = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 200 200" fill="none">
-    <circle
-      cx="100"
-      cy="100"
-      r="90"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeDasharray="8 6"
-      opacity="0.12"
-    />
-  </svg>
-);
+function TypingDots() {
+  return (
+    <div className="flex justify-start">
+      <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl rounded-bl-sm px-4 py-3 flex items-center gap-1">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="w-2 h-2 rounded-full bg-slate-400 animate-bounce"
+            style={{ animationDelay: `${i * 0.15}s` }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
-const EASE: [number, number, number, number] = [0.25, 0.1, 0.25, 1];
-
-const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
+const GuestChat = ({ isOpen, isActive }: Props) => {
   const { user } = useUser();
   const { profile } = useProfile();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -122,17 +89,14 @@ const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && isActive) {
       const timer = setTimeout(() => {
         inputRef.current?.focus();
-        inputRef.current?.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
+        scrollToBottom();
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, isActive]);
 
   const scrollToBottom = () => {
     endRef.current?.scrollIntoView({
@@ -144,7 +108,6 @@ const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   if (isOpen !== prevIsOpen) {
     setPrevIsOpen(isOpen);
-    // Cleanup: Clear messages for public users when closing the drawer
     if (!isOpen && !user?.id) {
       setMessages([]);
       setConversationId(null);
@@ -157,9 +120,7 @@ const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
       const res = await fetch(
         `${BACKEND_URL}/api/suggestions?role=guest${userIdParam}`,
       );
-
       const data = await res.json();
-
       if (Array.isArray(data?.suggestions)) {
         setSuggestions(data.suggestions);
       }
@@ -173,20 +134,16 @@ const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
     if (!isOpen) return;
 
     async function initChat() {
-      // If logged in, fetch history in background
       try {
         if (user?.id) {
           const res = await fetch(
             `${BACKEND_URL}/api/ai/guest/conversation/latest?userId=${user.id}`,
           );
           const data = await res.json();
-
           if (data.conversationId) {
             setConversationId(data.conversationId);
             if (Array.isArray(data.history) && data.history.length > 0) {
               setMessages(data.history);
-              // We do NOT set setIsFirstOpen(false) here because
-              // we want to show the greeting first every time
             }
           }
         }
@@ -208,11 +165,11 @@ const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
     const userMessage: Message = {
       role: "user",
       content: textToSend,
+      created_at: new Date().toISOString(),
     };
 
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
-
     setInput("");
     setLoading(true);
 
@@ -226,12 +183,11 @@ const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
           message: textToSend,
           userId: user?.id,
           conversationId: conversationId,
-          history: user?.id ? undefined : updatedMessages, // Send history for public users
+          history: user?.id ? undefined : updatedMessages,
         }),
       });
 
       const data = await res.json();
-
       if (!res.ok) {
         throw new Error(data.error || "Failed to contact AI assistant");
       }
@@ -248,13 +204,13 @@ const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
           {
             role: "assistant",
             content: data.reply || "Sorry, I couldn't generate a response.",
+            created_at: new Date().toISOString(),
           },
         ]);
       }
     } catch (err: unknown) {
       console.error("AI Chat Error:", err);
-      const errorMessage =
-        err instanceof Error ? err.message : "Something went wrong";
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong";
       setMessages((prev) => [
         ...prev,
         {
@@ -263,6 +219,7 @@ const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
             errorMessage === "Failed to fetch"
               ? "Connection to AI server refused. Please ensure the backend is running."
               : `Error: ${errorMessage || "Something went wrong while contacting the AI assistant."}`,
+          created_at: new Date().toISOString(),
         },
       ]);
     } finally {
@@ -275,166 +232,77 @@ const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
   }, [messages, loading]);
 
   return (
-    <div className="flex h-full flex-col overflow-hidden relative bg-gradient-to-br from-slate-50 via-white to-sky-50 dark:from-slate-950 dark:via-slate-900 dark:to-sky-950/20">
-      {/* CHAT HEADER */}
-      <div
-        className="flex items-center justify-between px-6 py-4 border-b bg-white/60 dark:bg-slate-950/60 backdrop-blur-md relative z-30"
-        style={{ borderColor: "var(--app-border)" }}
-      >
-        <div className="flex items-center gap-3">
-          {/* AI Avatar */}
-          <div className="relative">
-            <div className="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center bg-gradient-to-tr from-sky-500 to-indigo-600 text-white shadow-md shadow-sky-500/10 border border-white/20 dark:border-slate-800">
-              <Bot size={22} strokeWidth={2} />
-            </div>
-            {/* Status Dot */}
-            <span
-              className={`absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-950 ${
-                loading ? "bg-blue-500 animate-pulse" : "bg-emerald-500"
-              }`}
-            />
+    <div className="flex h-full flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-white to-sky-50/40 dark:from-slate-950 dark:via-slate-900 dark:to-sky-950/10">
+      {/* MESSAGES */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5">
+        {messages.length === 0 && (
+          <div className="flex justify-center pt-8">
+            <p className="text-xs text-slate-400 bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-slate-100 dark:border-slate-700">
+              Send a message to start chatting with AI Concierge
+            </p>
           </div>
-          {/* Identity & Status */}
-          <div className="flex flex-col">
-            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 leading-none mb-0.5">
-              Assistant
-            </span>
-            <span className="text-sm md:text-base font-black text-slate-800 dark:text-white leading-tight">
-              AI Concierge
-            </span>
-            <span className="text-[10px] md:text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
-              {loading ? (
-                <>
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-ping" />
-                  Typing...
-                </>
-              ) : (
-                <></>
-              )}
-            </span>
-          </div>
-        </div>
-
-        {/* CLOSE BUTTON */}
-        {!hideOwnClose && (
-          <button
-            onClick={onClose}
-            className="h-10 w-10 rounded-2xl border bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-850 flex items-center justify-center transition-all duration-300 shadow-sm active:scale-95 cursor-pointer"
-            style={{
-              borderColor: "var(--app-border)",
-            }}
-          >
-            <X size={20} className="text-slate-600 dark:text-slate-300" />
-          </button>
         )}
+        {messages.map((msg, i) => {
+          const isMe = msg.role === "user";
+          const nextMsg = messages[i + 1];
+          const isLastInGroup = !nextMsg || nextMsg.role !== msg.role;
+          const msgTime = msg.created_at ? new Date(msg.created_at) : new Date();
+
+          return (
+            <div key={i}>
+              <div className={`flex items-end gap-2 ${isMe ? "justify-end" : "justify-start"}`}>
+                {!isMe && (
+                  <div className={isLastInGroup ? "opacity-100" : "opacity-0"}>
+                    <Avatar style={AI_STYLE} icon={<Bot size={14} />} size="w-7 h-7" />
+                  </div>
+                )}
+                <div className={`max-w-[75%] flex flex-col ${isMe ? "items-end" : "items-start"}`}>
+                  <div
+                    className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                      isMe
+                        ? "bg-sky-500 text-white rounded-br-sm"
+                        : "bg-sky-100 text-sky-950 rounded-bl-sm dark:bg-sky-900/40 dark:text-sky-50"
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
+                  {isLastInGroup && (
+                    <div className={`flex items-center gap-1 mt-1 px-1 ${isMe ? "flex-row-reverse" : "flex-row"}`}>
+                      <span className="text-[10px] text-slate-400">
+                        {msgTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {isMe && (
+                  <div className={isLastInGroup ? "opacity-100" : "opacity-0"}>
+                    <Avatar 
+                      style={ME_STYLE} 
+                      initial={userInitials} 
+                      icon={userInitials === "G" ? <User size={13} /> : undefined}
+                      size="w-7 h-7" 
+                      textSize="text-[10px]" 
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        {loading && <TypingDots />}
+        <div ref={endRef} />
       </div>
 
-      {/* DECORATIVE BLUR CIRCLES (Matching Layout) */}
-      <div className="absolute top-20 left-10 w-48 h-48 bg-sky-200/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-40 right-10 w-64 h-64 bg-blue-200/10 rounded-full blur-3xl pointer-events-none" />
-
-      {/* DECORATIVE ELEMENTS */}
-      <DashedCircle className="absolute -top-10 -right-10 w-64 h-64 text-sky-400 pointer-events-none" />
-      <DashedCircle className="absolute bottom-20 -left-10 w-48 h-48 text-sky-300 pointer-events-none" />
-      <Airplane className="absolute top-32 left-8 w-14 h-14 text-sky-400 -rotate-12 pointer-events-none opacity-20" />
-      <Palm className="absolute bottom-0 left-2 w-24 h-32 pointer-events-none opacity-60" />
-      <Palm className="absolute bottom-0 right-2 w-20 h-28 pointer-events-none opacity-30 scale-x-[-1]" />
-
-      <AnimatePresence mode="wait">
-        {messages.length === 0 ? (
-          <motion.div
-            key="welcome"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.8, ease: EASE }}
-            className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-10 relative z-10"
-          >
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <motion.p
-                  className="text-sky-500 text-xl md:text-2xl font-bold"
-                  style={{ fontFamily: "'Dancing Script', cursive" }}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: EASE }}
-                >
-                  Welcome to HotelFlow
-                </motion.p>
-                <motion.h2
-                  className="text-2xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tight"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, ease: EASE, delay: 0.2 }}
-                >
-                  Your Next <span className="text-sky-500">Escape</span> Awaits
-                </motion.h2>
-              </div>
-
-              <motion.p
-                className="text-slate-500 dark:text-slate-400 font-medium max-w-[300px] mx-auto text-sm md:text-lg leading-relaxed"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: EASE, delay: 0.3 }}
-              >
-                How can I help you find your perfect nature escape today?
-              </motion.p>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="chat"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex-1 flex flex-col overflow-hidden relative z-10"
-          >
-            {/* MESSAGES */}
-            <div className="flex-1 space-y-4 overflow-y-auto p-4 md:p-6 custom-scrollbar-hide">
-              {messages.map((msg, i) => (
-                <GuestChatBubble
-                  key={i}
-                  role={msg.role}
-                  content={msg.content}
-                  userInitials={userInitials}
-                />
-              ))}
-
-              {loading && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="inline-flex items-center gap-3 rounded-2xl border px-4 py-2.5 text-xs font-bold"
-                  style={{
-                    borderColor: "var(--app-border)",
-                    color: "var(--app-text-main)",
-                    background: "rgba(255, 255, 255, 0.8)",
-                    backdropFilter: "blur(8px)",
-                  }}
-                >
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-sky-500" />
-                  AI Concierge is typing...
-                </motion.div>
-              )}
-
-              <div ref={endRef} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* INPUT AREA */}
-      <div className="p-4 md:p-6 relative z-20">
-        {/* SUGGESTIONS: Only shown when user types */}
+      {/* INPUT */}
+      <div className="p-4 shrink-0">
+        {/* Suggestions row directly above input box */}
         {suggestions.length > 0 && input.trim().length > 0 && !loading && (
-          <div className="flex overflow-x-auto pb-4 gap-2 no-scrollbar scroll-smooth">
+          <div className="flex overflow-x-auto pb-3 gap-2 no-scrollbar scroll-smooth">
             {suggestions.map((suggestion) => (
               <button
                 key={suggestion}
                 onClick={() => handleSend(suggestion)}
-                className="flex-shrink-0 rounded-full border px-5 py-2.5 text-[11px] font-black bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm hover:border-sky-500 hover:text-sky-600 transition-all duration-300 whitespace-nowrap shadow-sm text-slate-600 dark:text-slate-200 uppercase tracking-wider"
-                style={{
-                  borderColor: "var(--app-border)",
-                }}
+                className="flex-shrink-0 rounded-full border border-sky-100 dark:border-sky-900/20 px-4 py-2 text-[10px] font-bold bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm hover:border-sky-500 hover:text-sky-600 transition-all duration-300 whitespace-nowrap shadow-sm text-slate-600 dark:text-slate-200"
               >
                 {suggestion}
               </button>
@@ -442,19 +310,23 @@ const GuestChat = ({ isOpen, onClose, hideOwnClose = false }: Props) => {
           </div>
         )}
 
-        <div className="rounded-[2rem] border border-sky-100 dark:border-sky-800/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl p-2 shadow-2xl shadow-sky-500/10">
-          <GuestInput
-            inputRef={inputRef}
+        <div className="rounded-[2rem] border border-sky-100 dark:border-sky-800/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl p-2 shadow-lg shadow-sky-500/10 flex items-center gap-2">
+          <input
+            ref={inputRef}
             value={input}
-            onChange={(val) => {
-              setInput(val);
-              if (suggestions.length === 0 && val.trim().length > 0) {
-                loadSuggestions();
-              }
-            }}
-            onSend={() => handleSend()}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+            placeholder="Ask AI Concierge..."
+            className="flex-1 bg-transparent px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none"
             disabled={loading}
           />
+          <button
+            onClick={() => handleSend()}
+            disabled={!input.trim() || loading}
+            className="bg-sky-500 hover:bg-sky-600 disabled:opacity-40 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors shrink-0"
+          >
+            →
+          </button>
         </div>
       </div>
     </div>

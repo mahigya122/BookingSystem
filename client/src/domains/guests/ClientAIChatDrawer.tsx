@@ -1,14 +1,10 @@
 import { useClientAIChat } from "./ClientAIChatContext";
-import { useUser } from "@shared/hooks";
 import { MessageCircle, Bot, X } from "lucide-react";
-import { useGuestUnreadSupportCount } from "@shared/hooks/useGuestUnreadSupportCount";
 import GuestChat from "./GuestChat";
 import GuestSupportChat from "./GuestSupportChat";
 
 const ClientAIChatDrawer = () => {
-  const { open, setOpen, activeTab, setActiveTab } = useClientAIChat();
-  const { user } = useUser();
-  const unreadSupport = useGuestUnreadSupportCount(user?.id ?? null);
+  const { open, setOpen, activeTab, setActiveTab, unreadSupportCount: unreadSupport } = useClientAIChat();
 
   return (
     <>
@@ -86,10 +82,11 @@ const ClientAIChatDrawer = () => {
               isOpen={open}
               onClose={() => setOpen(false)}
               hideOwnClose
+              isActive={activeTab === "ai"}
             />
           </div>
           <div className={activeTab === "support" ? "h-full" : "hidden"}>
-            <GuestSupportChat isOpen={open} />
+            <GuestSupportChat isOpen={open} isActive={activeTab === "support"} />
           </div>
         </div>
       </div>

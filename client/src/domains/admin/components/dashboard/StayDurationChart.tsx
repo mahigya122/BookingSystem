@@ -23,22 +23,22 @@ const StayDurationChart = ({data}: Props) => {
     const colors = isDark ? COLORS_DARK : COLORS_LIGHT;
 
     return (
-        <div className="card h-full flex flex-col">
+        <div className="card bg-white dark:bg-slate-900 border-violet-200/80 dark:border-violet-900/40 h-full flex flex-col">
             <div className="card-header">
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Stay Distribution</h2>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nights per Guest</span>
+                <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Stay Distribution</h2>
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Nights per Guest</span>
             </div>
 
             <div className="card-body flex-1 flex flex-col items-center justify-center">
                 <div className="w-full flex flex-col md:flex-row items-center gap-8">
                     <div className="flex-1 w-full">
-                        <ResponsiveContainer width="100%" height={240}>
+                        <ResponsiveContainer width="100%" height={200}>
                             <PieChart>
                                 <Pie
                                     data={data}
                                     dataKey="value"
-                                    innerRadius={70}
-                                    outerRadius={95}
+                                    innerRadius={55}
+                                    outerRadius={75}
                                     paddingAngle={2}
                                     stroke="none"
                                 >

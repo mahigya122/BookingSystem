@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Check } from "lucide-react";
 
 interface Props {
   onFilterChange: (value: string) => void;
@@ -39,7 +40,8 @@ const CabinSubnav = ({
   return (
     <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
 
-      <div className="flex items-center gap-1 p-1 surface-panel-strong rounded-2xl shadow-sm">
+      {/* LEFT: FILTERS */}
+      <div className="flex flex-wrap items-center gap-1.5 p-1 bg-white/80 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/80 rounded-xl shadow-sm">
         {[
           { label: "Show All", value: "all" },
           { label: "Promotional", value: "with-discount" },
@@ -48,10 +50,10 @@ const CabinSubnav = ({
           <button
             key={item.value}
             onClick={() => handleFilter(item.value)}
-            className={`px-4 py-1.5 rounded-md text-[11px] font-bold uppercase tracking-wider transition-all ${
+            className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all duration-200 ${
               active === item.value
                 ? "text-white shadow-sm"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-white/10 dark:hover:bg-white/5"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
             }`}
             style={
               active === item.value
@@ -67,34 +69,45 @@ const CabinSubnav = ({
         ))}
       </div>
 
-      <div className="flex items-center gap-3">
+      {/* RIGHT SIDE */}
+      <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+        {/* SORT DROPDOWN */}
         <div className="relative">
           <button
             onClick={() => setSortOpen((p) => !p)}
-            className="btn btn-secondary flex items-center gap-2 px-4 py-2 rounded-2xl text-sm shadow-sm transition-all active:scale-95"
+            className="h-8 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-250 dark:border-emerald-800 flex items-center justify-between gap-2 px-3.5 rounded-xl text-xs font-bold text-slate-900 dark:text-white hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors shadow-sm active:scale-95 min-w-[150px]"
           >
             <span className="text-xs">{activeSortLabel}</span>
-            <span className={`transition-transform duration-200 ${sortOpen ? 'rotate-180' : ''}`}>▾</span>
+            <span className={`text-[9px] text-slate-500 transition-transform duration-250 ${sortOpen ? 'rotate-180' : ''}`}>▼</span>
           </button>
 
           {sortOpen && (
-            <div className="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl border border-slate-200/70 dark:border-slate-700 bg-[color-mix(in_srgb,var(--app-surface-elevated)_95%,black)] shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150">
-                {Object.entries(sortLabelMap).map(([key, label]) => (
-                    <button
-                        key={key}
-                        onClick={() => handleSort(key)}
-                        className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-white/10 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white transition-colors border-b last:border-0 border-slate-100/80 dark:border-slate-800/50"
-                    >
-                        {label}
-                    </button>
-                ))}
+            <div className="absolute right-0 mt-1.5 w-52 overflow-hidden rounded-xl border border-emerald-250 dark:border-emerald-800 bg-white dark:bg-slate-950 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150">
+              {Object.entries(sortLabelMap).map(([key, label]) => {
+                const isSelected = currentSort === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => handleSort(key)}
+                    className={`w-full flex items-center justify-between px-4 py-2 text-xs font-bold transition-colors border-b last:border-0 border-slate-100 dark:border-slate-850 capitalize ${
+                      isSelected
+                        ? "text-emerald-700 dark:text-emerald-300 bg-emerald-100/50 dark:bg-emerald-900/30"
+                        : "text-slate-700 dark:text-slate-300 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 hover:text-slate-900 dark:hover:text-white"
+                    }`}
+                  >
+                    <span>{label}</span>
+                    {isSelected && <Check size={12} className="text-emerald-600 dark:text-emerald-400" />}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
 
+        {/* ADD CABIN BUTTON */}
         <button
           onClick={onAddCabin}
-          className="btn btn-primary"
+          className="h-8 flex items-center justify-center bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-sky-600 dark:hover:bg-sky-400 dark:hover:text-white rounded-xl px-4 text-[10px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95 shadow-sm"
         >
           Add New Unit
         </button>

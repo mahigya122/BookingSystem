@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useLogout } from "@shared/hooks";
 import ThemeToggle from "@shared/components/ui/ThemeToggle";
-import { Mountain, LogOut, Menu, MessageCircle } from "lucide-react";
+import { Mountain, LogOut, Menu } from "lucide-react";
 import { useAdminSidebar } from "../domains/admin/contexts/AdminSidebarContext";
 
 const Navbar = () => {
@@ -46,17 +46,8 @@ const Navbar = () => {
                     View Site
                 </button>
 
-                <ThemeToggle />
-
-                <div className="flex items-center gap-2 ml-1">
-
-                    <button
-                        onClick={() => navigate("/messages")}
-                        className="p-1.5 text-slate-500 hover:text-rose-500 dark:text-slate-400 dark:hover:text-rose-400 transition-all duration-300 active:scale-90 flex items-center justify-center drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]"
-                        title="Support Messages"
-                    >
-                        <MessageCircle size={22} />
-                    </button>
+                <div className="flex items-center gap-2">
+                    <ThemeToggle />
 
                     <button
                         onClick={() => navigate("/profile")}

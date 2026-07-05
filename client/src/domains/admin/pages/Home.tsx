@@ -94,27 +94,27 @@ const Dashboard = () => {
   }, [stats]);
 
   return (
-    <div className="w-full space-y-12 animate-slide-up pb-12">
+    <div className="w-full space-y-6 animate-slide-up pb-6">
       {showSkeleton ? (
         <DashboardSkeleton />
       ) : (
         <>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
-            <div className="space-y-3">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div className="space-y-0.5">
               <p
-                className="text-sky-500 text-2xl font-bold"
+                className="text-sky-500 text-sm font-bold"
                 style={{ fontFamily: "'Dancing Script', cursive" }}
               >
                 Management Dashboard ✨
               </p>
-              <h1 className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter">
+              <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
                 System <span className="text-sky-500">Overview</span>
               </h1>
-              <p className="text-base text-slate-500 dark:text-slate-400 max-w-lg leading-relaxed">
+              <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-lg leading-relaxed mt-2 mb-4 md:mb-0">
                 Real-time analytics and operational control for your elite cabin network.
               </p>
             </div>
-            <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl p-3 rounded-[2rem] shadow-premium border border-sky-100/50 dark:border-sky-900/20">
+            <div className="bg-white/50 dark:bg-slate-900/40 backdrop-blur-xl p-2 rounded-2xl border border-sky-100/30 dark:border-slate-800/40">
               <DashboardHeader
                 range={range}
                 onChangeRange={setRange}
@@ -122,33 +122,33 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* ROW 1: CORE OPERATIONS */}
             <StatsCard
               title="Total Reservations"
               value={finalTotalBookings}
-              icon={<History size={22} />}
+              icon={<History size={18} />}
               color="bg-sky-50 dark:bg-sky-900/20"
             />
 
             <StatsCard
               title="Guest Directory"
               value={finalTotalGuests}
-              icon={<Users size={22} />}
+              icon={<Users size={18} />}
               color="bg-indigo-50 dark:bg-indigo-900/20"
             />
 
             <StatsCard
               title="Net Revenue"
               value={`$${finalRevenue.toLocaleString()}`}
-              icon={<Banknote size={22} />}
+              icon={<Banknote size={18} />}
               color="bg-emerald-50 dark:bg-emerald-900/20"
             />
 
             <StatsCard
               title="Occupancy Rate"
               value={`${finalOccupancy}%`}
-              icon={<Percent size={20} />}
+              icon={<Percent size={16} />}
               color="bg-amber-50 dark:bg-amber-900/20"
             />
 
@@ -156,33 +156,33 @@ const Dashboard = () => {
             <StatsCard
               title="Activity Booking"
               value={finalTotalBookings}
-              icon={<TrendingUp size={22} />}
+              icon={<TrendingUp size={18} />}
               color="bg-cyan-50 dark:bg-cyan-900/20"
             />
 
             <StatsCard
               title="Return Guest"
               value={Math.round(finalTotalGuests * 0.4)}
-              icon={<div className="font-black text-lg">👤</div>}
+              icon={<div className="font-black text-sm">👤</div>}
               color="bg-violet-50 dark:bg-violet-900/20"
             />
 
             <StatsCard
               title="Avg. Booking Value"
               value={`$${finalTotalBookings ? Math.round(finalRevenue / finalTotalBookings).toLocaleString() : "0"}`}
-              icon={<LineChart size={22} />}
+              icon={<LineChart size={18} />}
               color="bg-rose-50 dark:bg-rose-900/20"
             />
 
             <StatsCard
               title="Cancellation Rate"
               value={finalTotalBookings ? `${Math.round((cancelledBookings / (finalTotalBookings + cancelledBookings || 1)) * 100)}%` : "0%"}
-              icon={<LayoutDashboard size={20} />}
+              icon={<LayoutDashboard size={16} />}
               color="bg-slate-50 dark:bg-slate-800/20"
             />
           </div>
 
-          <Suspense fallback={<div className="h-40 animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />}>
+          <Suspense fallback={<div className="h-32 animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />}>
             <TodayActivity
               arrivals={arrivals}
               departures={departures}
@@ -192,13 +192,13 @@ const Dashboard = () => {
 
           <Suspense
             fallback={
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                <div className="h-[400px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
-                <div className="h-[400px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <div className="h-[300px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+                <div className="h-[300px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
               </div>
             }
           >
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <StayDurationChart data={stayData} />
               <SalesChart
                 title="Revenue Growth"
@@ -209,13 +209,13 @@ const Dashboard = () => {
 
           <Suspense
             fallback={
-              <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                <div className="h-[350px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
-                <div className="h-[350px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                <div className="h-[250px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
+                <div className="h-[250px] animate-pulse rounded-3xl bg-slate-100 dark:bg-slate-800" />
               </div>
             }
           >
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <RecentBookings bookings={bookings} />
               <TodayList
                 bookings={todayBookings}

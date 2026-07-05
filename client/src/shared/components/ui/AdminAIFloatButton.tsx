@@ -165,18 +165,6 @@ const AdminAIFloatButton = () => {
             transition-all duration-300
           "
         />
-
-        {/* 🟢 Online dot */}
-        <div
-          className="
-            absolute top-1 right-1 z-20
-            h-3.5 w-3.5
-            rounded-full
-            bg-emerald-400
-            border-2 border-white dark:border-slate-900
-            animate-pulse
-          "
-        />
       </div>
     </motion.div>
   );
