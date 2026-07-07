@@ -1,14 +1,11 @@
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, Suspense } from "react";
 import {
   CalendarDays,
   CheckCircle2,
   ChevronRight,
   ChevronDown,
-  Sparkles,
   UserRound,
-  CreditCard,
   Loader2,
-  Search,
   UserPlus,
   MapPin,
   Home,
@@ -26,10 +23,11 @@ import type { Activity } from "@shared/types/activity";
 import type { Location } from "@shared/types/location";
 import type { Offer } from "@shared/types/offer";
 import toast from "react-hot-toast";
-import PaymentSelector from "../../../payments/PaymentSelector";
 import { supabase } from "@shared/services/supabase";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { useQueryClient } from "@tanstack/react-query";
+import { CheckoutModal } from "@shared/modals/lazyModals";
+import ModalSpinner from "@shared/components/ui/ModalSpinner";
 
 // Format date to YYYY-MM-DD string in local timezone
 const formatDateString = (date: Date) => {
@@ -166,7 +164,6 @@ function SelectDropdown<T>({
           style={{ borderColor: "var(--app-border)" }}
         >
           <div className="relative border-b p-2" style={{ borderColor: "var(--app-border)" }}>
-            <Search size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             <input
               autoFocus
               type="text"
@@ -243,6 +240,10 @@ const BookingForm = () => {
   // Cabin-specific Add-ons selection states
   const [selectedActivities, setSelectedActivities] = useState<Activity[]>([]);
   const [selectedOffers, setSelectedOffers] = useState<Offer[]>([]);
+
+  // Checkout Modal states (client-side matching)
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<"activities" | "summary" | "payment">("summary");
 
   const { availability, isLoading: loadingAvailability } = useCabinAvailability(form.cabin_id);
 
@@ -429,6 +430,21 @@ const BookingForm = () => {
     return result;
   }, [form.capacity, selectedLocationId, cabins]);
 
+  // Sync cabin selection with location filters
+  useEffect(() => {
+    if (selectedLocationId && filteredCabins.length === 1) {
+      const singleId = filteredCabins[0].id;
+      if (form.cabin_id !== singleId) {
+        setForm((prev) => ({ ...prev, cabin_id: singleId }));
+      }
+    } else if (form.cabin_id) {
+      const exists = filteredCabins.some((cabin) => cabin.id === form.cabin_id);
+      if (!exists) {
+        setForm((prev) => ({ ...prev, cabin_id: "" }));
+      }
+    }
+  }, [selectedLocationId, filteredCabins, form.cabin_id]);
+
   const locationOptions = useMemo(
     () => [{ id: "", name: "All Locations" } as Location, ...locations],
     [locations]
@@ -449,15 +465,53 @@ const BookingForm = () => {
     }
   }, [hasFreeBreakfastOffer]);
 
-  const cabinHasFreeBreakfast = useMemo(() => {
-    return (
-      selectedCabin?.offers?.some((offer) => {
-        const nameMatch = (offer.name || offer.title || "").toLowerCase().includes("breakfast");
-        const descMatch = (offer.description || "").toLowerCase().includes("breakfast");
-        return nameMatch || descMatch;
-      }) || false
-    );
-  }, [selectedCabin]);
+
+
+ const handleRegisterGuest = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!newGuest.full_name.trim()) {
+    toast.error("Full name is required");
+    return;
+  }
+  setIsInsertingGuest(true);
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+
+    if (!token) {
+      toast.error("Your admin session has expired. Please log in again.");
+      setIsInsertingGuest(false);
+      return;
+    }
+
+    const res = await fetch("/api/admin/guests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        full_name: newGuest.full_name,
+        email: newGuest.email,
+        phone: newGuest.phone,
+      }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to register guest");
+
+    toast.success("Guest registered successfully!");
+    setForm((prev) => ({ ...prev, guest_id: data.guest.id }));
+    setIsCreatingGuest(false);
+    setNewGuest({ full_name: "", email: "", phone: "" });
+    setGuestSearch("");
+    await queryClient.invalidateQueries({ queryKey: ["guests"] });
+  } catch (err: any) {
+    toast.error(err.message || "Failed to register guest");
+  } finally {
+    setIsInsertingGuest(false);
+  }
+};
 
   // Pricing calculations engine — matches the guest-facing logic in CabinDetails.tsx exactly
   const pricing = useMemo(() => {
@@ -515,39 +569,6 @@ const BookingForm = () => {
     });
   }, [availability, form.start_date, form.end_date, form.guest_id]);
 
-  // Insert guest dynamically into guest directory
-  const handleRegisterGuest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newGuest.full_name.trim()) {
-      toast.error("Full name is required");
-      return;
-    }
-    setIsInsertingGuest(true);
-    try {
-      const newId = crypto.randomUUID();
-      const { error: insertError } = await supabase
-        .from("guests")
-        .insert({
-          id: newId,
-          full_name: newGuest.full_name,
-          email: newGuest.email || "",
-          phone: newGuest.phone || "",
-        });
-
-      if (insertError) throw insertError;
-
-      toast.success("Guest registered successfully!");
-      setForm((prev) => ({ ...prev, guest_id: newId }));
-      setIsCreatingGuest(false);
-      setNewGuest({ full_name: "", email: "", phone: "" });
-      setGuestSearch("");
-      await queryClient.invalidateQueries({ queryKey: ["guests"] });
-    } catch (err: any) {
-      toast.error(err.message || "Failed to register guest");
-    } finally {
-      setIsInsertingGuest(false);
-    }
-  };
 
   const handleToggleActivity = (activity: Activity) => {
     setSelectedActivities((prev) => {
@@ -560,16 +581,7 @@ const BookingForm = () => {
     });
   };
 
-  const handleToggleOffer = (offer: Offer) => {
-    setSelectedOffers((prev) => {
-      const exists = prev.some((o) => o.id === offer.id);
-      if (exists) {
-        return prev.filter((o) => o.id !== offer.id);
-      } else {
-        return [...prev, offer];
-      }
-    });
-  };
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -596,6 +608,18 @@ const BookingForm = () => {
       return;
     }
 
+    setError("");
+    if (selectedCabin?.activities && selectedCabin.activities.length > 0) {
+      setCheckoutStep("activities");
+    } else {
+      setCheckoutStep("summary");
+    }
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmBooking = () => {
+    if (!form.guest_id || !form.cabin_id || !form.start_date || !form.end_date || !pricing) return;
+
     createBooking(
       {
         guest_id: form.guest_id,
@@ -611,16 +635,18 @@ const BookingForm = () => {
         payment_method: form.payment_method,
         extra_activities: selectedActivities,
         extra_offers: selectedOffers,
-        is_admin_booking: true, // Flag as admin booking
+        is_admin_booking: true,
       },
       {
         onSuccess: () => {
+          setIsConfirmModalOpen(false);
           setForm(INITIAL_FORM_STATE);
           setSelectedActivities([]);
           setSelectedOffers([]);
           toast.success("Booking created successfully!");
         },
         onError: (err: unknown) => {
+          setIsConfirmModalOpen(false);
           setError(err instanceof Error ? err.message : "Something went wrong");
         },
       }
@@ -759,7 +785,7 @@ const BookingForm = () => {
                 {/* Guest Autocomplete Input */}
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                    <Search size={16} />
+                  
                   </div>
                   <input
                     type="text"
@@ -958,54 +984,113 @@ const BookingForm = () => {
                 <span className="text-[10px] font-bold text-slate-400">{filteredCabins.length} available</span>
               </div>
 
-              <SelectDropdown<Cabin>
-                items={filteredCabins}
-                getId={(cabin) => cabin.id}
-                getSearchText={(cabin) => `${cabin.name} ${cabin.location?.name || ""}`}
-                selectedId={form.cabin_id}
-                onSelect={(id) => setForm((prev) => ({ ...prev, cabin_id: id }))}
-                placeholder="Choose a cabin..."
-                searchPlaceholder="Search cabins by name or location..."
-                isLoading={isLoadingCabins}
-                emptyLabel="No cabins match this filter"
-                renderTrigger={(cabin) =>
-                  cabin ? (
+              {selectedLocationId ? (
+                <div className="grid gap-4 sm:grid-cols-2 mt-3">
+                  {filteredCabins.map((cabin) => {
+                    const isSelected = form.cabin_id === cabin.id;
+                    const glowClass = isSelected
+                      ? "ring-4 ring-sky-500 shadow-[0_0_25px_rgba(14,165,233,0.35)]"
+                      : "border border-slate-150 dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-800";
+                    return (
+                      <button
+                        key={cabin.id}
+                        type="button"
+                        onClick={() => setForm((prev) => ({ ...prev, cabin_id: cabin.id }))}
+                        className={`group relative flex flex-col overflow-hidden rounded-2xl cursor-pointer shadow-md hover:shadow-xl transition-all duration-500 ease-out aspect-[4/3] w-full ${glowClass}`}
+                      >
+                        {/* Cabin Image */}
+                        <img
+                          src={getOptimizedImageUrl(cabin.image_url, "featured")}
+                          alt={cabin.name}
+                          loading="lazy"
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-500" />
+
+                        {/* Discount Tag / Selection Badge at Top Left */}
+                        {isSelected ? (
+                          <div className="absolute top-3 left-3 z-10 bg-sky-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-lg flex items-center gap-1">
+                            <Check size={10} className="stroke-[3]" />
+                            Selected
+                          </div>
+                        ) : cabin.discount > 0 ? (
+                          <div className="absolute top-3 left-3 z-10 bg-rose-500 text-white text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full shadow-lg">
+                            Save ${cabin.discount}
+                          </div>
+                        ) : null}
+
+                        {/* Price tag */}
+                        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md rounded-xl shadow-lg z-10 px-2.5 py-1 text-slate-900 font-black text-xs md:text-sm">
+                          <span>${cabin.price_per_night}</span>
+                          <span className="text-slate-500 text-[9px] ml-0.5">/nt</span>
+                        </div>
+
+                        {/* Details at bottom */}
+                        <div className="absolute bottom-0 left-0 p-4 w-full text-left space-y-1">
+                          <h3 className="text-white font-black text-sm md:text-base leading-tight group-hover:text-sky-400 transition-colors truncate">
+                            {cabin.name}
+                          </h3>
+                          <div className="flex items-center gap-1.5">
+                            <MapPin size={10} className="text-sky-400 shrink-0" />
+                            <p className="text-white/70 font-medium text-[10px] md:text-xs truncate">
+                              {cabin.location?.name || "Private Location"} · 👥 {cabin.capacity} Guest{cabin.capacity > 1 ? "s" : ""}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <SelectDropdown<Cabin>
+                  items={filteredCabins}
+                  getId={(cabin) => cabin.id}
+                  getSearchText={(cabin) => `${cabin.name} ${cabin.location?.name || ""}`}
+                  selectedId={form.cabin_id}
+                  onSelect={(id) => setForm((prev) => ({ ...prev, cabin_id: id }))}
+                  placeholder="Choose a cabin..."
+                  searchPlaceholder="Search cabins by name or location..."
+                  isLoading={isLoadingCabins}
+                  emptyLabel="No cabins match this filter"
+                  renderTrigger={(cabin) =>
+                    cabin ? (
+                      <span className="flex items-center gap-3 min-w-0">
+                        <span className="h-9 w-9 rounded-xl overflow-hidden shrink-0 border" style={{ borderColor: "var(--app-border)" }}>
+                          <img
+                            src={getOptimizedImageUrl(cabin.image_url, "avatar")}
+                            alt={cabin.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="text-sm font-black text-slate-800 dark:text-white truncate block">{cabin.name}</span>
+                          <span className="text-[10px] font-bold text-slate-400 truncate block">
+                            {cabin.location?.name || "Premium Retreat"} · ${cabin.price_per_night}/night
+                          </span>
+                        </span>
+                      </span>
+                    ) : null
+                  }
+                  renderRow={(cabin, isSelected) => (
                     <span className="flex items-center gap-3 min-w-0">
-                      <span className="h-9 w-9 rounded-xl overflow-hidden shrink-0 border" style={{ borderColor: "var(--app-border)" }}>
+                      <span className="h-10 w-10 rounded-xl overflow-hidden shrink-0 border" style={{ borderColor: "var(--app-border)" }}>
                         <img
                           src={getOptimizedImageUrl(cabin.image_url, "avatar")}
                           alt={cabin.name}
                           className="h-full w-full object-cover"
                         />
                       </span>
-                      <span className="min-w-0">
-                        <span className="text-sm font-black text-slate-800 dark:text-white truncate block">{cabin.name}</span>
+                      <span className="min-w-0 flex-1">
+                        <span className="text-xs font-black text-slate-800 dark:text-white truncate block">{cabin.name}</span>
                         <span className="text-[10px] font-bold text-slate-400 truncate block">
-                          {cabin.location?.name || "Premium Retreat"} · ${cabin.price_per_night}/night
+                          {cabin.location?.name || "Premium Retreat"} · 👥 {cabin.capacity} · ${cabin.price_per_night}/night
                         </span>
                       </span>
+                      {isSelected && <Check size={14} className="text-sky-500 shrink-0" />}
                     </span>
-                  ) : null
-                }
-                renderRow={(cabin, isSelected) => (
-                  <span className="flex items-center gap-3 min-w-0">
-                    <span className="h-10 w-10 rounded-xl overflow-hidden shrink-0 border" style={{ borderColor: "var(--app-border)" }}>
-                      <img
-                        src={getOptimizedImageUrl(cabin.image_url, "avatar")}
-                        alt={cabin.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="text-xs font-black text-slate-800 dark:text-white truncate block">{cabin.name}</span>
-                      <span className="text-[10px] font-bold text-slate-400 truncate block">
-                        {cabin.location?.name || "Premium Retreat"} · 👥 {cabin.capacity} · ${cabin.price_per_night}/night
-                      </span>
-                    </span>
-                    {isSelected && <Check size={14} className="text-sky-500 shrink-0" />}
-                  </span>
-                )}
-              />
+                  )}
+                />
+              )}
 
               {filteredCabins.length === 0 && !isLoadingCabins && (
                 <div className="flex items-center gap-2 px-1 pt-1 text-[11px] font-bold text-slate-455">
@@ -1038,158 +1123,6 @@ const BookingForm = () => {
             )}
           </section>
 
-          {/* STEP 3: Optional Add-ons (Activities & Offers) */}
-          {selectedCabin && (
-            <section className={sectionCardClass}>
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-500">
-                  <Sparkles size={18} />
-                </div>
-                <div>
-                  <h2 className={sectionHeaderTitleClass} style={{ color: "var(--app-text-main)" }}>Extra Services & Add-ons</h2>
-                  <p className={sectionHeaderSubtitleClass} style={{ color: "var(--app-text-muted)" }}>Select cabin-specific activities and offers</p>
-                </div>
-              </div>
-
-              <div className="grid gap-6">
-                {/* Breakfast configuration card — hidden entirely when the cabin already
-                    includes a free-breakfast offer, mirroring the guest-facing BookingCard. */}
-                {!cabinHasFreeBreakfast && (
-                  <label
-                    htmlFor="has_breakfast"
-                    className="flex items-center justify-between gap-4 p-5 rounded-2xl border bg-white dark:bg-slate-900 cursor-pointer transition-all hover:border-sky-300 dark:hover:border-sky-800"
-                    style={{ borderColor: "var(--app-border)" }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        name="has_breakfast"
-                        id="has_breakfast"
-                        checked={form.has_breakfast}
-                        onChange={handleChange}
-                        className="h-4.5 w-4.5 rounded border cursor-pointer accent-sky-500"
-                      />
-                      <div className="flex flex-col">
-                        <span className="text-sm font-black text-slate-800 dark:text-white">Include organic breakfast</span>
-                        <span className="text-xs text-slate-455 mt-0.5">Premium catering at +${settings?.breakfast_price ?? 15}/night per guest</span>
-                      </div>
-                    </div>
-                  </label>
-                )}
-
-                {hasFreeBreakfastOffer && (
-                  <div className="flex items-center gap-2 px-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400">
-                    <Check size={13} className="shrink-0" />
-                    Breakfast already included via a selected promotional offer.
-                  </div>
-                )}
-
-                {/* Cabin Activities */}
-                {selectedCabin.activities && selectedCabin.activities.length > 0 && (
-                  <div className="space-y-3">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-455 block">Include Local Activities</span>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {selectedCabin.activities.map((act) => {
-                        const isToggled = selectedActivities.some((x) => x.id === act.id);
-                        return (
-                          <button
-                            key={act.id}
-                            type="button"
-                            onClick={() => handleToggleActivity(act)}
-                            className={`flex items-center justify-between p-4 rounded-2xl border text-left transition-all duration-300 cursor-pointer ${
-                              isToggled
-                                ? "border-amber-500 bg-amber-50/30 dark:bg-amber-950/10 shadow-sm scale-[1.01]"
-                                : "border-slate-100 dark:border-slate-800 hover:border-amber-300 dark:hover:border-amber-800"
-                            }`}
-                          >
-                            <div className="min-w-0">
-                              <h5 className="text-xs font-black text-slate-800 dark:text-white">{act.name}</h5>
-                              <p className="text-[10px] text-slate-455 font-bold mt-1 line-clamp-1">{act.description || "Activity package"}</p>
-                            </div>
-                            <span className="text-xs font-extrabold text-slate-700 dark:text-slate-300 shrink-0 ml-3">
-                              {isToggled ? "✓ " : ""}${act.price || 0}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Cabin Offers */}
-                {selectedCabin.offers && selectedCabin.offers.length > 0 && (
-                  <div className="space-y-3">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-455 block">Apply Promotional Discounts</span>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {selectedCabin.offers.map((offer) => {
-                        const isToggled = selectedOffers.some((x) => x.id === offer.id);
-                        return (
-                          <button
-                            key={offer.id}
-                            type="button"
-                            onClick={() => handleToggleOffer(offer)}
-                            className={`flex items-center justify-between p-4 rounded-2xl border text-left transition-all duration-300 cursor-pointer ${
-                              isToggled
-                                ? "border-sky-500 bg-sky-50/30 dark:bg-sky-950/10 shadow-sm scale-[1.01]"
-                                : "border-slate-100 dark:border-slate-800 hover:border-sky-300 dark:hover:border-sky-800"
-                            }`}
-                          >
-                            <div className="min-w-0 flex-1">
-                              <h5 className="text-xs font-black text-slate-800 dark:text-white truncate">{offer.title}</h5>
-                              <p className="text-[10px] text-slate-455 font-bold mt-1 truncate">{offer.description || "Discount offer"}</p>
-                            </div>
-                            <span className="text-xs font-extrabold text-sky-600 dark:text-sky-400 shrink-0 ml-3 bg-sky-500/10 px-2 py-0.5 rounded-full">
-                              {offer.discount_percent}% OFF
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
-
-          {/* STEP 4: Payment Selector */}
-          <section className={sectionCardClass}>
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-500">
-                <CreditCard size={18} />
-              </div>
-              <div>
-                <h2 className={sectionHeaderTitleClass} style={{ color: "var(--app-text-main)" }}>Payment</h2>
-                <p className={sectionHeaderSubtitleClass} style={{ color: "var(--app-text-muted)" }}>Configure billing status and channel</p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-455 mb-2 block">Booking Status</label>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setForm(f => ({ ...f, payment_status: "pending" }))}
-                    className={`flex-1 py-3 rounded-2xl border font-bold text-xs uppercase tracking-wider transition-all duration-300 cursor-pointer ${form.payment_status === "pending" ? "bg-amber-500 border-amber-600 text-white shadow-lg shadow-amber-500/15" : "border-slate-200 text-slate-500 dark:border-slate-800 hover:border-amber-300"}`}
-                  >
-                    Pending Arrival
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setForm(f => ({ ...f, payment_status: "paid" }))}
-                    className={`flex-1 py-3 rounded-2xl border font-bold text-xs uppercase tracking-wider transition-all duration-300 cursor-pointer ${form.payment_status === "paid" ? "bg-emerald-500 border-emerald-600 text-white shadow-lg shadow-emerald-500/15" : "border-slate-200 text-slate-500 dark:border-slate-800 hover:border-emerald-300"}`}
-                  >
-                    Paid Fully
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-455 mb-2 block">Payment Instrument</label>
-                <PaymentSelector selectedMethod={form.payment_method} onSelect={(method) => setForm(f => ({ ...f, payment_method: method }))} />
-              </div>
-            </div>
-          </section>
         </div>
 
         {/* RIGHT COLUMN: Trip summary + invoice panel */}
@@ -1271,25 +1204,52 @@ const BookingForm = () => {
 
                     {/* Offers discount */}
                     {pricing.discountAmount > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span className="font-bold text-emerald-500">Campaign Discount ({pricing.totalDiscountPercent}%)</span>
-                        <span className="font-black text-emerald-500">-${pricing.discountAmount}</span>
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-sm text-emerald-600 dark:text-emerald-400 font-extrabold">
+                          <span>Perks Discount</span>
+                          <span>-${pricing.discountAmount.toFixed(0)}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {selectedOffers.map((o) => (
+                            <span key={o.id} className="text-[9px] bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-100 dark:border-emerald-900/30 font-black uppercase tracking-wider">
+                              {o.name || o.title}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     )}
 
                     {/* Breakfast price */}
-                    {form.has_breakfast && (
-                      <div className="flex justify-between text-sm">
-                        <span className="font-bold text-slate-500">Breakfast Catering</span>
-                        <span className="font-black text-slate-800 dark:text-slate-100">+${pricing.breakfastPrice}</span>
+                    {(form.has_breakfast || hasFreeBreakfastOffer) && (
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span className="font-bold text-slate-500">Breakfast Catering</span>
+                          <span className={hasFreeBreakfastOffer ? "font-black text-emerald-600 dark:text-emerald-400" : "font-black text-slate-800 dark:text-slate-100"}>
+                            {hasFreeBreakfastOffer ? "FREE" : `+$${pricing.breakfastPrice}`}
+                          </span>
+                        </div>
+                        {hasFreeBreakfastOffer && (
+                          <span className="text-[10px] text-emerald-500 font-bold block leading-none">
+                            Included via promotional offer
+                          </span>
+                        )}
                       </div>
                     )}
 
                     {/* Activities price */}
                     {pricing.activitiesTotal > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span className="font-bold text-slate-500">Extra Activities</span>
-                        <span className="font-black text-slate-800 dark:text-slate-100">+${pricing.activitiesTotal}</span>
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span className="font-bold text-slate-500">Extra Activities</span>
+                          <span className="font-black text-slate-800 dark:text-slate-100">+${pricing.activitiesTotal}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {selectedActivities.map((a) => (
+                            <span key={a.id} className="text-[9px] bg-sky-50 dark:bg-sky-955/40 text-sky-600 dark:text-sky-400 px-2 py-0.5 rounded-full border border-sky-100 dark:border-sky-900/30 font-black uppercase tracking-wider">
+                              {a.name}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     )}
 
@@ -1376,6 +1336,40 @@ const BookingForm = () => {
           </button>
         </div>
       </form>
+
+      {isConfirmModalOpen && selectedCabin && (
+        <Suspense fallback={<ModalSpinner />}>
+          <CheckoutModal
+            cabin={selectedCabin}
+            checkoutStep={checkoutStep}
+            startDate={form.start_date ? parseDateString(form.start_date) : null}
+            endDate={form.end_date ? parseDateString(form.end_date) : null}
+            totalNights={pricing?.nights || 0}
+            guestCount={Number(form.capacity) || 1}
+            fullName={selectedGuest?.full_name || ""}
+            phone={selectedGuest?.phone || ""}
+            breakfast={form.has_breakfast}
+            baseAccommodationPrice={pricing?.base || 0}
+            breakfastTotal={pricing?.breakfastPrice || 0}
+            activitiesTotal={pricing?.activitiesTotal || 0}
+            discountFromOffers={pricing?.discountAmount || 0}
+            selectedActivities={selectedActivities}
+            selectedOffers={selectedOffers}
+            totalPrice={pricing?.total || 0}
+            paymentMethod={form.payment_method as any}
+            isBookingPending={isPending}
+            onClose={() => setIsConfirmModalOpen(false)}
+            onStepChange={setCheckoutStep}
+            onPaymentMethodChange={(method) => {
+              const status = (method === "esewa_full" || method === "esewa") ? "paid" : "pending";
+              setForm(f => ({ ...f, payment_method: method, payment_status: status }));
+            }}
+            onConfirm={handleConfirmBooking}
+            onToggleActivity={handleToggleActivity}
+            isAdmin={true}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };

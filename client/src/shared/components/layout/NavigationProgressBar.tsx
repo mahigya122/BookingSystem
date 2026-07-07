@@ -19,7 +19,7 @@ const NavigationProgressBar = () => {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    let timer: NodeJS.Timeout;
+    let timer: any;
     if (isNavigating) {
       timer = setTimeout(() => {
         setIsNavigating(false);

@@ -280,12 +280,12 @@ const ClientProfile = () => {
           background: #1d1d1f; border: 2px solid #f5f5f7;
           display: flex; align-items: center; justify-content: center;
           cursor: pointer; transition: transform 0.2s ease;
+          color: #f5f5f7;
         }
 
         .avatar-edit-btn:hover { transform: scale(1.1); }
 
-        .dark .avatar-edit-btn { background: #f5f5f7; border-color: #1c1c1e; }
-        .dark .avatar-edit-btn svg { color: #1d1d1f; }
+        .dark .avatar-edit-btn { background: #f5f5f7; border-color: #1c1c1e; color: #1d1d1f; }
 
         .identity-name {
           font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
@@ -509,9 +509,9 @@ const ClientProfile = () => {
                     aria-label="Change photo"
                   >
                     {isUploadingAvatar ? (
-                      <Loader2 size={12} className="animate-spin text-white" />
+                      <Loader2 size={12} className="animate-spin" />
                     ) : (
-                      <Camera size={12} color="#f5f5f7" />
+                      <Camera size={12} />
                     )}
                   </button>
                 </div>

@@ -110,6 +110,7 @@ interface CheckoutModalProps {
   onPaymentMethodChange: (method: PaymentMethod) => void;
   onConfirm: () => void;
   onToggleActivity: (activity: Activity) => void;
+  isAdmin?: boolean;
 }
 
 const CheckoutModal = ({
@@ -136,6 +137,7 @@ const CheckoutModal = ({
   onPaymentMethodChange,
   onConfirm,
   onToggleActivity,
+  isAdmin = false,
 }: CheckoutModalProps) => {
   const hasActivities = cabin.activities && cabin.activities.length > 0;
   const totalSteps = hasActivities ? 3 : 2;
@@ -568,6 +570,74 @@ const CheckoutModal = ({
                   </div>
                 </div>
               </div>
+
+              {/* Option 3: Pay on Arrival (Admin only) */}
+              {isAdmin && (
+                <div
+                  onClick={() => onPaymentMethodChange("arrival")}
+                  className={`p-5 rounded-3xl border-2 transition-all duration-300 cursor-pointer relative text-left ${
+                    paymentMethod === "arrival"
+                      ? "border-sky-500 bg-sky-500/5 shadow-md shadow-sky-500/5"
+                      : "border-slate-150 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-950/10"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                        paymentMethod === "arrival"
+                          ? "border-sky-500 bg-sky-500"
+                          : "border-slate-350"
+                      }`}
+                    >
+                      {paymentMethod === "arrival" && (
+                        <span className="h-2 w-2 rounded-full bg-white" />
+                      )}
+                    </div>
+                    <div>
+                      <h5 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                        Option 3: Pay on Arrival (Cash/Card)
+                      </h5>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Collect payment from the guest when they check in
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Option 4: eSewa Manual (Admin only) */}
+              {isAdmin && (
+                <div
+                  onClick={() => onPaymentMethodChange("esewa")}
+                  className={`p-5 rounded-3xl border-2 transition-all duration-300 cursor-pointer relative text-left ${
+                    paymentMethod === "esewa"
+                      ? "border-sky-500 bg-sky-500/5 shadow-md shadow-sky-500/5"
+                      : "border-slate-150 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/20 dark:bg-slate-950/10"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                        paymentMethod === "esewa"
+                          ? "border-sky-500 bg-sky-500"
+                          : "border-slate-350"
+                      }`}
+                    >
+                      {paymentMethod === "esewa" && (
+                        <span className="h-2 w-2 rounded-full bg-white" />
+                      )}
+                    </div>
+                    <div>
+                      <h5 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                        Option 4: eSewa Manual Verification
+                      </h5>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Confirm manual eSewa transaction transfer details
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Cancellation Policy Box */}
@@ -629,7 +699,7 @@ const CheckoutModal = ({
             <div className="flex gap-4 pt-2">
               <button
                 onClick={() => onStepChange("summary")}
-                className="flex-1 rounded-2xl border border-slate-200 dark:border-slate-800 py-3.5 font-bold hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-600 dark:text-slate-400"
+                className="flex-1 rounded-2xl border border-slate-200 dark:border-slate-800 py-3.5 font-bold hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-655 dark:text-slate-400"
               >
                 Back
               </button>
@@ -647,6 +717,8 @@ const CheckoutModal = ({
                     <Loader2 className="h-4.5 w-4.5 animate-spin" />{" "}
                     Confirming...
                   </>
+                ) : isAdmin ? (
+                  <>Confirm Booking</>
                 ) : (
                   <>Proceed to Pay</>
                 )}
