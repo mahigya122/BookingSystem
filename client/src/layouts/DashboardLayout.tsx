@@ -34,7 +34,7 @@ const DashboardLayoutContent = () => {
           className={`flex-1 w-full ${
             isMessagesPage
               ? "h-full overflow-hidden flex flex-col"
-              : "overflow-y-auto px-4 pt-4 md:pt-6 pb-8 scroll-smooth"
+              : "overflow-y-auto px-4 pt-4 md:px-6 md:pt-6 pb-8 scroll-smooth"
           }`}
         >
           <div className={isMessagesPage ? "h-full w-full" : "w-full mx-auto"}>

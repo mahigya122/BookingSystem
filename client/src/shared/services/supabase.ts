@@ -7,4 +7,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("Missing Supabase environment variables");
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const isAdminApp = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    ...(isAdminApp ? { storageKey: "sb-admin-auth-token" } : {}),
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+});

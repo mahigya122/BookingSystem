@@ -44,22 +44,36 @@ const BookingPage = () => {
   };
 
   return (
-    <div className="px-6 md:px-0 space-y-6 animate-slide-up">
-      <div className="flex flex-col">
-        <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-          Bookings
-        </h1>
-        <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-2">Manage and view all reservation details</span>
+    <div className="space-y-6 animate-slide-up pb-2 pt-2 px-2">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-2">
+        <div>
+          <p
+            className="text-sky-500 text-sm font-bold block"
+            style={{ fontFamily: "'Dancing Script', cursive" }}
+          >
+            Booking Management
+          </p>
+
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter mt-0">
+            Booking <span className="text-sky-500">Overview</span>
+          </h1>
+
+          <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-lg leading-relaxed mt-0">
+            Manage, monitor, and organize all cabin reservations with real-time insights.
+          </p>
+        </div>
       </div>
 
+<div className="mt-6">
       <BookingSubnav
         onFilterChange={setFilter}
         onSortChange={setSort}
         onSearchChange={setSearch}
         currentSort={sort}
       />
+      </div>
 
-      <div className="card overflow-hidden">
+      <div className="-mt-3 card overflow-hidden">
         <BookingTable
           bookings={bookings}
           onDelete={handleDelete}
@@ -68,7 +82,7 @@ const BookingPage = () => {
           isLoading={isLoading}
         />
 
-        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+        <div className="px-2 py-3 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
           <AdminPagination
             currentPage={currentPage}
             totalPages={totalPages}

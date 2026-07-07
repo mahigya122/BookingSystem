@@ -15,7 +15,7 @@ export function useLogout() {
     mutationFn: logoutApi,
 
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ["user"] });
+      queryClient.clear();
 
       // Success notification
       toast.success("Logged out successfully");

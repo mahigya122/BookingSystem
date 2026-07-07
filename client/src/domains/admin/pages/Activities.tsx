@@ -169,14 +169,34 @@ const Activities = () => {
     : [];
 
   return (
-    <div className="px-6 md:px-0 space-y-8 animate-slide-up pb-12">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 animate-slide-up pb-2 pt-2 px-2">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Resort Activities</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage global pool of unique experiences, tours, and excursions.</p>
+            <p
+        className="text-sky-500 text-sm font-bold block"
+        style={{ fontFamily: "'Dancing Script', cursive" }}
+      >
+        Activities Management
+      </p>
+          <h1 className=" text-2xl
+          md:text-3xl
+          font-black
+          text-slate-900
+          dark:text-white
+          tracking-tighter
+
+          mt-0">Resort Activities</h1>
+          <p className="text-xs
+          md:text-sm
+          text-slate-500
+          dark:text-slate-400
+          max-w-lg
+          leading-relaxed
+
+          mt-0">Manage global pool of unique experiences, tours, and excursions.</p>
         </div>
-        <div className="flex items-center gap-3">
-            <div className="relative">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:flex-initial">
                 <input 
                     type="text" 
                     placeholder="Search activities..."
@@ -222,7 +242,7 @@ const Activities = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 <label className={inputLabelClass}>Experience Name</label>
                 <input
                     placeholder="E.g. Guided Forest Hike"
@@ -231,7 +251,7 @@ const Activities = () => {
                     className={inputBaseClass}
                 />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 <label className={inputLabelClass}>Premium Price ($)</label>
                 <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
@@ -244,7 +264,7 @@ const Activities = () => {
                     />
                 </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
                 <label className={inputLabelClass}>Visual Reference (URL)</label>
                 <input
                     placeholder="https://..."
@@ -254,7 +274,7 @@ const Activities = () => {
                 />
             </div>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
                 <label className={inputLabelClass}>Experience Description</label>
                 <textarea
                     placeholder="Describe the experience..."
@@ -263,7 +283,7 @@ const Activities = () => {
                     className={`${inputBaseClass} min-h-[100px] resize-none leading-relaxed`}
                 />
           </div>
-          <div className="flex justify-end pt-4 border-t border-sky-100/50 dark:border-sky-900/20">
+          <div className="flex justify-end pt-2">
             <button onClick={handleAdd} disabled={isCreating} className="btn btn-primary px-10 shadow-lg shadow-sky-500/10">
                 {isCreating ? <Loader2 size={18} className="animate-spin" /> : <><Plus size={18} /> Catalog Experience</>}
             </button>
@@ -271,10 +291,11 @@ const Activities = () => {
         </div>
       )}
 
-      <div className="card overflow-hidden shadow-premium">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+      <div className="mt-6 card overflow-hidden">
+        <div className="overflow-x-auto">
+        <table className="w-full text-left">
+          <thead className="bg-amber-50/50 dark:bg-amber-950/30 border-b border-amber-100/50 dark:border-amber-900/20">
+            <tr>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400 w-28">Image</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Activity</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Applied To</th>
@@ -373,10 +394,11 @@ const Activities = () => {
                 <p className="text-slate-400 font-bold tracking-tight">No activities found.</p>
             </div>
         )}
+        </div>
 
         {/* PAGINATION */}
         {totalPages > 1 && (
-          <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div className="px-2 py-3 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
               Showing Page {currentPage} <span className="mx-1 text-slate-300 dark:text-slate-700">/</span> {totalPages}
             </p>

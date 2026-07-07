@@ -194,7 +194,7 @@ useEffect(() => {
         } else {
             setSelectedOffers([]);
         }
-    }, [startDate, endDate, cabin?.offers, isUpdateMode]);
+    }, [startDate, endDate, cabin?.offers, isUpdateMode, stateBooking]);
 
     const hasFreeBreakfastOffer = useMemo(() => {
         return selectedOffers.some((offer) => {
@@ -973,6 +973,10 @@ useEffect(() => {
                             onOpenBookingModal={handleOpenBookingModal}
                             isUpdateMode={isUpdateMode}
                             hasFreeBreakfast={hasFreeBreakfastOffer}
+                            discountFromOffers={discountFromOffers}
+                            selectedOffers={selectedOffers}
+                            activitiesTotal={activitiesTotal}
+                            selectedActivities={selectedActivities}
                         />
 
                         <CabinLocation

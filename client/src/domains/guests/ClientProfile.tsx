@@ -6,9 +6,9 @@ import { useCabinFiltersContext } from "../cabins/contexts/CabinFiltersContext";
 
 const ClientProfile = () => {
   const {
-    user, fullName, setFullName, phone, setPhone,
+    user, profile, fullName, setFullName, phone, setPhone,
     password, setPassword, confirmPassword, setConfirmPassword,
-    loading, saving, updatingPassword, save, updatePass
+    loading, saving, isUploadingAvatar, updatingPassword, save, uploadPhoto, updatePass
   } = useProfile();
 
   const navigate = useNavigate();
@@ -484,11 +484,35 @@ const ClientProfile = () => {
             <div>
               <div className="glass-card identity-card">
                 <div className="avatar-wrap">
-                  <div className="avatar-circle">
-                    <User size={38} strokeWidth={1.4} color="#3b82f6" />
+                  <div className="avatar-circle overflow-hidden flex items-center justify-center bg-slate-100 dark:bg-slate-800">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                    ) : (
+                      <User size={38} strokeWidth={1.4} color="#3b82f6" />
+                    )}
                   </div>
-                  <button className="avatar-edit-btn" aria-label="Change photo">
-                    <Camera size={12} color="#f5f5f7" />
+                  <button 
+                    onClick={() => {
+                      const input = document.createElement("input");
+                      input.type = "file";
+                      input.accept = "image/*";
+                      input.onchange = (e) => {
+                        const file = (e.target as HTMLInputElement).files?.[0];
+                        if (file) {
+                          uploadPhoto(file);
+                        }
+                      };
+                      input.click();
+                    }}
+                    disabled={isUploadingAvatar}
+                    className="avatar-edit-btn" 
+                    aria-label="Change photo"
+                  >
+                    {isUploadingAvatar ? (
+                      <Loader2 size={12} className="animate-spin text-white" />
+                    ) : (
+                      <Camera size={12} color="#f5f5f7" />
+                    )}
                   </button>
                 </div>
 

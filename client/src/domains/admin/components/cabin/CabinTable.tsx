@@ -25,17 +25,17 @@ return(
     <div className="overflow-x-auto">
         <table>
             <thead>
-                <tr>
-                    <th className="px-8 py-5 w-20 text-left">Media</th>
-                    <th className="px-8 py-5 text-left">Unit Name</th>
-                    <th className="px-8 py-5 text-left">Location</th>
-                    <th className="px-8 py-5 text-left">Max Cap.</th>
-                    <th className="px-8 py-5 text-left">Base Price</th>
-                    <th className="px-8 py-5 text-left">Discount</th>
-                    <th className="px-8 py-5 text-left">Offers</th>
-                    <th className="px-8 py-5 text-left">Activities</th>
-                    <th className="px-8 py-5 text-left">Reviews</th>
-                    <th className="px-8 py-5 text-right w-60">Manage</th>
+                <tr className="bg-slate-100/60 dark:bg-slate-800/40 border-b border-slate-200 dark:border-slate-700/60">
+                    <th className="px-8 py-5 w-20 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Media</th>
+                    <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Unit Name</th>
+                    <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Location</th>
+                    <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Max Cap.</th>
+                    <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Base Price</th>
+                    <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Discount</th>
+                    <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Offers</th>
+                    <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Activities</th>
+                    <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Reviews</th>
+                    <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 w-60">Manage</th>
                 </tr>
             </thead>
 

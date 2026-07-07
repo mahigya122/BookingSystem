@@ -4,6 +4,7 @@ export interface UserProfile {
   id: string;
   full_name: string;
   phone_no: string;
+  avatar_url?: string;
   updated_at?: string;
 }
 

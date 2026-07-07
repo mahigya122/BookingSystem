@@ -21,15 +21,15 @@ const BookingTable = ({
     <div className="overflow-x-auto">
       <table>
         <thead>
-          <tr>
-            <th className="px-8 py-5 text-left">Guest Name</th>
-            <th className="px-8 py-5 text-left">Unit / Cabin</th>
-            <th className="px-8 py-5 text-left">Check-in</th>
-            <th className="px-8 py-5 text-left">Check-out</th>
-            <th className="px-8 py-5 text-left">Status</th>
-            <th className="px-8 py-5 text-left">Revenue</th>
-            <th className="px-8 py-5 text-left">Payment</th>
-            <th className="px-8 py-5 text-right w-44">Manage</th>
+          <tr className="bg-blue-50/50 dark:bg-blue-950/30 border-b border-blue-100/50 dark:border-blue-900/20">
+            <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Guest Name</th>
+            <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Unit / Cabin</th>
+            <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Check-in</th>
+            <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Check-out</th>
+            <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Status</th>
+            <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Revenue</th>
+            <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Payment</th>
+            <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 w-44">Manage</th>
           </tr>
         </thead>
 

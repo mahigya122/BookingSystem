@@ -155,11 +155,36 @@ const Locations = () => {
   const cabinsWithoutLocation = viewingLocation ? cabins.filter((c: Cabin) => c.location_id !== viewingLocation.id) : [];
 
   return (
-      <div className="px-6 md:px-0 space-y-8 animate-slide-up pb-12">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 animate-slide-up pb-2 px-2 pt-2">
+      <div className="flex
+      flex-col
+      md:flex-row
+      md:items-end
+      justify-between
+      gap-2 ">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Geographic Locations</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage global pool of resort areas, regional zones, and cabin destinations.</p>
+           <p
+        className="text-sky-500 text-sm font-bold block"
+        style={{ fontFamily: "'Dancing Script', cursive" }}
+      >
+        Location Management
+      </p>
+          <h1 className="text-2xl
+          md:text-3xl
+          font-black
+          text-slate-900
+          dark:text-white
+          tracking-tighter
+
+          mt-0">Geographic Locations</h1>
+          <p className="text-xs
+          md:text-sm
+          text-slate-500
+          dark:text-slate-400
+          max-w-lg
+          leading-relaxed
+
+          mt-0">Manage global pool of resort areas, regional zones, and cabin destinations.</p>
         </div>
         <div className="flex items-center gap-3">
             <div className="relative">
@@ -269,7 +294,7 @@ const Locations = () => {
       <div className="card overflow-hidden shadow-premium">
         <table className="w-full">
           <thead>
-            <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+            <tr className="bg-sky-50/50 dark:bg-sky-950/30 border-b border-sky-100/50 dark:border-sky-900/20">
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Destination</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Geography</th>
               <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Inventory</th>

@@ -36,12 +36,7 @@ export default function GuestSubnav({
     <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
       {/* LEFT: TITLE CONTAINER */}
       <div className="flex items-center gap-1.5 p-1 bg-white/80 dark:bg-slate-900/85 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/80 rounded-xl shadow-sm">
-        <button
-          className="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider text-white shadow-sm cursor-default"
-          style={{ background: "linear-gradient(135deg, var(--app-primary), var(--app-secondary))" }}
-        >
-            All Guest Records
-        </button>
+        
       </div>
 
       {/* RIGHT SIDE */}

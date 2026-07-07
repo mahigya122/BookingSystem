@@ -72,22 +72,44 @@ const Cabins = () => {
   };
 
   return (
-    <div className="px-6 md:px-0 space-y-8 animate-slide-up">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 animate-slide-up pb-6 pt-2 px-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Units & Cabins</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your property inventory and pricing.</p>
+           <p
+        className="text-sky-500 text-sm font-bold block"
+        style={{ fontFamily: "'Dancing Script', cursive" }}
+      >
+        Inventory Management
+      </p>
+          <h1 className=" text-2xl
+          md:text-3xl
+          font-black
+          text-slate-900
+          dark:text-white
+          tracking-tighter 
+          mt-0">
+            Units & Cabins
+            </h1>
+          <p className="text-xs
+          md:text-sm
+          text-slate-500
+          dark:text-slate-400
+          max-w-lg
+          leading-relaxed
+
+          mt-0 ">Manage your property inventory and pricing.</p>
         </div>
       </div>
-
+<div className="mt-6">
       <CabinSubnav
         onFilterChange={setFilter}
         onSortChange={setSort}
         currentSort={sort}
         onAddCabin={() => setShowCreate(true)}
       />
+     </div>
 
-      <div className="card overflow-hidden">
+      <div className="-mt-3 card overflow-hidden">
         <CabinTable
           cabins={cabins}
           onDelete={handleDelete}
@@ -100,7 +122,7 @@ const Cabins = () => {
           isLoading={isLoading}
         />
 
-        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
+        <div className="px-2 py-3 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800">
           <AdminPagination
             currentPage={currentPage}
             totalPages={totalPages}

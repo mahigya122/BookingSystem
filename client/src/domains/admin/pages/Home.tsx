@@ -94,23 +94,23 @@ const Dashboard = () => {
   }, [stats]);
 
   return (
-    <div className="w-full space-y-6 animate-slide-up pb-6">
+    <div className="space-y-6 animate-slide-up pb-6 pt-2 px-2">
       {showSkeleton ? (
         <DashboardSkeleton />
       ) : (
         <>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-2 mb-4">
-            <div className="space-y-1">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-2">
+            <div>
               <p
-                className="text-sky-500 text-sm font-bold"
+                className="text-sky-500 text-sm font-bold block"
                 style={{ fontFamily: "'Dancing Script', cursive" }}
               >
                 Management Dashboard 
               </p>
-              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter">
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tighter mt-0">
                 System <span className="text-sky-500">Overview</span>
               </h1>
-              <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-lg leading-relaxed mt-2 mb-2 md:mb-0">
+              <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 max-w-lg leading-relaxed mt-0">
                 Real-time analytics and operational control for your elite cabin network.
               </p>
             </div>
@@ -122,7 +122,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {/* ROW 1: CORE OPERATIONS */}
             <StatsCard
               title="Total Reservations"

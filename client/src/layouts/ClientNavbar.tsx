@@ -6,12 +6,14 @@ import { Mountain, LogOut } from "lucide-react";
 import { scrollToTop } from "@shared/hooks/useScrollToTop";
 import { useState } from "react";
 import { PromoBanner } from "../domains/cabins/explore/PromoBanner";
+import { useProfile } from "../hooks/useProfile";
 
 
 const ClientNavbar = () => {
   const { user } = useUser();
   const { logout } = useLogout();
   const navigate = useNavigate();
+  const { profile } = useProfile();
 
   const { clearFilters, setIsSearching, setSidebarOpen } =
     useCabinFiltersContext();
@@ -68,12 +70,16 @@ const ClientNavbar = () => {
             <>
               <button
                 onClick={() => navigate("/profile")}
-                className="p-1.5 text-slate-500 hover:text-sky-500 dark:text-slate-400 dark:hover:text-sky-400 transition-all duration-300 active:scale-90 text-sm flex items-center justify-center drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"
+                className="h-8 w-8 rounded-full overflow-hidden flex items-center justify-center border border-slate-200 dark:border-slate-800 p-0 text-slate-500 hover:text-sky-500 dark:text-slate-400 dark:hover:text-sky-400 transition-all duration-300 active:scale-90 text-sm drop-shadow-sm hover:drop-shadow-[0_0_8px_rgba(56,189,248,0.6)]"
                 title="My Profile"
               >
-                <span className="leading-none" style={{ fontSize: "20px" }}>
-                  👤
-                </span>
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="leading-none" style={{ fontSize: "20px" }}>
+                    👤
+                  </span>
+                )}
               </button>
 
               <button

@@ -11,15 +11,35 @@ const Reviews = () => {
 
 
   return (
-    <div className="px-6 md:px-0 space-y-8 animate-slide-up pb-12">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 animate-slide-up pb-2 pt-2 px-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Guest Reviews</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Moderate and manage guest feedback.</p>
+          <p
+        className="text-sky-500 text-sm font-bold block"
+        style={{ fontFamily: "'Dancing Script', cursive" }}
+      >
+        Reviews Management
+      </p>
+          <h1 className="text-2xl
+          md:text-3xl
+          font-black
+          text-slate-900
+          dark:text-white
+          tracking-tighter
+
+          mt-0  ">Guest Reviews</h1>
+          <p className="text-xs
+          md:text-sm
+          text-slate-500
+          dark:text-slate-400
+          max-w-lg
+          leading-relaxed
+
+          mt-0">Moderate and manage guest feedback.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="card p-6 flex flex-col justify-between space-y-4">
@@ -137,7 +157,7 @@ const Reviews = () => {
 
       {/* PAGINATION */}
       {totalPages > 1 && (
-        <div className="card px-8 py-6 flex items-center justify-between shadow-premium">
+        <div className="card px-2 py-3 flex items-center justify-between shadow-premium">
           <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             Showing Page {currentPage} <span className="mx-1 text-slate-300 dark:text-slate-700">/</span> {totalPages}
           </p>

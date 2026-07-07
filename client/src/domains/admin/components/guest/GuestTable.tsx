@@ -18,11 +18,11 @@ export default function GuestTable({
     <table className="w-full">
 
         <thead>
-          <tr className="border-b border-slate-100 dark:border-slate-800">
-            <th className="px-8 py-5 text-left">Full Name</th>
-            <th className="px-8 py-5 text-left">Email</th>
-            <th className="px-8 py-5 text-left">Phone</th>
-            <th className="px-8 py-5 text-right w-36">Actions</th>
+          <tr className="bg-teal-50/50 dark:bg-teal-950/30 border-b border-teal-100/50 dark:border-teal-900/20">
+            <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name</th>
+            <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Email</th>
+            <th className="px-8 py-5 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Phone</th>
+            <th className="px-8 py-5 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 w-36">Actions</th>
           </tr>
         </thead>
 

@@ -2,7 +2,7 @@ import { supabase } from "./supabase";
 import type { UserProfile } from "../types/profile";
 import type { AuthRole } from "../types/auth";
 
-type ProfileRow = UserProfile & {
+export type ProfileRow = UserProfile & {
   email: string;
   role: AuthRole;
 };
@@ -10,7 +10,7 @@ type ProfileRow = UserProfile & {
 export async function getProfile(id: string): Promise<ProfileRow> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, email, full_name, phone_no, role, created_at")
+    .select("id, email, full_name, phone_no, role, avatar_url, created_at")
     .eq("id", id)
     .maybeSingle();
 
@@ -25,6 +25,7 @@ export async function getProfile(id: string): Promise<ProfileRow> {
       full_name: "",
       phone_no: "",
       role: "guest",
+      avatar_url: undefined,
     }
   );
 }
@@ -35,7 +36,7 @@ export async function saveProfile(profile: ProfileRow) {
     .upsert({
       ...profile,
     })
-    .select("id, email, full_name, phone_no, role, created_at")
+    .select("id, email, full_name, phone_no, role, avatar_url, created_at")
     .single();
 
   if (error) {
@@ -43,4 +44,20 @@ export async function saveProfile(profile: ProfileRow) {
   }
 
   return data as ProfileRow;
+}
+
+export async function uploadAvatar(userId: string, file: File): Promise<string> {
+  const fileExt = file.name.split(".").pop();
+  const filePath = `${userId}/avatar.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(filePath, file, { upsert: true });
+
+  if (uploadError) {
+    throw new Error(uploadError.message);
+  }
+
+  const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+  return data.publicUrl;
 }

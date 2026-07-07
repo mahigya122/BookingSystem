@@ -56,13 +56,31 @@ const PaymentsPage = () => {
 
 
   return (
-    <div className="px-6 md:px-0 space-y-6 animate-slide-up">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 animate-slide-up pb-2 pt-2 px-2">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-2">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+          <p
+        className="text-sky-500 text-sm font-bold block"
+        style={{ fontFamily: "'Dancing Script', cursive" }}
+      >
+        Payment Management
+      </p>
+          <h1 className="text-2xl
+          md:text-3xl
+          font-black
+          text-slate-900
+          dark:text-white
+          tracking-tighter
+          mt-0 ">
             Payments
           </h1>
-          <p className="text-slate-500 font-bold mt-1 uppercase text-xs tracking-widest">
+          <p className="text-xs
+          md:text-sm
+          text-slate-500
+          dark:text-slate-400
+          max-w-lg
+          leading-relaxed
+          mt-0  ">
             Monitor and manage all transaction records
           </p>
         </div>
@@ -180,10 +198,10 @@ const PaymentsPage = () => {
         </div>
       </div>
 
-      <div className="card overflow-hidden">
+      <div className="mt-6 card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+            <thead className="bg-emerald-50/50 dark:bg-emerald-950/30 border-b border-emerald-100/50 dark:border-emerald-900/20">
               <tr>
                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 w-32 text-left">Booking ID</th>
                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-400 text-left">Guest</th>
@@ -268,7 +286,7 @@ const PaymentsPage = () => {
         </div>
 
         {/* PAGINATION */}
-        <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div className="px-2 py-3 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
             Showing Page {currentPage} <span className="mx-1 text-slate-300 dark:text-slate-700">/</span> {totalPages}
           </p>

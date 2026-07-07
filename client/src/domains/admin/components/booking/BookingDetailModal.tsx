@@ -9,7 +9,6 @@ import {
   User,
   Home,
   CreditCard,
-  Info,
   Coffee,
   Clock,
   MapPin
@@ -48,11 +47,8 @@ const BookingDetailModal = ({
         {/* HEADER */}
         <div className="px-10 py-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 flex-shrink-0">
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-sky-50 dark:bg-sky-900/30 flex items-center justify-center text-sky-500">
-              <Info size={24} />
-            </div>
             <div>
-              <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Reservation Details</h2>
+              <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Reservation Details</h2>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Booking ID:</p>
                 <span className="text-xs font-mono font-black text-sky-500">#{booking.id.slice(0, 8).toUpperCase()}</span>
