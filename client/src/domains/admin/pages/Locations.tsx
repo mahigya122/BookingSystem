@@ -6,6 +6,7 @@ import type { Location } from "@shared/types/location";
 import { useState, useMemo, useEffect } from "react";
 import { Pencil, MapPin, Plus, Trash2, Home, Search, Loader2, Globe, X, Save, ChevronLeft, ChevronRight, ChevronDown, Eye } from "lucide-react";
 import toast from "react-hot-toast";
+import { uploadAssetImage } from "@shared/services/profileStorage";
 import type { Cabin } from "@shared/types/cabin";
 
 const OTHER_CABINS_PER_PAGE = 2;
@@ -59,6 +60,23 @@ const Locations = () => {
     description: "", 
     image_url: "" 
   });
+
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, onUploaded: (url: string) => void) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingImage(true);
+    try {
+      const url = await uploadAssetImage(file);
+      onUploaded(url);
+      toast.success("Image uploaded successfully");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload image");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
 
   const [showOtherCabins, setShowOtherCabins] = useState(false);
   const [otherCabinsPage, setOtherCabinsPage] = useState(0);
@@ -417,12 +435,25 @@ const Locations = () => {
                     />
                 </div>
                 <div className="space-y-1.5">
-                    <label className={inputLabelClass}>Cover Image URL</label>
-                    <input
-                        value={editForm.image_url}
-                        onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
-                        className={modalInputBaseClass}
-                    />
+                    <label className={inputLabelClass}>Cover Image URL / File</label>
+                    <div className="flex gap-2">
+                        <input
+                            value={editForm.image_url}
+                            onChange={(e) => setEditForm({ ...editForm, image_url: e.target.value })}
+                            className={`${modalInputBaseClass} flex-1`}
+                            placeholder="https://... or upload"
+                        />
+                        <label className="flex items-center justify-center px-4 rounded-2xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border-2 border-slate-200/50 dark:border-slate-800 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 cursor-pointer active:scale-95 transition-all shrink-0">
+                            {isUploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : "Upload"}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => handleFileChange(e, (url) => setEditForm({ ...editForm, image_url: url }))}
+                                disabled={isUploadingImage}
+                            />
+                        </label>
+                    </div>
                 </div>
               </div>
 
@@ -645,13 +676,25 @@ const Locations = () => {
                     />
                 </div>
                 <div className="space-y-1.5">
-                    <label className={inputLabelClass}>Cover Image URL</label>
-                    <input
-                        placeholder="https://..."
-                        value={newLocation.image_url}
-                        onChange={(e) => setNewLocation({ ...newLocation, image_url: e.target.value })}
-                        className={modalInputBaseClass}
-                    />
+                    <label className={inputLabelClass}>Cover Image URL / File</label>
+                    <div className="flex gap-2">
+                        <input
+                            placeholder="https://... or upload"
+                            value={newLocation.image_url}
+                            onChange={(e) => setNewLocation({ ...newLocation, image_url: e.target.value })}
+                            className={`${modalInputBaseClass} flex-1`}
+                        />
+                        <label className="flex items-center justify-center px-4 rounded-2xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border-2 border-slate-200/50 dark:border-slate-800 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 cursor-pointer active:scale-95 transition-all shrink-0">
+                            {isUploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : "Upload"}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => handleFileChange(e, (url) => setNewLocation({ ...newLocation, image_url: url }))}
+                                disabled={isUploadingImage}
+                            />
+                        </label>
+                    </div>
                 </div>
               </div>
 

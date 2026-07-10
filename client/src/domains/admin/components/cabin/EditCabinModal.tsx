@@ -16,6 +16,7 @@ import {
     Image
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { uploadAssetImage } from "@shared/services/profileStorage";
 
 interface Props {
     cabin: Cabin;
@@ -42,6 +43,23 @@ const EditCabinModal = ({
         offer_ids: cabin.offers?.map(o => o.id) || [],
         activity_ids: cabin.activities?.map(a => a.id) || [],
     });
+
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, onUploaded: (url: string) => void) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setIsUploadingImage(true);
+        try {
+            const url = await uploadAssetImage(file);
+            onUploaded(url);
+            toast.success("Image uploaded successfully");
+        } catch (err: any) {
+            toast.error(err.message || "Failed to upload image");
+        } finally {
+            setIsUploadingImage(false);
+        }
+    };
 
     const handleSave = (e: React.FormEvent) => {
         e.preventDefault();
@@ -195,13 +213,25 @@ const EditCabinModal = ({
 
                             <div className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className={inputLabelClass}>Primary Visual URL</label>
-                                    <input
-                                        value={form.image_url}
-                                        onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                                        className={inputBaseClass}
-                                        placeholder="https://images.unsplash.com/..."
-                                    />
+                                    <label className={inputLabelClass}>Primary Visual URL / File</label>
+                                    <div className="flex gap-2">
+                                        <input
+                                            value={form.image_url}
+                                            onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                                            className={`${inputBaseClass} flex-1`}
+                                            placeholder="https://images.unsplash.com/... or upload"
+                                        />
+                                        <label className="flex items-center justify-center px-4 rounded-2xl bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border-2 border-slate-200/50 dark:border-slate-800 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 cursor-pointer active:scale-95 transition-all shrink-0">
+                                            {isUploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : "Upload"}
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                className="hidden"
+                                                onChange={(e) => handleFileChange(e, (url) => setForm({ ...form, image_url: url }))}
+                                                disabled={isUploadingImage}
+                                            />
+                                        </label>
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">

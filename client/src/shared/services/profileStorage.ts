@@ -61,3 +61,26 @@ export async function uploadAvatar(userId: string, file: File): Promise<string> 
   const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
   return data.publicUrl;
 }
+
+export async function uploadAssetImage(file: File): Promise<string> {
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
+  if (!userId) {
+    throw new Error("You must be logged in to upload images");
+  }
+
+  const fileExt = file.name.split(".").pop() || "jpg";
+  const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+  const filePath = `${userId}/public-assets/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(filePath, file, { upsert: true });
+
+  if (uploadError) {
+    throw new Error(uploadError.message);
+  }
+
+  const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
+  return data.publicUrl;
+}
