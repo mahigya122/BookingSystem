@@ -3,9 +3,12 @@ import type { Offer } from "@shared/types/offer";
 import { useCabins, useOffers, useUpdateCabin } from "@shared/hooks";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { useState, useMemo, useEffect } from "react";
-import { Pencil, Plus, Tag, Trash2, Home, Search, Loader2, ChevronLeft, ChevronRight, Eye, X } from "lucide-react";
+import { Pencil, Plus, Tag, Trash2, Home, Search, Loader2, ChevronLeft, ChevronRight, ChevronDown, Eye, X } from "lucide-react";
 import toast from "react-hot-toast";
 import type { Cabin } from "@shared/types/cabin";
+
+const CABINS_PER_PAGE = 2;
+const APPLIED_CABINS_PER_PAGE = 3;
 
 const Offers = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -55,6 +58,16 @@ const Offers = () => {
     image_url: "",
     badge: ""
   });
+
+  const [appliedCabinsPage, setAppliedCabinsPage] = useState(0);
+  const [showAvailableCabins, setShowAvailableCabins] = useState(false);
+  const [availableCabinsPage, setAvailableCabinsPage] = useState(0);
+
+  useEffect(() => {
+    setAppliedCabinsPage(0);
+    setShowAvailableCabins(false);
+    setAvailableCabinsPage(0);
+  }, [viewingOffer]);
 
   // Calculate which cabins use which offer (aggregated by title to handle duplicated records)
   const offerStats = useMemo(() => {
@@ -161,6 +174,18 @@ const Offers = () => {
   const cabinsWithOffer = viewingOffer ? cabins.filter(c => c.offers?.some(o => o.id === viewingOffer.id)) : [];
   const cabinsWithoutOffer = viewingOffer ? cabins.filter(c => !c.offers?.some(o => o.id === viewingOffer.id)) : [];
 
+  const appliedCabinsTotalPages = Math.max(1, Math.ceil(cabinsWithOffer.length / APPLIED_CABINS_PER_PAGE));
+  const paginatedAppliedCabins = cabinsWithOffer.slice(
+    appliedCabinsPage * APPLIED_CABINS_PER_PAGE,
+    appliedCabinsPage * APPLIED_CABINS_PER_PAGE + APPLIED_CABINS_PER_PAGE
+  );
+
+  const availableCabinsTotalPages = Math.max(1, Math.ceil(cabinsWithoutOffer.length / CABINS_PER_PAGE));
+  const paginatedAvailableCabins = cabinsWithoutOffer.slice(
+    availableCabinsPage * CABINS_PER_PAGE,
+    availableCabinsPage * CABINS_PER_PAGE + CABINS_PER_PAGE
+  );
+
   return (
     <div className="space-y-6 animate-slide-up pb-2 px-2 pt-2">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
@@ -213,75 +238,15 @@ const Offers = () => {
                 />
             </div>
             <button 
-                onClick={() => setIsAdding(!isAdding)} 
-                className={`h-8 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95 shadow-sm flex items-center justify-center ${
-                  isAdding 
-                    ? "bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-850 text-slate-700 dark:text-slate-200 hover:bg-slate-50" 
-                    : "bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-sky-600 dark:hover:bg-sky-400 dark:hover:text-white"
-                }`}
+                onClick={() => setIsAdding(true)} 
+                className="h-8 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-200 active:scale-95 shadow-sm flex items-center justify-center bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-sky-600 dark:hover:bg-sky-400 dark:hover:text-white"
             >
-                {isAdding ? "Cancel" : <><Plus size={14} className="mr-1" /> Add Offer</>}
+                <Plus size={14} className="mr-1" /> Add Offer
             </button>
         </div>
       </div>
 
-      {isAdding && (
-        <div className="card p-6 space-y-6 bg-emerald-50/30 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/20 animate-in slide-in-from-top duration-300">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Offer Title</label>
-                <input
-                    placeholder="E.g. Summer Special"
-                    value={newOffer.title}
-                    onChange={(e) => setNewOffer({ ...newOffer, title: e.target.value })}
-                    className="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm"
-                />
-            </div>
-            <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Discount (%)</label>
-                <input
-                    type="number"
-                    placeholder="0"
-                    value={newOffer.discount_percent}
-                    onChange={(e) => setNewOffer({ ...newOffer, discount_percent: Number(e.target.value) })}
-                    className="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm"
-                />
-            </div>
-            <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Badge Text</label>
-                <input
-                    placeholder="E.g. Hot Deal"
-                    value={newOffer.badge}
-                    onChange={(e) => setNewOffer({ ...newOffer, badge: e.target.value })}
-                    className="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm"
-                />
-            </div>
-            <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Image URL</label>
-                <input
-                    placeholder="https://..."
-                    value={newOffer.image_url}
-                    onChange={(e) => setNewOffer({ ...newOffer, image_url: e.target.value })}
-                    className="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm"
-                />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Description</label>
-                <textarea
-                    placeholder="Describe the promotion..."
-                    value={newOffer.description}
-                    onChange={(e) => setNewOffer({ ...newOffer, description: e.target.value })}
-                    className="w-full bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm min-h-20"
-                />
-          </div>
-          <div className="flex justify-end pt-2">
-            <button onClick={handleAdd} disabled={isCreating} className="btn btn-primary px-8">
-                {isCreating ? <Loader2 size={18} className="animate-spin" /> : "Save Offer"}
-            </button>
-          </div>
-        </div>
-      )}
+
 
       <div className="mt-6 card overflow-hidden">
         <div className="overflow-x-auto">
@@ -505,62 +470,217 @@ const Offers = () => {
             </div>
 
             <div className="space-y-6 overflow-y-auto max-h-[60vh] pr-2 custom-scrollbar">
-              <div className="space-y-4">
+              <div className="space-y-4 font-bold">
                 <h3 className="text-xs font-black uppercase tracking-widest text-emerald-500">Currently Applied ({cabinsWithOffer.length})</h3>
-                <div className="grid grid-cols-1 gap-2">
-                  {cabinsWithOffer.length === 0 ? (
-                    <p className="text-sm text-slate-400 italic">No cabins currently assigned.</p>
+                <div className="grid grid-cols-3 gap-4">
+                  {paginatedAppliedCabins.length === 0 ? (
+                    <div className="col-span-3">
+                      <p className="text-sm text-slate-400 italic font-medium py-6 text-center bg-slate-50 dark:bg-slate-900/30 rounded-2xl border-2 border-dashed border-slate-100 dark:border-slate-800">No cabins currently assigned.</p>
+                    </div>
                   ) : (
-                    cabinsWithOffer.map(cabin => (
-                      <div key={cabin.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl group">
-                        <div className="flex items-center gap-3">
-                          <img src={getOptimizedImageUrl(cabin.image_url, 'thumbnail')} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover" />
-                          <div>
-                            <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
-                            <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.location?.name || "No Location"}</p>
-                          </div>
+                    paginatedAppliedCabins.map(cabin => (
+                      <div key={cabin.id} className="relative group overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 aspect-square">
+                        <img 
+                          src={getOptimizedImageUrl(cabin.image_url, 'thumbnail')} 
+                          alt={cabin.name} 
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                        />
+                        <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 text-white text-[9px] font-black uppercase tracking-widest rounded-lg backdrop-blur-sm">
+                          {cabin.capacity} Guests Max
                         </div>
-                        <button 
-                          disabled={isUpdatingCabin}
-                          onClick={() => toggleCabinOffer(cabin, viewingOffer.id)}
-                          className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-rose-500 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-900/30 hover:bg-rose-500 hover:text-white transition-all"
-                        >
-                          Remove
-                        </button>
+                        <div className="absolute inset-0 bg-slate-900/80 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-3 text-center">
+                          <p className="text-white text-xs font-black truncate w-full mb-1">{cabin.name}</p>
+                          <button 
+                            disabled={isUpdatingCabin}
+                            onClick={() => toggleCabinOffer(cabin, viewingOffer.id)}
+                            className="mt-2 h-8 w-8 rounded-full bg-rose-500 hover:bg-rose-600 flex items-center justify-center text-white transition-all transform hover:scale-110 shadow-lg"
+                          >
+                            <X size={14} />
+                          </button>
+                          <span className="text-[9px] font-black uppercase tracking-widest text-rose-400 mt-1.5">Unlink</span>
+                        </div>
                       </div>
                     ))
                   )}
                 </div>
+
+                {cabinsWithOffer.length > APPLIED_CABINS_PER_PAGE && (
+                  <div className="flex items-center justify-between pt-1">
+                    <button
+                      onClick={() => setAppliedCabinsPage((p) => Math.max(0, p - 1))}
+                      disabled={appliedCabinsPage === 0}
+                      className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 hover:text-emerald-500 hover:border-emerald-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                      Page {appliedCabinsPage + 1} / {appliedCabinsTotalPages}
+                    </p>
+
+                    <button
+                      onClick={() => setAppliedCabinsPage((p) => Math.min(appliedCabinsTotalPages - 1, p + 1))}
+                      disabled={appliedCabinsPage >= appliedCabinsTotalPages - 1}
+                      className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 hover:text-emerald-500 hover:border-emerald-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <h3 className="text-xs font-black uppercase tracking-widest text-sky-500">Available Cabins ({cabinsWithoutOffer.length})</h3>
-                <div className="grid grid-cols-1 gap-2">
-                  {cabinsWithoutOffer.map(cabin => (
-                    <div key={cabin.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl">
-                      <div className="flex items-center gap-3">
-                        <img src={getOptimizedImageUrl(cabin.image_url, 'thumbnail')} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover opacity-60" />
-                        <div>
-                          <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
-                          <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.location?.name || "No Location"}</p>
-                        </div>
-                      </div>
-                      <button 
-                        disabled={isUpdatingCabin}
-                        onClick={() => toggleCabinOffer(cabin, viewingOffer.id)}
-                        className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-sky-600 bg-sky-50 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-900/30 hover:bg-sky-500 hover:text-white transition-all"
-                      >
-                        Add to Offer
-                      </button>
+                <button
+                  onClick={() => setShowAvailableCabins((prev) => !prev)}
+                  className="w-full flex items-center justify-between group"
+                >
+                  <h3 className="text-xs font-black uppercase tracking-widest text-sky-500">
+                    Available Cabins ({cabinsWithoutOffer.length})
+                  </h3>
+                  <ChevronDown
+                    size={16}
+                    className={`text-sky-500 transition-transform duration-200 ${showAvailableCabins ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {showAvailableCabins && (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 gap-2">
+                      {paginatedAvailableCabins.length === 0 ? (
+                        <p className="text-sm text-slate-400 italic">No other cabins available.</p>
+                      ) : (
+                        paginatedAvailableCabins.map(cabin => (
+                          <div key={cabin.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl">
+                            <div className="flex items-center gap-3">
+                              <img src={getOptimizedImageUrl(cabin.image_url, 'thumbnail')} alt={cabin.name} className="w-10 h-10 rounded-xl object-cover opacity-60" />
+                              <div>
+                                <p className="text-sm font-bold text-slate-900 dark:text-white">{cabin.name}</p>
+                                <p className="text-[10px] text-slate-500 uppercase tracking-widest">{cabin.location?.name || "No Location"}</p>
+                              </div>
+                            </div>
+                            <button 
+                              disabled={isUpdatingCabin}
+                              onClick={() => toggleCabinOffer(cabin, viewingOffer.id)}
+                              className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-sky-600 bg-sky-50 dark:bg-sky-900/20 border border-sky-100 dark:border-sky-900/30 hover:bg-sky-500 hover:text-white transition-all"
+                            >
+                              Add to Offer
+                            </button>
+                          </div>
+                        ))
+                      )}
                     </div>
-                  ))}
-                </div>
+
+                    {cabinsWithoutOffer.length > CABINS_PER_PAGE && (
+                      <div className="flex items-center justify-between pt-1">
+                        <button
+                          onClick={() => setAvailableCabinsPage((p) => Math.max(0, p - 1))}
+                          disabled={availableCabinsPage === 0}
+                          className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                          <ChevronLeft size={16} />
+                        </button>
+
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                          Page {availableCabinsPage + 1} / {availableCabinsTotalPages}
+                        </p>
+
+                        <button
+                          onClick={() => setAvailableCabinsPage((p) => Math.min(availableCabinsTotalPages - 1, p + 1))}
+                          disabled={availableCabinsPage >= availableCabinsTotalPages - 1}
+                          className="p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        >
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="flex justify-end pt-4">
               <button onClick={() => setViewingOffer(null)} className="btn btn-primary px-10">
                 Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isAdding && (
+        <div className="modal-overlay">
+          <div className="modal-content w-full max-w-xl p-8 space-y-6 animate-in zoom-in-95 duration-200 border border-slate-200 dark:border-slate-800 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">New Promo Offer</h2>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Create a new special discount or promo</p>
+              </div>
+              <button onClick={() => setIsAdding(false)} className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <X size={24} className="text-slate-400" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Offer Title</label>
+                    <input
+                        placeholder="E.g. Summer Special"
+                        value={newOffer.title}
+                        onChange={(e) => setNewOffer({ ...newOffer, title: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm"
+                    />
+                </div>
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Discount (%)</label>
+                    <input
+                        type="number"
+                        placeholder="0"
+                        value={newOffer.discount_percent}
+                        onChange={(e) => setNewOffer({ ...newOffer, discount_percent: Number(e.target.value) })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm"
+                    />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Badge Text</label>
+                    <input
+                        placeholder="E.g. Hot Deal"
+                        value={newOffer.badge}
+                        onChange={(e) => setNewOffer({ ...newOffer, badge: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm"
+                    />
+                </div>
+                <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Image URL</label>
+                    <input
+                        placeholder="https://..."
+                        value={newOffer.image_url}
+                        onChange={(e) => setNewOffer({ ...newOffer, image_url: e.target.value })}
+                        className="w-full bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm"
+                    />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Description</label>
+                <textarea
+                    placeholder="Describe the promotion..."
+                    value={newOffer.description}
+                    onChange={(e) => setNewOffer({ ...newOffer, description: e.target.value })}
+                    className="w-full bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm min-h-28 mt-1 outline-none resize-none leading-relaxed"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <button onClick={() => setIsAdding(false)} className="btn btn-secondary px-6">
+                Cancel
+              </button>
+              <button onClick={handleAdd} disabled={isCreating} className="btn btn-primary px-10">
+                {isCreating ? <Loader2 size={18} className="animate-spin" /> : "Save Offer"}
               </button>
             </div>
           </div>

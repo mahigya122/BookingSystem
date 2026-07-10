@@ -7,18 +7,13 @@ import type { CabinData } from "@shared/services/apiCabins";
 import type { Cabin } from "@shared/types/cabin";
 import {
     Save,
-    Image as ImageIcon,
-    MapPin,
-    Users,
-    DollarSign,
     Tag,
     Sparkles,
     Loader2,
-    FileText,
-    Percent,
     CheckCircle2,
     ArrowLeft,
-    LayoutDashboard
+    LayoutDashboard,
+    Image
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -141,61 +136,49 @@ const EditCabinModal = ({
 
                                 <div className="space-y-2">
                                     <label className={inputLabelClass}>Property Location</label>
-                                    <div className="relative">
-                                        <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                        <select
-                                            value={form.location_id}
-                                            onChange={(e) => setForm({ ...form, location_id: e.target.value })}
-                                            className={`${inputBaseClass} pl-12 appearance-none`}
-                                        >
-                                            <option value="">Select Geographic Area...</option>
-                                            {locations.map(loc => (
-                                                <option key={loc.id} value={loc.id}>{loc.name} — {loc.city}</option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                    <select
+                                        value={form.location_id}
+                                        onChange={(e) => setForm({ ...form, location_id: e.target.value })}
+                                        className={inputBaseClass}
+                                    >
+                                        <option value="">Select Geographic Area...</option>
+                                        {locations.map(loc => (
+                                            <option key={loc.id} value={loc.id}>{loc.name} — {loc.city}</option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className={inputLabelClass}>Occupancy Limit</label>
-                                    <div className="relative">
-                                        <Users size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            value={form.capacity}
-                                            onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })}
-                                            className={`${inputBaseClass} pl-12`}
-                                        />
-                                    </div>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        value={form.capacity}
+                                        onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })}
+                                        className={inputBaseClass}
+                                    />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className={inputLabelClass}>Base Rate</label>
-                                        <div className="relative">
-                                            <DollarSign size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                            <input
-                                                type="number"
-                                                value={form.price_per_night}
-                                                onChange={(e) => setForm({ ...form, price_per_night: Number(e.target.value) })}
-                                                className={`${inputBaseClass} pl-12`}
-                                            />
-                                        </div>
+                                        <input
+                                            type="number"
+                                            value={form.price_per_night}
+                                            onChange={(e) => setForm({ ...form, price_per_night: Number(e.target.value) })}
+                                            className={inputBaseClass}
+                                        />
                                     </div>
                                     <div className="space-y-2">
                                         <label className={inputLabelClass}>Discount</label>
-                                        <div className="relative">
-                                            <Percent size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                max="100"
-                                                value={form.discount}
-                                                onChange={(e) => setForm({ ...form, discount: Number(e.target.value) })}
-                                                className={`${inputBaseClass} pl-12`}
-                                            />
-                                        </div>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            value={form.discount}
+                                            onChange={(e) => setForm({ ...form, discount: Number(e.target.value) })}
+                                            className={inputBaseClass}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -205,7 +188,7 @@ const EditCabinModal = ({
                         <section className="space-y-8 pt-8 border-t border-slate-100 dark:border-slate-800">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-500">
-                                    <ImageIcon size={20} />
+                                    <Image size={20} />
                                 </div>
                                 <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Media & Narrative</h3>
                             </div>
@@ -213,28 +196,22 @@ const EditCabinModal = ({
                             <div className="space-y-6">
                                 <div className="space-y-2">
                                     <label className={inputLabelClass}>Primary Visual URL</label>
-                                    <div className="relative">
-                                        <ImageIcon size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                                        <input
-                                            value={form.image_url}
-                                            onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                                            className={`${inputBaseClass} pl-12`}
-                                            placeholder="https://images.unsplash.com/..."
-                                        />
-                                    </div>
+                                    <input
+                                        value={form.image_url}
+                                        onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                                        className={inputBaseClass}
+                                        placeholder="https://images.unsplash.com/..."
+                                    />
                                 </div>
 
                                 <div className="space-y-2">
                                     <label className={inputLabelClass}>Unit Description</label>
-                                    <div className="relative">
-                                        <FileText size={18} className="absolute left-4 top-5 text-slate-400" />
-                                        <textarea
-                                            value={form.description || ""}
-                                            onChange={(e) => setForm({ ...form, description: e.target.value })}
-                                            className={`${inputBaseClass} min-h-[160px] pl-12 resize-none leading-relaxed`}
-                                            placeholder="Craft a compelling story about this luxury stay..."
-                                        />
-                                    </div>
+                                    <textarea
+                                        value={form.description || ""}
+                                        onChange={(e) => setForm({ ...form, description: e.target.value })}
+                                        className={`${inputBaseClass} min-h-[160px] resize-none leading-relaxed`}
+                                        placeholder="Craft a compelling story about this luxury stay..."
+                                    />
                                 </div>
                             </div>
                         </section>

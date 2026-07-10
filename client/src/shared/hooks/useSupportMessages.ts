@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '@shared/services/supabase'
 import type { SupportMessage, SenderRole } from '@shared/types/support.types'
+import type { UploadedAttachment } from '@shared/hooks/useAttachmentUpload'
 
 export function useSupportMessages(conversationId: string | null, senderRole: SenderRole, isActive: boolean = true) {
     const [messages, setMessages] = useState<SupportMessage[]>([])
@@ -87,13 +88,29 @@ export function useSupportMessages(conversationId: string | null, senderRole: Se
         })
     }, [messages, conversationId])
 
-    const sendMessage = async (content: string, senderId: string) => {
-        if (!conversationId || !content.trim()) return
+    /**
+     * Sends a message. `content` may be empty/whitespace if an attachment is provided —
+     * a message must have at least one of content or attachment.
+     */
+    const sendMessage = async (
+        content: string,
+        senderId: string,
+        attachment?: UploadedAttachment | null
+    ) => {
+        if (!conversationId) return
+        const trimmed = content.trim()
+        if (!trimmed && !attachment) return
+
         await supabase.from('support_messages').insert({
             conversation_id: conversationId,
             sender_id: senderId,
             sender_role: senderRole,
-            content: content.trim(),
+            content: trimmed || null,
+            attachment_url: attachment?.url ?? null,
+            attachment_type: attachment?.type ?? null,
+            attachment_name: attachment?.name ?? null,
+            attachment_size: attachment?.size ?? null,
+            thumbnail_url: attachment?.thumbnailUrl ?? null,
         })
     }
 

@@ -7,7 +7,6 @@ import {
   Calendar, 
   Coffee, 
   CreditCard, 
-  Clock, 
   User, 
   Loader2, 
   ArrowLeft,
@@ -131,28 +130,22 @@ const Pricing = useMemo(() => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className={inputLabelClass}>Arrival Date</label>
-                  <div className="relative">
-                    <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className={`${inputBaseClass} pl-12`}
-                    />
-                  </div>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className={inputBaseClass}
+                  />
                 </div>
 
                 <div className="space-y-2">
                   <label className={inputLabelClass}>Departure Date</label>
-                  <div className="relative">
-                    <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className={`${inputBaseClass} pl-12`}
-                    />
-                  </div>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className={inputBaseClass}
+                  />
                 </div>
               </div>
             </section>
@@ -169,19 +162,16 @@ const Pricing = useMemo(() => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
                   <label className={inputLabelClass}>Booking Status</label>
-                  <div className="relative">
-                    <Clock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <select
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value as Booking["status"])}
-                      className={`${inputBaseClass} pl-12 appearance-none`}
-                    >
-                      <option value="booked">Booked</option>
-                      <option value="checked-in">Checked In</option>
-                      <option value="checked-out">Checked Out</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                  </div>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value as Booking["status"])}
+                    className={inputBaseClass}
+                  >
+                    <option value="booked">Booked</option>
+                    <option value="checked-in">Checked In</option>
+                    <option value="checked-out">Checked Out</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
                 </div>
 
                 <div className="flex flex-col justify-end">

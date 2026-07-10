@@ -50,7 +50,7 @@ const CabinDetailModal = ({
 
     return (
         <div className="modal-overlay">
-            <div className="modal-content w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="modal-content w-full max-w-6xl h-[103vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
 
                 {/* HEADER SECTION */}
                 <div className="relative h-48 flex-shrink-0">
@@ -80,7 +80,7 @@ const CabinDetailModal = ({
                                     {cabin.capacity} Guest Capacity
                                 </span>
                             </div>
-                            <h2 className="text-4xl font-black text-white tracking-tight">{cabin.name}</h2>
+                            <h2 className="text-2xl font-black text-white tracking-tight">{cabin.name}</h2>
                         </div>
 
                         <div className="text-right">

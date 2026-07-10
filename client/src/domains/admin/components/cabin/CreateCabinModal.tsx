@@ -4,7 +4,7 @@ import { useLocations } from "@shared/hooks/useLocations";
 import { useOffers } from "@shared/hooks/useOffers";
 import { useActivities } from "@shared/hooks/useActivities";
 import type { CabinData } from "@shared/services/apiCabins";
-import { X, Plus, Image as ImageIcon, MapPin, Users, DollarSign, Tag, Sparkles, Loader2 } from "lucide-react";
+import { X, Plus, Tag, Sparkles, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface Props {
@@ -106,47 +106,38 @@ return (
 
                         <div>
                             <label className={inputLabelClass}>Location</label>
-                            <div className="relative">
-                                <MapPin size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <select
-                                    value={form.location_id}
-                                    onChange={(e) => setForm({ ...form, location_id: e.target.value })}
-                                    className={`${inputBaseClass} pl-10 appearance-none`}
-                                >
-                                    <option value="">Select geographic area...</option>
-                                    {locations.map(loc => (
-                                        <option key={loc.id} value={loc.id}>{loc.name} ({loc.city})</option>
-                                    ))}
-                                </select>
-                            </div>
+                            <select
+                                value={form.location_id}
+                                onChange={(e) => setForm({ ...form, location_id: e.target.value })}
+                                className={inputBaseClass}
+                            >
+                                <option value="">Select geographic area...</option>
+                                {locations.map(loc => (
+                                    <option key={loc.id} value={loc.id}>{loc.name} ({loc.city})</option>
+                                ))}
+                            </select>
                         </div>
 
                         <div>
                             <label className={inputLabelClass}>Capacity (Guests)</label>
-                            <div className="relative">
-                                <Users size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <input
-                                    type="number"
-                                    min="1"
-                                    value={form.capacity}
-                                    onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })}
-                                    className={`${inputBaseClass} pl-10`}
-                                />
-                            </div>
+                            <input
+                                type="number"
+                                min="1"
+                                value={form.capacity}
+                                onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })}
+                                className={inputBaseClass}
+                            />
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className={inputLabelClass}>Price / Night</label>
-                                <div className="relative">
-                                    <DollarSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input
-                                        type="number"
-                                        value={form.price_per_night}
-                                        onChange={(e) => setForm({ ...form, price_per_night: Number(e.target.value) })}
-                                        className={`${inputBaseClass} pl-10`}
-                                    />
-                                </div>
+                                <input
+                                    type="number"
+                                    value={form.price_per_night}
+                                    onChange={(e) => setForm({ ...form, price_per_night: Number(e.target.value) })}
+                                    className={inputBaseClass}
+                                />
                             </div>
                             <div>
                                 <label className={inputLabelClass}>Discount (%)</label>
@@ -165,15 +156,12 @@ return (
                     <div className="space-y-4">
                         <div>
                             <label className={inputLabelClass}>Hero Image URL</label>
-                            <div className="relative">
-                                <ImageIcon size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <input
-                                    value={form.image_url}
-                                    onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                                    placeholder="https://images.unsplash.com/..."
-                                    className={`${inputBaseClass} pl-10`}
-                                />
-                            </div>
+                            <input
+                                value={form.image_url}
+                                onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                                placeholder="https://images.unsplash.com/..."
+                                className={inputBaseClass}
+                            />
                         </div>
 
                         <div>

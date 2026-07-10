@@ -3,9 +3,6 @@ import { useUpdateGuest } from "@shared/hooks";
 import type { Guest } from "@shared/types/guest";
 import { 
   X, 
-  User, 
-  Mail, 
-  Phone, 
   Save, 
   Loader2, 
   ArrowLeft,
@@ -97,45 +94,36 @@ export default function EditGuestModal({ guest, onClose }: Props) {
             <div className="grid grid-cols-1 gap-6">
                 <div className="space-y-2">
                     <label className={inputLabelClass}>Legal Full Name</label>
-                    <div className="relative">
-                        <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input
-                            name="full_name"
-                            value={form.full_name}
-                            onChange={handleChange}
-                            className={`${inputBaseClass} pl-12`}
-                            placeholder="e.g. Johnathan Doe"
-                        />
-                    </div>
+                    <input
+                        name="full_name"
+                        value={form.full_name}
+                        onChange={handleChange}
+                        className={inputBaseClass}
+                        placeholder="e.g. Johnathan Doe"
+                    />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <label className={inputLabelClass}>Electronic Mail</label>
-                        <div className="relative">
-                            <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input
-                                name="email"
-                                value={form.email}
-                                onChange={handleChange}
-                                className={`${inputBaseClass} pl-12`}
-                                placeholder="john@example.com"
-                            />
-                        </div>
+                        <input
+                            name="email"
+                            value={form.email}
+                            onChange={handleChange}
+                            className={inputBaseClass}
+                            placeholder="john@example.com"
+                        />
                     </div>
 
                     <div className="space-y-2">
                         <label className={inputLabelClass}>Contact Phone</label>
-                        <div className="relative">
-                            <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input
-                                name="phone"
-                                value={form.phone}
-                                onChange={handleChange}
-                                className={`${inputBaseClass} pl-12`}
-                                placeholder="+1 (555) 000-0000"
-                            />
-                        </div>
+                        <input
+                            name="phone"
+                            value={form.phone}
+                            onChange={handleChange}
+                            className={inputBaseClass}
+                            placeholder="+1 (555) 000-0000"
+                        />
                     </div>
                 </div>
             </div>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSupportMessages } from "@shared/hooks/useSupportMessages";
 import { useSupportConversations } from "@shared/hooks/useSupportConversations";
 import { useDeliveryReceipts } from "@shared/hooks/useDeliveryReceipts";
+import { useAttachmentUpload } from "@shared/hooks/useAttachmentUpload";
 import {
   useOnlinePresence,
   useWatchPresence,
@@ -13,8 +14,65 @@ import {
   getTickStatus,
   MessageTicks,
 } from "@shared/components/support/MessageTicks";
+import { MessageAttachment } from "@shared/components/support/MessageAttachment";
+import { AttachmentInputBar } from "@shared/components/support/AttachmentInputBar";
 import type { SupportConversation } from "@shared/types/support.types";
+import type { PendingAttachment } from "@shared/types/support.types";
 import { isSameDay, formatDateDivider } from "@shared/utils/chatDate";
+
+function ConversationItem({
+  conv,
+  isActive,
+  onClick,
+  myUserId,
+}: {
+  conv: SupportConversation;
+  isActive: boolean;
+  onClick: () => void;
+  myUserId: string | null;
+}) {
+  const { otherIsTyping } = useTyping(conv.id, myUserId);
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full text-left px-3 py-3 rounded-2xl transition-all duration-300 flex items-center gap-3 border ${
+        isActive
+          ? "bg-slate-100 dark:bg-slate-800 border-transparent text-slate-900 dark:text-white font-semibold"
+          : "border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-600 dark:text-slate-300"
+      }`}
+    >
+      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
+        isActive 
+          ? "bg-gradient-to-tr from-sky-400 to-blue-600 text-white" 
+          : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
+      }`}>
+        {conv.guest?.full_name?.[0]?.toUpperCase() ?? "G"}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <p className={`text-xs font-bold truncate ${isActive ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-300"}`}>
+            {conv.guest?.full_name ?? "Guest"}
+          </p>
+          {conv.unread_by_admin > 0 && (
+            <span className="ml-2 bg-sky-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center shrink-0">
+              {conv.unread_by_admin}
+            </span>
+          )}
+        </div>
+        {otherIsTyping ? (
+          <p className="text-[11px] text-emerald-500 font-bold animate-pulse mt-0.5">
+            typing...
+          </p>
+        ) : (
+          <p className="text-[11px] text-slate-400 truncate mt-0.5">
+            {conv.last_message_preview ?? "No messages yet"}
+          </p>
+        )}
+      </div>
+    </button>
+  );
+}
 
 function TypingDots() {
   return (
@@ -38,6 +96,7 @@ export default function AdminMessages() {
     null,
   );
   const [input, setInput] = useState("");
+  const [pendingAttachment, setPendingAttachment] = useState<PendingAttachment | null>(null);
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const { conversations } = useSupportConversations("admin", user?.id ?? null);
@@ -45,6 +104,8 @@ export default function AdminMessages() {
     activeConv?.id ?? null,
     "admin",
   );
+  const { upload, isUploading, progress, error: uploadError, setError: setUploadError } =
+    useAttachmentUpload();
 
   useOnlinePresence();
   useDeliveryReceipts("admin", user?.id ?? null);
@@ -67,11 +128,43 @@ export default function AdminMessages() {
     }
   }, [activeConv?.id, bottomRef]);
 
+  // Revoke local preview URL when replaced/cleared to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (pendingAttachment) URL.revokeObjectURL(pendingAttachment.previewUrl);
+    };
+  }, [pendingAttachment]);
+
+  const handlePickFile = (file: File) => {
+    const type = file.type.startsWith("video/") ? "video" : file.type.startsWith("image/") ? "image" : null;
+    if (!type) {
+      setUploadError("Unsupported file type. Please pick an image or video.");
+      return;
+    }
+    if (pendingAttachment) URL.revokeObjectURL(pendingAttachment.previewUrl);
+    setUploadError(null);
+    setPendingAttachment({ file, previewUrl: URL.createObjectURL(file), type });
+  };
+
+  const handleClearPending = () => {
+    if (pendingAttachment) URL.revokeObjectURL(pendingAttachment.previewUrl);
+    setPendingAttachment(null);
+    setUploadError(null);
+  };
+
   const handleSend = async () => {
-    if (!input.trim() || !user) return;
+    if ((!input.trim() && !pendingAttachment) || !user || !activeConv?.id) return;
     setTyping(false);
-    await sendMessage(input, user.id);
+
+    let uploaded = null;
+    if (pendingAttachment) {
+      uploaded = await upload(pendingAttachment.file, activeConv.id);
+      if (!uploaded) return;
+    }
+
+    await sendMessage(input, user.id, uploaded);
     setInput("");
+    handleClearPending();
   };
 
   const handleTyping = (val: string) => {
@@ -110,46 +203,19 @@ export default function AdminMessages() {
               No conversations yet
             </p>
           )}
-          {conversations.map((conv) => {
-            const isActive = activeConv?.id === conv.id;
-            return (
-              <button
-                key={conv.id}
-                onClick={() => {
-                  setActiveConv(conv);
-                  setInput("");
-                }}
-                className={`w-full text-left px-3 py-3 rounded-2xl transition-all duration-300 flex items-center gap-3 border ${
-                  isActive
-                    ? "bg-slate-100 dark:bg-slate-800 border-transparent text-slate-900 dark:text-white font-semibold"
-                    : "border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-600 dark:text-slate-300"
-                }`}
-              >
-                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
-                  isActive 
-                    ? "bg-gradient-to-tr from-sky-400 to-blue-600 text-white" 
-                    : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
-                }`}>
-                  {conv.guest?.full_name?.[0]?.toUpperCase() ?? "G"}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <p className={`text-xs font-bold truncate ${isActive ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-300"}`}>
-                      {conv.guest?.full_name ?? "Guest"}
-                    </p>
-                    {conv.unread_by_admin > 0 && (
-                      <span className="ml-2 bg-sky-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center shrink-0">
-                        {conv.unread_by_admin}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-slate-400 truncate mt-0.5">
-                    {conv.last_message_preview ?? "No messages yet"}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
+          {conversations.map((conv) => (
+            <ConversationItem
+              key={conv.id}
+              conv={conv}
+              isActive={activeConv?.id === conv.id}
+              myUserId={user?.id ?? null}
+              onClick={() => {
+                setActiveConv(conv);
+                setInput("");
+                handleClearPending();
+              }}
+            />
+          ))}
         </div>
       </div>
 
@@ -204,6 +270,7 @@ export default function AdminMessages() {
                 const isLastInGroup = !nextMsg || nextMsg.sender_role !== msg.sender_role;
                 const showSeenAvatar = isMe && msg.id === lastSeenOwnMessageId;
                 const showDateDivider = i === 0 || !isSameDay(messages[i - 1].created_at, msg.created_at);
+                const hasAttachment = !!msg.attachment_url;
 
                 return (
                   <div key={msg.id} className="space-y-1">
@@ -225,12 +292,15 @@ export default function AdminMessages() {
                       )}
 
                       <div className={`max-w-[75%] flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-                        <div className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                        <div className={`${hasAttachment ? "p-1.5" : "px-4 py-2.5"} rounded-2xl text-sm leading-relaxed ${
                           isMe
                             ? "bg-sky-500 text-white rounded-br-sm"
                             : "bg-emerald-100 text-emerald-950 rounded-bl-sm dark:bg-emerald-900/40 dark:text-emerald-50"
                         }`}>
-                          {msg.content}
+                          {hasAttachment && <MessageAttachment msg={msg} />}
+                          {msg.content && (
+                            <span className={hasAttachment ? "block px-2.5 pb-1 pt-0.5" : ""}>{msg.content}</span>
+                          )}
                         </div>
                         {isLastInGroup && (
                           <div className={`flex items-center gap-1 mt-1 px-1 ${isMe ? "flex-row-reverse" : "flex-row"}`}>
@@ -267,27 +337,20 @@ export default function AdminMessages() {
             </div>
 
             {/* Input - Standard footer to match guest support chat */}
-            <div className="p-4 shrink-0">
-              <div className="rounded-[2rem] border border-emerald-100 dark:border-emerald-800/20 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl p-2 shadow-lg shadow-emerald-500/10 flex items-center gap-2">
-                <input
-                  value={input}
-                  onChange={(e) => handleTyping(e.target.value)}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && !e.shiftKey && handleSend()
-                  }
-                  onBlur={() => setTyping(false)}
-                  placeholder={`Reply to ${activeConv.guest?.full_name ?? "guest"}...`}
-                  className="flex-1 bg-transparent px-3 py-2 text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none"
-                />
-                <button
-                  onClick={handleSend}
-                  disabled={!input.trim()}
-                  className="bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors shrink-0"
-                >
-                  →
-                </button>
-              </div>
-            </div>
+            <AttachmentInputBar
+              input={input}
+              onInputChange={handleTyping}
+              onSend={handleSend}
+              onBlur={() => setTyping(false)}
+              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+              placeholder={`Reply to ${activeConv.guest?.full_name ?? "guest"}...`}
+              pending={pendingAttachment}
+              onPickFile={handlePickFile}
+              onClearPending={handleClearPending}
+              isUploading={isUploading}
+              uploadProgress={progress}
+              uploadError={uploadError}
+            />
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 bg-slate-50/20 dark:bg-slate-950/20 relative z-10">
