@@ -31,7 +31,7 @@ function ConversationItem({
   onClick: () => void;
   myUserId: string | null;
 }) {
-  const { otherIsTyping } = useTyping(conv.id, myUserId);
+  const { otherIsTyping } = useTyping(conv.id, myUserId ? `${myUserId}:admin` : null);
 
   return (
     <button
@@ -116,7 +116,7 @@ export default function AdminMessages() {
 
   const { otherIsTyping, setTyping } = useTyping(
     activeConv?.id ?? null,
-    user?.id ?? null,
+    user?.id ? `${user.id}:admin` : null,
   );
 
   useEffect(() => {

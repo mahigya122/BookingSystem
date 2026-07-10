@@ -82,7 +82,7 @@ export default function GuestSupportChat({ isOpen, isActive }: Props) {
   useOnlinePresence();
   useDeliveryReceipts("guest", user?.id ?? null);
 
-  const { otherIsTyping, setTyping } = useTyping(conversationId, user?.id ?? null);
+  const { otherIsTyping, setTyping } = useTyping(conversationId, user?.id ? `${user.id}:guest` : null);
   const lastAdminMessage = messages.slice().reverse().find((m) => m.sender_role === "admin");
   const adminId = lastAdminMessage?.sender_id ?? null;
   const { isOnline: isAdminOnline } = useWatchPresence(adminId);
