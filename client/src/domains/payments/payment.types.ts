@@ -17,3 +17,12 @@ export interface PaymentUpdatePayload {
     amount?: number;
     transactionId?: string;
 }
+
+export function calculatePayableAmount(method: PaymentMethod, total: number): number {
+    return method === "esewa_deposit"
+        ? total * 0.2
+        : method === "esewa_full"
+            ? total * 0.95
+            : total;
+}
+

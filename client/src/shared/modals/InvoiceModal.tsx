@@ -120,38 +120,48 @@ const InvoiceModal: FC<Props> = ({ booking, onClose }) => {
 
       <div
         id="print-area"
-        className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 flex flex-col overflow-hidden max-h-[90vh] animate-in zoom-in-95 duration-200"
+        className="w-full max-w-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 flex flex-col overflow-hidden max-h-[90vh] animate-in zoom-in-95 duration-200"
       >
         {/* HEADER (NO-PRINT CONTROLS INCLUDED) */}
-        <div className="px-8 py-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+        <div className="px-8 py-6 border-b border-slate-100/80 dark:border-slate-800/80 flex items-center justify-between bg-gradient-to-r from-sky-50/50 to-emerald-50/50 dark:from-sky-950/15 dark:to-emerald-950/15">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-1.5">
-              <span className="text-sky-500">🏨</span> CabinHub
+            <span className="text-xl font-black flex items-center gap-1.5">
+              <span className="text-sky-500">🏨</span>
+              <span className="bg-gradient-to-r from-sky-500 to-emerald-500 bg-clip-text text-transparent">CabinHub</span>
             </span>
-            <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-2 border-l border-slate-200 dark:border-slate-700 pl-3">
+            <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-2 border-l border-slate-200 dark:border-slate-750 pl-3">
               Official Invoice
+            </span>
+            <span className={`ml-3 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${
+              booking.payment_status === "fully_paid"
+                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                : isDeposit
+                  ? "bg-sky-500/10 text-sky-500 border-sky-500/20"
+                  : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+            }`}>
+              {booking.payment_status === "fully_paid" ? "Paid in Full" : isDeposit ? "Deposit Paid" : "Pending"}
             </span>
           </div>
           <div className="flex items-center gap-2 no-print">
             <button
               onClick={handlePrint}
-              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition"
+              className="p-2.5 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 transition-all active:scale-95 cursor-pointer"
               title="Print Invoice"
             >
-              <Printer size={18} />
+              <Printer size={16} />
             </button>
             <button
               onClick={handleShare}
-              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition flex items-center gap-1"
+              className="p-2.5 rounded-xl bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 text-slate-600 dark:text-slate-300 transition-all active:scale-95 cursor-pointer flex items-center gap-1"
               title="Share"
             >
-              {copied ? <Check size={18} className="text-emerald-500" /> : <Share2 size={18} />}
+              {copied ? <Check size={16} className="text-emerald-500" /> : <Share2 size={16} />}
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition"
+              className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-all active:scale-95 cursor-pointer"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           </div>
         </div>
@@ -174,51 +184,37 @@ const InvoiceModal: FC<Props> = ({ booking, onClose }) => {
               </p>
             </div>
             <div className="text-left md:text-right text-xs font-semibold text-slate-500 dark:text-slate-400">
-              <p className="text-slate-905 dark:text-white font-extrabold">CabinHub Retreats Pvt. Ltd.</p>
+              <p className="text-slate-900 dark:text-white font-extrabold">CabinHub Retreats Pvt. Ltd.</p>
               <p>Alpine Meadows Road, Ward 5</p>
               <p>Pokhara, Nepal</p>
               <p>contact@cabinhub.com</p>
             </div>
           </div>
 
-          {/* Guest and Stay Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Billed To</p>
-              <div className="space-y-1 text-slate-700 dark:text-slate-300 font-bold">
-                <p className="text-sm font-black text-slate-900 dark:text-white">
-                  {booking.guests?.full_name || booking.guest_full_name}
-                </p>
-                <p>{booking.guests?.email || booking.guest_email}</p>
-                <p>{booking.guests?.phone || booking.guest_phone}</p>
-              </div>
+          {/* Guest and Stay Details Card */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 rounded-3xl bg-slate-50/50 dark:bg-slate-800/20 border border-slate-100/70 dark:border-slate-800/80">
+            <div className="space-y-2 border-r border-slate-100 dark:border-slate-800/80 pr-6">
+              <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">Billed To</span>
+              <h3 className="text-sm font-black text-slate-900 dark:text-white">
+                {booking.guests?.full_name || booking.guest_full_name}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{booking.guests?.email || booking.guest_email}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{booking.guests?.phone || booking.guest_phone}</p>
             </div>
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Stay Details</p>
-              <div className="space-y-1 text-slate-700 dark:text-slate-300 font-bold">
-                <p className="text-sm font-black text-slate-900 dark:text-white">
-                  {booking.cabins?.name || "Premium Cabin"}
-                </p>
-                <p>
-                  Check In:{" "}
-                  {checkInDate.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </p>
-                <p>
-                  Check Out:{" "}
-                  {checkOutDate.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </p>
-                <p>Duration: {nights} Nights</p>
-              </div>
+            <div className="space-y-2 pl-2">
+              <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">Stay Details</span>
+              <h3 className="text-sm font-black text-slate-900 dark:text-white">
+                {booking.cabins?.name || "Premium Cabin"}
+              </h3>
+              <p className="text-xs text-slate-550 dark:text-slate-400 font-medium">
+                Check In: {checkInDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </p>
+              <p className="text-xs text-slate-550 dark:text-slate-400 font-medium">
+                Check Out: {checkOutDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+              </p>
+              <p className="text-xs text-slate-550 dark:text-slate-400 font-medium">Duration: {nights} Nights</p>
             </div>
-          </div>
+          </div></div>
 
           {/* Itemized Table */}
           <div className="space-y-4">
@@ -327,41 +323,42 @@ const InvoiceModal: FC<Props> = ({ booking, onClose }) => {
             </div>
                   {/* Pricing Totals Box */}
           <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-            <div className="w-full md:w-64 space-y-3 font-bold text-xs">
-              <div className="flex justify-between text-slate-500">
+            <div className="w-full md:w-72 space-y-3 font-bold text-xs">
+              <div className="flex justify-between text-slate-450 dark:text-slate-400">
                 <span>Accommodation Subtotal</span>
                 <span className="text-slate-900 dark:text-white">${discountedAccommodationSubtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-slate-500">
+              <div className="flex justify-between text-slate-450 dark:text-slate-400">
                 <span>Additional Services</span>
                 <span className="text-slate-900 dark:text-white">${(breakfastTotal + activitiesTotal + cleaningFee + serviceTax).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-slate-905 dark:text-white text-sm font-black border-t border-slate-150 dark:border-slate-800 pt-2.5">
+              
+              <div className="flex justify-between items-center text-slate-900 dark:text-white text-sm font-black border-t border-slate-150 dark:border-slate-800 pt-3">
                 <span>Net Total Payable</span>
-                <span className="text-sky-600 dark:text-sky-400">${finalPrice.toFixed(2)}</span>
+                <span className="text-base font-black bg-gradient-to-r from-sky-500 to-emerald-500 bg-clip-text text-transparent">${finalPrice.toFixed(2)}</span>
               </div>
 
               {/* Deposit Info */}
               {isDeposit && (
-                <div className="space-y-2 border-t border-dashed border-slate-200 dark:border-slate-700 pt-2.5">
-                  <div className="flex justify-between text-slate-500">
+                <div className="space-y-2 border-t border-dashed border-slate-200 dark:border-slate-700 pt-3 mt-1">
+                  <div className="flex justify-between text-slate-450 dark:text-slate-400">
                     <span>20% Downpayment Paid</span>
                     <span className="text-slate-900 dark:text-white font-extrabold">
                       ${(finalPrice * 0.2).toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-slate-900 dark:text-white font-black text-sm">
+                  <div className="flex justify-between text-slate-900 dark:text-white font-black text-sm pt-0.5">
                     <span>Remaining Balance</span>
-                    <span className={remainingStatus === "Paid" ? "text-emerald-600 dark:text-emerald-450" : "text-sky-600 dark:text-sky-400"}>
+                    <span className={remainingStatus === "Paid" ? "text-emerald-500" : "text-sky-500"}>
                       ${(finalPrice * 0.8).toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-[10px] uppercase tracking-wider text-slate-400">
+                  <div className="flex justify-between items-center text-[9px] uppercase tracking-wider text-slate-400">
                     <span>Remaining Status</span>
-                    <span className={`px-2 py-0.5 rounded-full font-black text-[9px] ${
+                    <span className={`px-2.5 py-0.5 rounded-full font-black text-[9px] border ${
                       remainingStatus === "Paid"
-                        ? "bg-emerald-500/10 text-emerald-500"
-                        : "bg-sky-500/10 text-sky-500"
+                        ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                        : "bg-sky-500/10 text-sky-500 border-sky-500/20"
                     }`}>
                       {remainingStatus}
                     </span>
@@ -369,17 +366,20 @@ const InvoiceModal: FC<Props> = ({ booking, onClose }) => {
                 </div>
               )}
             </div>
-          </div>    </div>
-
-          {/* Secure Footer Notice */}
-          <div className="p-4 rounded-3xl bg-slate-50 dark:bg-slate-900/50 border border-slate-150/50 dark:border-slate-800 text-center text-[10px] text-slate-400 font-bold leading-normal">
-            Thank you for choosing CabinHub. This invoice details your stay rates, taxes, and payment confirmation. If you have questions, please reach out directly at contact@cabinhub.com.
           </div>
+        </div>
+
+        {/* Secure Footer Notice */}
+        <div className="p-4 rounded-3xl bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-800 text-center text-[10px] text-slate-400 dark:text-slate-500 font-bold leading-normal m-8 mt-0">
+          Thank you for choosing CabinHub. This invoice details your stay rates, taxes, and payment confirmation. If you have questions, please reach out directly at contact@cabinhub.com.
         </div>
 
         {/* PRINT WINDOW FOOTER (NO-PRINT) */}
         <div className="px-8 py-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex justify-end no-print">
-          <button onClick={onClose} className="btn btn-secondary px-8 font-black uppercase tracking-widest text-xs rounded-2xl">
+          <button
+            onClick={onClose}
+            className="w-full md:w-auto bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-905 px-8 py-3 rounded-full font-black text-xs uppercase tracking-widest transition cursor-pointer shadow-lg active:scale-98"
+          >
             Close Invoice
           </button>
         </div>

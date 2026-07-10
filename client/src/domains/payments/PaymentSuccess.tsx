@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { CheckCircle2, Calendar, CreditCard, Home, Loader2, ArrowRight, Printer } from "lucide-react";
 import { supabase } from "../../shared/services/supabase";
 import type { Booking } from "../../shared/types/booking";
@@ -8,6 +8,7 @@ import InvoiceModal from "../../shared/modals/InvoiceModal";
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get("bookingId");
+  const isAdmin = searchParams.get("isAdmin") === "true";
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -159,6 +160,13 @@ const PaymentSuccess = () => {
           </div>
         )}
 
+        <div className="flex items-start gap-2 bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/10 rounded-2xl p-3.5 mb-6 text-left">
+          <span className="text-sm shrink-0">⚠️</span>
+          <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 leading-normal">
+            Please save or print this receipt. You'll need it as proof of payment if you ever request a refund or need to dispute a charge.
+          </p>
+        </div>
+
         <div className="space-y-3">
           {booking && (
             <button
@@ -170,21 +178,21 @@ const PaymentSuccess = () => {
             </button>
           )}
 
-          <Link
-            to="/bookings"
+          <a
+            href={isAdmin ? "/admin/bookings" : "/bookings"}
             className="flex items-center justify-center gap-2 w-full py-4 px-6 rounded-full bg-sky-500 hover:bg-sky-600 text-white font-bold shadow-md shadow-sky-200/50 dark:shadow-none hover:shadow-sky-300/40 transition-all duration-300 transform hover:-translate-y-0.5 group cursor-pointer"
           >
             Go to My Bookings
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
+          </a>
           
-          <Link
-            to="/"
+          <a
+            href={isAdmin ? "/admin/dashboard" : "/"}
             className="flex items-center justify-center gap-2 w-full py-4 px-6 rounded-full bg-slate-50 hover:bg-slate-100 dark:bg-zinc-800/50 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-350 font-bold transition-all duration-300 border border-slate-100 dark:border-zinc-800 hover:-translate-y-0.5 cursor-pointer"
           >
             <Home className="w-4 h-4" />
             Back to Home
-          </Link>
+          </a>
         </div>
       </div>
 

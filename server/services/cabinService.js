@@ -67,8 +67,8 @@ export async function getAllCabins(options = {}) {
       location_id,
       description,
       location:locations!cabins_location_id_fkey (id, name, city, country, image_url),
-      offers:cabin_offers(offer:offers(id, title, badge, discount_percent)),
-      activities:cabin_activities(activity:activities(id, name, image_url)),
+      offers:cabin_offers(offer:offers(*)),
+      activities:cabin_activities(activity:activities(*)),
       reviews:reviews(id)
     `,
       { count: "exact" }

@@ -28,6 +28,8 @@ import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import { useQueryClient } from "@tanstack/react-query";
 import { CheckoutModal } from "@shared/modals/lazyModals";
 import ModalSpinner from "@shared/components/ui/ModalSpinner";
+import { usePayment } from "../../../payments/usePayment";
+import { calculatePayableAmount } from "../../../payments/payment.types";
 
 // Format date to YYYY-MM-DD string in local timezone
 const formatDateString = (date: Date) => {
@@ -214,6 +216,7 @@ function SelectDropdown<T>({
 const BookingForm = () => {
   const queryClient = useQueryClient();
   const { createBooking, isPending } = useCreateBooking();
+  const { payNow } = usePayment("");
   const { cabins = [], isLoading: isLoadingCabins } = useCabins();
   const { guests = [], isLoading: isLoadingGuests } = useGuests(1, 1000, "", "name-az");
   const { locations = [], isLoading: isLoadingLocations } = useLocations();
@@ -638,8 +641,16 @@ const BookingForm = () => {
         is_admin_booking: true,
       },
       {
-        onSuccess: () => {
+        onSuccess: (newBooking) => {
           setIsConfirmModalOpen(false);
+
+          if (form.payment_method.startsWith("esewa")) {
+            toast.loading("Redirecting to eSewa...");
+            const payableAmount = calculatePayableAmount(form.payment_method as any, pricing.total);
+            void payNow(form.payment_method as any, payableAmount, newBooking.id, true);
+            return;
+          }
+
           setForm(INITIAL_FORM_STATE);
           setSelectedActivities([]);
           setSelectedOffers([]);

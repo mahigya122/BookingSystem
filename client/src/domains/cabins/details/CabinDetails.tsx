@@ -10,6 +10,7 @@ import { useCabinAvailability } from "../hooks/useCabinAvailability";
 import { useCabinFiltersContext } from "../contexts/CabinFiltersContext";
 import { usePayment } from "../../payments/usePayment";
 import type { PaymentMethod } from "../../payments/payment.types";
+import { calculatePayableAmount } from "../../payments/payment.types";
 import { getBookingRealStatus } from "@shared/utils/bookingUtils";
 import toast from "react-hot-toast";
 import { Check, Compass, ArrowLeft, Star, MapPin, Calendar } from "lucide-react";
@@ -832,11 +833,9 @@ useEffect(() => {
 
                     if (isEsewa) {
                         toast.loading("Redirecting to eSewa...");
-                        const payableAmount = paymentMethod === "esewa_deposit"
-                            ? totalPrice * 0.2
-                            : totalPrice * 0.95;
+                        const payableAmount = calculatePayableAmount(paymentMethod, totalPrice);
                         // Trigger eSewa redirect using the newly created booking ID and correct amount
-                        void payNow(paymentMethod, payableAmount, newBooking.id);
+                        void payNow(paymentMethod, payableAmount, newBooking.id, false);
                         return;
                     }
 

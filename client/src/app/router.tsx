@@ -13,6 +13,7 @@ import {
   MyBookings,
   PaymentSuccess,
   PaymentFailure,
+  EsewaPayment,
   AboutPage,
   HelpCenterPage,
   FAQsPage,
@@ -98,6 +99,7 @@ export const router = createBrowserRouter([
           { path: "/cabin/:id", element: <CabinDetails /> },
           { path: "/payment/success", element: <PaymentSuccess /> },
           { path: "/payment/failure", element: <PaymentFailure /> },
+          { path: "/payment/esewa", element: <EsewaPayment /> },
         ],
       },
       {

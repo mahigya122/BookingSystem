@@ -17,6 +17,10 @@ export const PaymentSuccess = lazy(
 export const PaymentFailure = lazy(
   () => import("../domains/payments/PaymentFailure"),
 );
+export const EsewaPayment = lazy(
+  () => import("../domains/payments/EsewaPayment"),
+);
+
 
 // InfoPage removed — replaced by the split-out pages below
 
