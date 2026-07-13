@@ -24,7 +24,7 @@ const PaymentSuccess = () => {
       try {
         const { data, error: dbError } = await supabase
           .from("bookings")
-          .select("*, cabins(name)")
+          .select("*, cabins(name, price_per_night), guests(full_name, email, phone)")
           .eq("id", bookingId)
           .single();
 

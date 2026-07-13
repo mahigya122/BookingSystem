@@ -10,6 +10,9 @@ import type { Booking } from "../types/booking";
  */
 export const getBookingRealStatus = (booking: { start_date: string; end_date: string; status: string }) => {
     if (booking.status === "cancelled") return "cancelled";
+    if (booking.status === "cancelling") return "cancelling";
+    if (booking.status === "checked-in") return "checked-in";
+    if (booking.status === "checked-out") return "checked-out";
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -22,7 +25,8 @@ export const getBookingRealStatus = (booking: { start_date: string; end_date: st
     const end = new Date(eYear, eMonth - 1, eDay);
 
     if (today < start) return "booked";
-    if (today >= start && today < end) return "checked-in";
+    if (today.getTime() === start.getTime()) return "booked";
+    if (today > start && today < end) return "checked-in";
     return "checked-out";
 };
 

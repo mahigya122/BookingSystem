@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useUpdateGuest } from "@shared/hooks";
 import type { Guest } from "@shared/types/guest";
 import { 
@@ -59,7 +60,7 @@ export default function EditGuestModal({ guest, onClose }: Props) {
   const inputLabelClass = "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block";
   const inputBaseClass = "w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-3.5 text-sm font-bold focus:border-sky-500 focus:ring-8 focus:ring-sky-500/5 outline-none transition-all dark:text-white";
 
-  return (
+  return createPortal(
     <div className="modal-overlay">
       <div className="modal-content w-full max-w-2xl overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
 
@@ -154,6 +155,7 @@ export default function EditGuestModal({ guest, onClose }: Props) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

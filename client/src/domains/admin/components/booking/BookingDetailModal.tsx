@@ -1,8 +1,7 @@
 import type { Booking } from "@shared/types/booking";
 import { useState } from "react";
-import { useUpdateBooking } from "@shared/hooks";
+import { createPortal } from "react-dom";
 import InvoiceModal from "../../../../shared/modals/InvoiceModal";
-import toast from "react-hot-toast";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import {
   X,
@@ -23,9 +22,7 @@ const BookingDetailModal = ({
   booking,
   onClose,
 }: Props) => {
-  const [settleMethod, setSettleMethod] = useState<"arrival" | "esewa_full">("arrival");
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
-  const { editBooking, isPending: isUpdating } = useUpdateBooking();
 
   const nights = Math.ceil(
     (new Date(booking.end_date).getTime() -
@@ -40,7 +37,7 @@ const BookingDetailModal = ({
     "cancelled": "badge-danger"
   };
 
-  return (
+  return createPortal(
     <div className="modal-overlay">
       <div className="modal-content w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
 
@@ -221,20 +218,16 @@ const BookingDetailModal = ({
                         </div>
                       </div>
                       <span className={`badge ${
-                        booking.payment_status === "fully_paid"
-                          ? "badge-success bg-emerald-500/10 text-emerald-500 border border-emerald-300"
-                          : booking.payment_status === "paid"
-                            ? booking.payment_method === "esewa_deposit"
-                              ? "badge-info bg-sky-500/10 text-sky-500 border border-sky-300"
-                              : "badge-success bg-emerald-500/10 text-emerald-500 border border-emerald-300"
+                        booking.payment_status === "down-paid" || (booking.payment_status === "paid" && booking.payment_method === "esewa_deposit")
+                          ? "badge-info bg-sky-500/10 text-sky-500 border border-sky-300"
+                          : booking.payment_status === "paid" || (booking.payment_status as any) === "fully_paid"
+                            ? "badge-success bg-emerald-500/10 text-emerald-500 border border-emerald-300"
                             : "badge-warning shadow-none bg-transparent border border-yellow-300"
                       }`}>
-                        {booking.payment_status === "fully_paid"
-                          ? "Fully Paid"
-                          : booking.payment_status === "paid"
-                            ? booking.payment_method === "esewa_deposit"
-                              ? "Deposit Paid"
-                              : "Paid"
+                        {booking.payment_status === "down-paid" || (booking.payment_status === "paid" && booking.payment_method === "esewa_deposit")
+                          ? "Down-Paid"
+                          : booking.payment_status === "paid" || (booking.payment_status as any) === "fully_paid"
+                            ? "Paid"
                             : booking.payment_status?.toUpperCase() || "PENDING"}
                       </span>
                     </div>
@@ -244,71 +237,12 @@ const BookingDetailModal = ({
                       <div className="pt-3 border-t border-slate-100 dark:border-slate-800 text-xs font-bold text-slate-500 space-y-2 text-left">
                         <div className="flex justify-between">
                           <span>Deposit Paid (20%)</span>
-                          <span className="text-slate-900 dark:text-white">${(booking.total_price * 0.2).toFixed(2)}</span>
+                          <span className="text-slate-905 dark:text-white">${(booking.total_price * 0.2).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
                           <span>Remaining Balance (80%)</span>
                           <span className="text-slate-905 dark:text-white text-sm font-black">${(booking.total_price * 0.8).toFixed(2)}</span>
                         </div>
-
-                        {/* Settle panel if not fully paid yet */}
-                        {booking.payment_status === "paid" ? (
-                          <div className="mt-4 p-4 rounded-2xl bg-sky-500/5 border border-sky-500/10 space-y-3">
-                            <p className="text-[10px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-widest leading-none">
-                              Process Remaining Payment
-                            </p>
-                            <p className="text-[10.5px] leading-normal text-slate-400">
-                              Choose how guest is settling the remaining balance of ${(booking.total_price * 0.8).toFixed(2)}:
-                            </p>
-                            
-                            <div className="flex gap-4">
-                              <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-slate-800 dark:text-white">
-                                <input
-                                  type="radio"
-                                  name="settleMethod"
-                                  checked={settleMethod === "arrival"}
-                                  onChange={() => setSettleMethod("arrival")}
-                                  className="text-sky-500 focus:ring-sky-500 h-4 w-4"
-                                />
-                                Cash / Arrival
-                              </label>
-                              <label className="flex items-center gap-2 cursor-pointer font-bold text-xs text-slate-800 dark:text-white">
-                                <input
-                                  type="radio"
-                                  name="settleMethod"
-                                  checked={settleMethod === "esewa_full"}
-                                  onChange={() => setSettleMethod("esewa_full")}
-                                  className="text-sky-500 focus:ring-sky-500 h-4 w-4"
-                                />
-                                eSewa Digital
-                              </label>
-                            </div>
-
-                            <button
-                              disabled={isUpdating}
-                              onClick={() => {
-                                editBooking({
-                                  ...booking,
-                                  payment_status: "fully_paid",
-                                  payment_method: settleMethod
-                                } as any, {
-                                  onSuccess: () => {
-                                    toast.success("Remaining balance settled successfully!");
-                                    booking.payment_status = "fully_paid";
-                                    booking.payment_method = settleMethod;
-                                  }
-                                });
-                              }}
-                              className="w-full mt-2 py-2.5 px-4 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-extrabold uppercase tracking-widest text-[10px] shadow transition disabled:opacity-50"
-                            >
-                              {isUpdating ? "Settling..." : "Confirm Settlement"}
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="mt-2 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/10 text-emerald-600 text-[10.5px] leading-relaxed">
-                            🟢 remaining balance settled via **{(booking.payment_method as any) === "esewa_full" ? "eSewa" : "Cash"}**! Stay is fully settled.
-                          </div>
-                        )}
                       </div>
                     )}
                   </div>
@@ -325,7 +259,7 @@ const BookingDetailModal = ({
             <span className="text-xs font-black text-slate-600 dark:text-slate-300">{new Date(booking.created_at || "").toLocaleString()}</span>
           </div>
           <div className="flex gap-3">
-            {(booking.payment_status === "paid" || booking.payment_status === "fully_paid") && (
+            {(booking.payment_status === "paid" || booking.payment_status === "down-paid" || (booking.payment_status as any) === "fully_paid") && (
               <button onClick={() => setIsInvoiceOpen(true)} className="btn btn-secondary px-6 font-extrabold uppercase text-xs tracking-wider rounded-2xl">
                 View Invoice
               </button>
@@ -343,7 +277,8 @@ const BookingDetailModal = ({
           />
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

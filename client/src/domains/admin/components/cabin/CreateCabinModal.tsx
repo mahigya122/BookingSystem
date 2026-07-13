@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useCreateCabin } from "@shared/hooks";
 import { useLocations } from "@shared/hooks/useLocations";
 import { useOffers } from "@shared/hooks/useOffers";
@@ -87,7 +88,7 @@ const CreateCabinModal = ({ onClose } : Props) => {
     const inputLabelClass = "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block";
     const inputBaseClass = "w-full bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-sky-500/20 outline-none transition-all";
 
-return (
+return createPortal(
     <div className="modal-overlay">
         <div className="modal-content w-full max-w-3xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
             {/* Header */}
@@ -272,7 +273,8 @@ return (
                 </button>
             </div>
         </div>
-    </div>    
+    </div>,
+    document.body
 );  
 };
 export default CreateCabinModal;

@@ -1,5 +1,6 @@
 import { AlertCircle, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
 
 interface ProfileIncompleteModalProps {
     fullName: string | null;
@@ -11,7 +12,7 @@ interface ProfileIncompleteModalProps {
 const ProfileIncompleteModal = ({ fullName, phone, onClose, bookingState }: ProfileIncompleteModalProps) => {
     const navigate = useNavigate();
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
             <div
                 className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm cursor-pointer"
@@ -64,7 +65,8 @@ const ProfileIncompleteModal = ({ fullName, phone, onClose, bookingState }: Prof
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

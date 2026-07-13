@@ -28,7 +28,7 @@ export async function getAllBookings(
       extra_offers,
       payment_status,
       payment_method,
-      guests!inner (full_name, email),
+      guests!inner (full_name, email, phone),
       cabins (name, price_per_night, image_url)
     `,
       { count: "exact" }
@@ -191,11 +191,12 @@ export async function getCabinAvailability(cabinId) {
       const bEnd = normalizeDate(booking.status === "cancelled" ? booking.end_date : booking.end_date);
       // We also update the returned status for consistency with real-time logic
       let realStatus = booking.status;
-      if (booking.status !== "cancelled") {
+      if (booking.status !== "cancelled" && booking.status !== "checked-in" && booking.status !== "checked-out" && booking.status !== "cancelling") {
         const bStart = normalizeDate(booking.start_date);
         const bEnd = normalizeDate(booking.end_date);
         if (today < bStart) realStatus = "booked";
-        else if (today >= bStart && today < bEnd) realStatus = "checked-in";
+        else if (today.getTime() === bStart.getTime()) realStatus = "booked";
+        else if (today > bStart && today < bEnd) realStatus = "checked-in";
         else realStatus = "checked-out";
       }
 
@@ -468,13 +469,22 @@ export async function updateBookingReservation(bookingId, input) {
 
 export async function patchBookingReservation(bookingId, updates) {
   const db = getPool();
-  const fields = Object.keys(updates);
+  const processedUpdates = { ...updates };
+
+  if (processedUpdates.extra_activities && typeof processedUpdates.extra_activities !== "string") {
+    processedUpdates.extra_activities = JSON.stringify(processedUpdates.extra_activities);
+  }
+  if (processedUpdates.extra_offers && typeof processedUpdates.extra_offers !== "string") {
+    processedUpdates.extra_offers = JSON.stringify(processedUpdates.extra_offers);
+  }
+
+  const fields = Object.keys(processedUpdates);
   if (fields.length === 0) return null;
 
   const setClause = fields
     .map((field, index) => `${field} = $${index + 2}`)
     .join(", ");
-  const values = fields.map((field) => updates[field]);
+  const values = fields.map((field) => processedUpdates[field]);
 
   const query = `
     UPDATE bookings

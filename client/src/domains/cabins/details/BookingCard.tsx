@@ -206,14 +206,18 @@ const BookingCard = ({
                                     </div>
                                 </div>
                             )}
-                            <div className="flex justify-between">
-                                <span>Cleaning fee</span>
-                                <span className="text-slate-900 dark:text-white font-extrabold">${cleaningFee}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Local service tax</span>
-                                <span className="text-slate-900 dark:text-white font-extrabold">${serviceTax}</span>
-                            </div>
+                            {cleaningFee > 0 && (
+                                <div className="flex justify-between">
+                                    <span>Cleaning fee</span>
+                                    <span className="text-slate-900 dark:text-white font-extrabold">${cleaningFee}</span>
+                                </div>
+                            )}
+                            {serviceTax > 0 && (
+                                <div className="flex justify-between">
+                                    <span>Local service tax</span>
+                                    <span className="text-slate-900 dark:text-white font-extrabold">${serviceTax}</span>
+                                </div>
+                            )}
                             <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/80 pt-4 text-base font-black text-slate-900 dark:text-white">
                                 <span>Total price</span>
                                 <span>${totalPrice}</span>

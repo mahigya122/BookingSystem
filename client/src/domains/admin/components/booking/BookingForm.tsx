@@ -536,8 +536,8 @@ const BookingForm = () => {
 
     const activitiesTotal = selectedActivities.reduce((sum, act) => sum + (act.price || 0), 0);
 
-    const cleaningFee = 50;
-    const serviceTax = 20;
+    const cleaningFee = 0;
+    const serviceTax = 0;
 
     const total = Math.max(0, base - discountAmount + breakfastPrice + activitiesTotal + cleaningFee + serviceTax);
 
@@ -1265,14 +1265,18 @@ const BookingForm = () => {
                     )}
 
                     {/* Tax & fees */}
-                    <div className="flex justify-between text-sm">
-                      <span className="font-bold text-slate-500">Cleaning Fee</span>
-                      <span className="font-black text-slate-800 dark:text-slate-100">+$50</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="font-bold text-slate-500">Service Tax</span>
-                      <span className="font-black text-slate-800 dark:text-slate-100">+$20</span>
-                    </div>
+                    {pricing.cleaningFee > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="font-bold text-slate-500">Cleaning Fee</span>
+                        <span className="font-black text-slate-800 dark:text-slate-100">+${pricing.cleaningFee}</span>
+                      </div>
+                    )}
+                    {pricing.serviceTax > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="font-bold text-slate-500">Service Tax</span>
+                        <span className="font-black text-slate-800 dark:text-slate-100">+${pricing.serviceTax}</span>
+                      </div>
+                    )}
 
                     {/* Total, with a struck-through pre-discount reference price when a discount applies */}
                     <div className="mt-4 flex items-end justify-between border-t pt-4" style={{ borderColor: "var(--app-border)" }}>

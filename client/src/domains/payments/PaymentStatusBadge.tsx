@@ -7,8 +7,8 @@ interface Props {
 }
 
 const PaymentStatusBadge: FC<Props> = ({ status, paymentMethod }) => {
-    let label = status === "paid" ? "Paid" : status === "fully_paid" ? "Fully Paid" : status;
-    let className = "bg-emerald-100 text-emerald-700 border-emerald-300";
+    let label = status as string;
+    let className = "bg-slate-100 text-slate-700 border-slate-300";
 
     if (status === "pending") {
         label = "Pending";
@@ -16,15 +16,12 @@ const PaymentStatusBadge: FC<Props> = ({ status, paymentMethod }) => {
     } else if (status === "refunded") {
         label = "Refunded";
         className = "bg-rose-100 text-rose-700 border-rose-300";
-    } else if (status === "paid" && paymentMethod === "esewa_deposit") {
-        label = "Deposit Paid";
-        className = "bg-sky-100 text-sky-705 border-sky-350";
-    } else if (status === "fully_paid") {
-        label = "Fully Paid";
-        className = "bg-emerald-100 text-emerald-850 border-emerald-450";
-    } else if (status === "paid" && paymentMethod === "esewa_full") {
-        label = "Fully Paid";
-        className = "bg-emerald-100 text-emerald-750 border-emerald-400";
+    } else if (status === "down-paid" || (status === "paid" && paymentMethod === "esewa_deposit")) {
+        label = "Down-Paid";
+        className = "bg-sky-100 text-sky-700 border-sky-300";
+    } else if (status === "paid" || status === "fully_paid") {
+        label = "Paid";
+        className = "bg-emerald-100 text-emerald-700 border-emerald-300";
     }
 
     return (

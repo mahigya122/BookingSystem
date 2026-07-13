@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUpdateBooking } from "@shared/hooks";
 import { toLocalDateMs } from "@shared/utils/dates";
 import type { Booking } from "@shared/types/booking";
@@ -19,6 +20,7 @@ const formatNights = (start: string, end: string) => {
 };
 
 const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
+	const navigate = useNavigate();
 	const { editBooking } = useUpdateBooking();
 	const [localStatus, setLocalStatus] = useState<Record<string, Booking["status"]>>({});
 
@@ -60,15 +62,17 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 
 						const badge = mergedStatus === "cancelled"
 							? "Cancelled"
-							: mergedStatus === "checked-out"
-								? "Departed"
-								: mergedStatus === "checked-in"
-									? isArrival
-										? "Arrived"
-										: "Departing"
-									: isArrival
-										? "Arriving"
-										: "Departing";
+							: mergedStatus === "cancelling"
+								? "Cancelling"
+								: mergedStatus === "checked-out"
+									? "Departed"
+									: mergedStatus === "checked-in"
+										? isArrival
+											? "Arrived"
+											: "Departing"
+										: isArrival
+											? "Arriving"
+											: "Departing";
 
 						const showCheckIn = isArrival && mergedStatus === "booked";
 						const showCheckOut = !isArrival && mergedStatus === "checked-in";
@@ -76,7 +80,16 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 						return (
 							<div
 								key={booking.id}
-								className="flex items-center justify-between gap-3 px-5 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group"
+								onClick={() => {
+									if (mergedStatus === "cancelling") {
+										navigate(`/payments?highlight=${booking.id}`);
+									}
+								}}
+								className={`flex items-center justify-between gap-3 px-5 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors group ${
+									mergedStatus === "cancelling" 
+										? "cursor-pointer border-l-4 border-rose-500/80 bg-rose-500/[0.02]" 
+										: "border-l-4 border-transparent"
+								}`}
 							>
 								<div className="flex items-center gap-4">
 									<div style={{ minWidth: "90px" }}>
@@ -84,11 +97,13 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
                                             className={`badge text-[10px] ${
                                                 mergedStatus === "cancelled"
                                                     ? "badge-danger"
-                                                    : badge === "Departed"
-                                                        ? "badge-info"
-                                                        : isArrival
-                                                            ? "badge-success"
-                                                            : "badge-warning"
+                                                    : mergedStatus === "cancelling"
+                                                        ? "bg-rose-500/20 text-rose-500 dark:bg-rose-500/30 dark:text-rose-400 border border-rose-500/30 animate-pulse font-black"
+                                                        : badge === "Departed"
+                                                            ? "badge-info"
+                                                            : isArrival
+                                                                ? "badge-success"
+                                                                : "badge-warning"
                                             }`}
                                         >
                                             {badge}
@@ -111,6 +126,18 @@ const TodayList = ({ bookings, windowStart, windowEnd }: Props) => {
 								</div>
 
 								<div className="flex items-center gap-3">
+									{mergedStatus === "cancelling" && (
+										<button
+											onClick={(e) => {
+												e.stopPropagation();
+												navigate(`/payments?highlight=${booking.id}`);
+											}}
+											className="btn-action bg-rose-500 hover:bg-rose-600 text-white h-8 px-3 cursor-pointer select-none font-bold text-xs"
+										>
+											Review Cancel
+										</button>
+									)}
+
 									{showCheckIn && (
 										<button
 											onClick={() => {

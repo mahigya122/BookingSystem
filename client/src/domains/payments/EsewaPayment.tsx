@@ -39,7 +39,7 @@ const EsewaPayment = () => {
     try {
       await paymentService.updatePayment({
         bookingId,
-        status: "paid",
+        status: method === "esewa_deposit" ? "down-paid" : "paid",
         method: method as any,
         amount,
         transactionId: `ESEWA-${Date.now()}`,

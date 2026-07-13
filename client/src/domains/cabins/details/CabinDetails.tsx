@@ -246,8 +246,8 @@ useEffect(() => {
         return baseAccommodationPrice * (totalDiscountPercent / 100);
     }, [selectedOffers, baseAccommodationPrice]);
 
-    const cleaningFee = totalNights > 0 ? 50 : 0;
-    const serviceTax = totalNights > 0 ? 20 : 0;
+    const cleaningFee = 0;
+    const serviceTax = 0;
     const totalPrice = Math.max(0, baseAccommodationPrice - discountFromOffers + breakfastTotal + activitiesTotal + cleaningFee + serviceTax);
 
     // Sync breakfast when entering update mode

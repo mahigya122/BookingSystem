@@ -75,6 +75,11 @@ const CabinCard = ({ cabin, variant = "default", className = "", booking }: Cabi
       statusBg = "bg-rose-600";
       StatusIcon = Compass;
       glowClass = "opacity-75 grayscale-[0.5]";
+    } else if (realStatus === "cancelling") {
+      statusLabel = "Cancelling...";
+      statusBg = "bg-rose-500 animate-pulse";
+      StatusIcon = Clock;
+      glowClass = "opacity-90 ring-4 ring-rose-500/20 shadow-[0_0_15px_rgba(239,68,68,0.2)]";
     }
 
     badge = (
@@ -197,7 +202,15 @@ const CabinCard = ({ cabin, variant = "default", className = "", booking }: Cabi
       {/* Invoice Modal Overlay */}
       {isInvoiceOpen && (
         <InvoiceModal
-          booking={booking}
+          booking={{
+            ...booking,
+            cabins: booking.cabins || cabin,
+            guests: booking.guests || (user ? {
+              full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "Guest",
+              email: user.email || "",
+              phone: user.user_metadata?.phone || ""
+            } : undefined)
+          }}
           onClose={() => setIsInvoiceOpen(false)}
         />
       )}

@@ -5,7 +5,8 @@ export type BookingStatus =
   | "checked-in"
   | "checked-out"
   | "booked"
-  | "cancelled";
+  | "cancelled"
+  | "cancelling";
 
 export type SortType =
   | "recent"
@@ -34,6 +35,7 @@ export interface Booking {
     id?: string;
     full_name: string;
     email?: string;
+    phone?: string;
   };
 
   cabins?: {

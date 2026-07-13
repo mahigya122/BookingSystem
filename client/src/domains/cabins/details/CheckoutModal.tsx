@@ -13,6 +13,7 @@ import {
   Footprints,
   Sparkles,
 } from "lucide-react";
+import { createPortal } from "react-dom";
 import type { Cabin } from "@shared/types";
 import { getOptimizedImageUrl } from "@shared/utils/imageUtils";
 import type { PaymentMethod } from "../../payments/payment.types";
@@ -155,7 +156,7 @@ const CheckoutModal = ({
     stepTitle = "Payment Method";
   }
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
@@ -660,7 +661,8 @@ const CheckoutModal = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

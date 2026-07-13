@@ -134,8 +134,10 @@ app.get("/api/esewa/success", async (req, res) => {
             ? existingBooking.payment_method
             : "esewa";
 
+        const paymentStatusToSave = methodToSave === "esewa_deposit" ? "down-paid" : "paid";
+
         await patchBookingReservation(transaction_uuid, {
-            payment_status: "paid",
+            payment_status: paymentStatusToSave,
             payment_method: methodToSave,
             paid_at: new Date().toISOString(),
             transaction_id: `ESEWA-${transaction_code || Date.now()}`,

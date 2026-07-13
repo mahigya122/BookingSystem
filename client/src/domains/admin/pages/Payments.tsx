@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useBookings } from "@shared/hooks";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import PaymentStatusBadge from "../../payments/PaymentStatusBadge";
@@ -8,6 +9,8 @@ import AdminPaymentActions from "../../payments/AdminPaymentActions";
 import type { SortType } from "@shared/types/booking";
 
 const PaymentsPage = () => {
+  const [searchParams] = useSearchParams();
+  const highlightedId = searchParams.get("highlight");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,6 +29,7 @@ const PaymentsPage = () => {
   const statusOptions = [
     { value: "all", label: "All Status" },
     { value: "paid", label: "Paid" },
+    { value: "down-paid", label: "Down-Paid" },
     { value: "pending", label: "Pending" },
     { value: "refunded", label: "Refunded" },
   ] as const;
@@ -52,6 +56,22 @@ const PaymentsPage = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter, sortBy]);
+
+  // Scroll highlighted row into view
+  useEffect(() => {
+    if (highlightedId && bookings.length > 0) {
+      const exists = bookings.some((b: any) => b.id === highlightedId);
+      if (exists) {
+        const element = document.getElementById(`booking-row-${highlightedId}`);
+        if (element) {
+          const timer = setTimeout(() => {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 300);
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+  }, [highlightedId, bookings]);
 
 
 
@@ -242,8 +262,18 @@ const PaymentsPage = () => {
                       </td>
                     </tr>
                   ))
-                : bookings.map((booking: any) => (
-                    <tr key={booking.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                : bookings.map((booking: any) => {
+                    const isHighlighted = booking.id === highlightedId;
+                    return (
+                      <tr
+                        key={booking.id}
+                        id={`booking-row-${booking.id}`}
+                        className={`transition-all duration-500 ${
+                          isHighlighted
+                            ? "bg-rose-500/10 dark:bg-rose-500/20 border-l-4 border-rose-500 ring-2 ring-rose-500/20 animate-pulse"
+                            : "hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors border-l-4 border-transparent"
+                        }`}
+                      >
                       <td className="px-8 py-5 text-left w-32">
                         <span className="font-mono text-xs font-bold text-slate-400">#{booking.id.slice(0, 8)}</span>
                       </td>
@@ -265,6 +295,7 @@ const PaymentsPage = () => {
                       </td>
                       <td className="px-8 py-5 text-right w-44">
                         <AdminPaymentActions
+                          booking={booking}
                           bookingId={booking.id}
                           currentStatus={booking.payment_status || 'pending'}
                           bookingStatus={booking.status}
@@ -272,7 +303,8 @@ const PaymentsPage = () => {
                         />
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
 
               {bookings.length === 0 && (
                 <tr>

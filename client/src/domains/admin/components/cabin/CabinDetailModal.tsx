@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import type { Cabin } from "@shared/types/cabin";
 import type { Booking } from "@shared/types/booking";
 import type { CabinDetailSection } from "./CabinRow";
@@ -48,7 +49,7 @@ const CabinDetailModal = ({
         { id: "reviews", label: "Reviews", icon: Star },
     ];
 
-    return (
+    return createPortal(
         <div className="modal-overlay">
             <div className="modal-content w-full max-w-6xl h-[103vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
 
@@ -417,7 +418,8 @@ const CabinDetailModal = ({
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

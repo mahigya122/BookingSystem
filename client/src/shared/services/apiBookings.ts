@@ -90,7 +90,7 @@ export async function createBooking(bookingData: CreateBookingRequest) {
   if (bookingData.payment_method === "arrival") {
     paymentStatus = "pending";
   } else if (bookingData.transaction_id) {
-    paymentStatus = "paid";
+    paymentStatus = bookingData.payment_method === "esewa_deposit" ? "down-paid" : "paid";
   }
 
   // Rule 1, 2, 3: Insert booking
@@ -127,7 +127,7 @@ export async function cancelBooking(id: string) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ status: "cancelled" }),
+    body: JSON.stringify({ status: "cancelling" }),
   });
 
   const payload = await response.json().catch(() => ({}));

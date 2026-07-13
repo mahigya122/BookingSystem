@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useUpdateCabin } from "@shared/hooks";
 import { useLocations } from "@shared/hooks/useLocations";
 import { useOffers } from "@shared/hooks/useOffers";
@@ -100,7 +101,7 @@ const EditCabinModal = ({
     const inputLabelClass = "text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block";
     const inputBaseClass = "w-full bg-slate-50 dark:bg-slate-950 border-2 border-slate-100 dark:border-slate-800 rounded-2xl px-5 py-3.5 text-sm font-bold focus:border-sky-500 focus:ring-8 focus:ring-sky-500/5 outline-none transition-all dark:text-white";
 
-    return (
+    return createPortal(
         <div className="modal-overlay">
             <div className="modal-content w-full max-w-5xl h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
 
@@ -332,8 +333,8 @@ const EditCabinModal = ({
                     </div>
                 </div>
             </div>
-        </div>
-
+        </div>,
+        document.body
     );
 };
 

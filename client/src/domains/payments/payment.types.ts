@@ -1,7 +1,7 @@
 export type PaymentStatus =
     | "pending"
     | "paid"
-    | "fully_paid"
+    | "down-paid"
     | "refunded";
 
 export type PaymentMethod =
