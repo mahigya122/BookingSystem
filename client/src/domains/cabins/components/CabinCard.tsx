@@ -204,8 +204,8 @@ const CabinCard = ({ cabin, variant = "default", className = "", booking }: Cabi
         <InvoiceModal
           booking={{
             ...booking,
-            cabins: booking.cabins || cabin,
-            guests: booking.guests || (user ? {
+            cabins: (booking.cabins && Object.keys(booking.cabins).length > 0) ? booking.cabins : cabin,
+            guests: (booking.guests && Object.keys(booking.guests).length > 0) ? booking.guests : (user ? {
               full_name: user.user_metadata?.full_name || user.email?.split("@")[0] || "Guest",
               email: user.email || "",
               phone: user.user_metadata?.phone || ""

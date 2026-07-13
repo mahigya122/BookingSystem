@@ -12,6 +12,7 @@ export const PATHS = {
 
     BLOG: "/blog",
     BLOG_POST: (slug: string) => `/blog/${slug}`,
+    FREEBIES: "/freebies",
 } as const;
 
 
@@ -20,9 +21,12 @@ export const LEGACY_INFO_SLUG_MAP: Record<string, string> = {
     "help-center": PATHS.HELP_CENTER,
     faqs: PATHS.FAQS,
     privacy: PATHS.PRIVACY,
+    "privacy-policy": PATHS.PRIVACY,
+    privatepolicy: PATHS.PRIVACY,
     terms: PATHS.TERMS,
     contact: PATHS.CONTACT,
     careers: PATHS.CAREERS,
     cookies: PATHS.COOKIES,
     blog: PATHS.BLOG,
+    freebies: PATHS.FREEBIES,
 };

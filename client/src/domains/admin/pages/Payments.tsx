@@ -219,7 +219,73 @@ const PaymentsPage = () => {
       </div>
 
       <div className="mt-6 card overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* MOBILE CARD VIEW */}
+        <div className="block sm:hidden space-y-3 p-3">
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="card p-3 animate-pulse space-y-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl">
+                <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3 w-40 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+            ))
+          ) : bookings.length === 0 ? (
+            <div className="text-center py-6 text-xs text-slate-500 font-bold">No payment records found.</div>
+          ) : (
+            bookings.map((booking: any) => {
+              const isHighlighted = booking.id === highlightedId;
+              return (
+                <div
+                  key={booking.id}
+                  id={`booking-card-${booking.id}`}
+                  className={`group card p-3 bg-white dark:bg-slate-900 border rounded-xl shadow-sm space-y-2 transition-all duration-500 ${
+                    isHighlighted
+                      ? "bg-rose-500/5 dark:bg-rose-500/10 border-rose-500 ring-2 ring-rose-500/20"
+                      : "border-slate-100 dark:border-slate-800/60"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[9px] font-black uppercase tracking-wider text-slate-400">ID: #{booking.id.slice(0, 8)}</span>
+                    <div className="scale-90 origin-right">
+                      <AdminPaymentActions
+                        booking={booking}
+                        bookingId={booking.id}
+                        currentStatus={booking.payment_status || 'pending'}
+                        bookingStatus={booking.status}
+                        amount={booking.total_price}
+                      />
+                    </div>
+                  </div>
+                  <div className="border-t border-slate-50 dark:border-slate-800/60 my-1" />
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white truncate">{booking.guests?.full_name}</span>
+                      <span className="text-[9.5px] text-slate-400 truncate mt-0.5">{booking.guests?.email}</span>
+                    </div>
+                    <PaymentStatusBadge status={booking.payment_status || 'pending'} />
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-[10px] pt-1">
+                    <div>
+                      <span className="text-slate-400 font-semibold block uppercase">Date</span>
+                      <span className="text-slate-600 dark:text-slate-300 font-bold block">{new Date(booking.created_at || '').toLocaleDateString()}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 font-semibold block uppercase">Amount</span>
+                      <span className="text-slate-900 dark:text-white font-black block">${booking.total_price}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 font-semibold block uppercase">Method</span>
+                      <span className="text-slate-600 dark:text-slate-300 font-bold block uppercase">{booking.payment_method || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        {/* DESKTOP TABLE VIEW */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-emerald-50/50 dark:bg-emerald-950/30 border-b border-emerald-100/50 dark:border-emerald-900/20">
               <tr>

@@ -31,7 +31,7 @@ const DashboardLayoutContent = () => {
         {/* MAIN CONTENT */}
         <main
           ref={containerRef as React.RefObject<HTMLElement>}
-          className={`flex-1 w-full ${
+          className={`flex-1 w-full min-w-0 ${
             isMessagesPage
               ? "h-full overflow-hidden flex flex-col"
               : "overflow-y-auto px-4 pt-4 md:px-6 md:pt-6 pb-8 scroll-smooth"

@@ -39,6 +39,31 @@ async function runMigration() {
       END $$;
     `);
     console.log("reviews guest_id foreign key constraint verified/added.");
+
+    // 3. Enable realtime for bookings table
+    console.log("Checking and enabling realtime replication for bookings...");
+    await pool.query(`
+      DO $$
+      BEGIN
+          IF EXISTS (SELECT 1 FROM pg_publication WHERE pubname = 'supabase_realtime') THEN
+              IF NOT EXISTS (
+                  SELECT 1 
+                  FROM pg_publication_tables 
+                  WHERE pubname = 'supabase_realtime' 
+                    AND tablename = 'bookings'
+              ) THEN
+                  ALTER PUBLICATION supabase_realtime ADD TABLE bookings;
+              END IF;
+          END IF;
+          
+          -- Set replica identity to full to receive complete old row values on update
+          ALTER TABLE bookings REPLICA IDENTITY FULL;
+      EXCEPTION
+          WHEN OTHERS THEN
+              RAISE NOTICE 'Could not configure realtime publication: %', SQLERRM;
+      END $$;
+    `);
+    console.log("bookings realtime replication configuration verified.");
     console.log("DB migration completed successfully.");
   } catch (err) {
     console.error("Migration failed:", err);

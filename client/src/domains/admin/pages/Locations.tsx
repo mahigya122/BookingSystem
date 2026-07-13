@@ -264,96 +264,149 @@ const Locations = () => {
 
 
       <div className="card overflow-hidden shadow-premium">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-sky-50/50 dark:bg-sky-950/30 border-b border-sky-100/50 dark:border-sky-900/20">
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Destination</th>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Geography</th>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Inventory</th>
-              <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 w-44">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {isLoading
-              ? Array.from({ length: 10 }).map((_, i) => (
-                  <tr key={i}>
-                    <td className="px-8 py-5 text-left">
-                      <div className="space-y-2">
-                        <div className="h-4 w-32 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                        <div className="h-3 w-48 rounded bg-slate-100 dark:bg-slate-900/50 animate-pulse" />
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-left">
-                      <div className="space-y-2">
-                        <div className="h-4 w-24 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                        <div className="h-3 w-16 rounded bg-slate-100 dark:bg-slate-900/50 animate-pulse" />
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-left">
-                      <div className="h-6 w-20 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                    </td>
-                    <td className="px-8 py-5 text-right w-44">
-                      <div className="flex justify-end gap-2">
-                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              : locations.map((location) => (
-                  <tr key={location.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="px-8 py-5 text-left">
-                      <div className="flex flex-col">
-                        <span className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <MapPin size={14} className="text-sky-500" />
-                            {location.name}
-                        </span>
-                        <span className="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{location.description || "No description provided."}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-left">
-                      <div className="flex flex-col">
-                        <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">{location.city}</span>
-                        <span className="text-[11px] text-slate-400 uppercase tracking-widest font-black">{location.country}</span>
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-left">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                          <Home size={12} />
-                          <span className="text-[11px] font-black uppercase tracking-wider">{getLocationCount(location)} Cabins</span>
+        {/* MOBILE CARD VIEW */}
+        <div className="block sm:hidden space-y-3 p-3">
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="card p-3 animate-pulse space-y-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl">
+                <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3 w-40 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+            ))
+          ) : locations.length === 0 ? (
+            <div className="text-center py-6 text-xs text-slate-500 font-bold">No locations found.</div>
+          ) : (
+            locations.map((location) => (
+              <div key={location.id} className="group card p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-xl shadow-sm space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">Loc ID: {location.id.substring(0, 8)}</span>
+                  <div className="flex gap-2">
+                    <button onClick={() => setViewingLocation(location)} className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 transition-colors">
+                      <Eye size={12} />
+                    </button>
+                    <button onClick={() => openEdit(location)} className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 transition-colors">
+                      <Pencil size={12} />
+                    </button>
+                    <button onClick={() => handleDelete(location.id, location)} disabled={isDeleting} className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-500 transition-colors disabled:opacity-30">
+                      {isDeleting ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
+                    </button>
+                  </div>
+                </div>
+                <div className="border-t border-slate-50 dark:border-slate-800/60 my-1" />
+                <div className="flex items-center gap-2">
+                  <MapPin size={12} className="text-sky-500 shrink-0" />
+                  <span className="text-xs font-bold text-slate-900 dark:text-white truncate">{location.name}</span>
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5">{location.description || "No description provided."}</p>
+                <div className="grid grid-cols-2 gap-2 text-[10px] pt-1">
+                  <div>
+                    <span className="text-slate-400 font-semibold block uppercase">Geography</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-bold block truncate">{location.city}, {location.country}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-semibold block uppercase">Inventory</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-bold block">{getLocationCount(location)} Cabins</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* DESKTOP TABLE VIEW */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-sky-50/50 dark:bg-sky-950/30 border-b border-sky-100/50 dark:border-sky-900/20">
+                <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Destination</th>
+                <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Geography</th>
+                <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Inventory</th>
+                <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 w-44">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {isLoading
+                ? Array.from({ length: 10 }).map((_, i) => (
+                    <tr key={i}>
+                      <td className="px-8 py-5 text-left">
+                        <div className="space-y-2">
+                          <div className="h-4 w-32 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                          <div className="h-3 w-48 rounded bg-slate-100 dark:bg-slate-900/50 animate-pulse" />
                         </div>
-                    </td>
-                    <td className="px-8 py-5 text-right w-44">
-                      <div className="flex items-center justify-end gap-2 transition-all duration-300">
-                        <button 
-                            onClick={() => setViewingLocation(location)} 
-                            className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 dark:hover:border-sky-900 shadow-sm transition-all"
-                            title="View Cabins"
-                        >
-                          <Eye size={18} />
-                        </button>
-                        <button 
-                            onClick={() => openEdit(location)} 
-                            className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-200 dark:hover:border-amber-900 shadow-sm transition-all"
-                            title="Edit Location"
-                        >
-                          <Pencil size={18} />
-                        </button>
-                        <button 
-                            onClick={() => handleDelete(location.id, location)} 
-                            disabled={isDeleting} 
-                            className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-250 border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-500 hover:border-rose-200 dark:hover:border-rose-900 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                            title="Delete Location"
-                        >
-                          {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-          </tbody>
-        </table>
+                      </td>
+                      <td className="px-8 py-5 text-left">
+                        <div className="space-y-2">
+                          <div className="h-4 w-24 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                          <div className="h-3 w-16 rounded bg-slate-100 dark:bg-slate-900/50 animate-pulse" />
+                        </div>
+                      </td>
+                      <td className="px-8 py-5 text-left">
+                        <div className="h-6 w-20 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                      </td>
+                      <td className="px-8 py-5 text-right w-44">
+                        <div className="flex justify-end gap-2">
+                          <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                          <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                          <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                : locations.map((location) => (
+                    <tr key={location.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                      <td className="px-8 py-5 text-left">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                              <MapPin size={14} className="text-sky-500" />
+                              {location.name}
+                          </span>
+                          <span className="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{location.description || "No description provided."}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5 text-left">
+                        <div className="flex flex-col">
+                          <span className="font-bold text-slate-700 dark:text-slate-200 text-sm">{location.city}</span>
+                          <span className="text-[11px] text-slate-400 uppercase tracking-widest font-black">{location.country}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-5 text-left">
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
+                            <Home size={12} />
+                            <span className="text-[11px] font-black uppercase tracking-wider">{getLocationCount(location)} Cabins</span>
+                          </div>
+                      </td>
+                      <td className="px-8 py-5 text-right w-44">
+                        <div className="flex items-center justify-end gap-2 transition-all duration-300">
+                          <button 
+                              onClick={() => setViewingLocation(location)} 
+                              className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 dark:hover:border-sky-900 shadow-sm transition-all"
+                              title="View Cabins"
+                          >
+                            <Eye size={18} />
+                          </button>
+                          <button 
+                              onClick={() => openEdit(location)} 
+                              className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-200 dark:hover:border-amber-900 shadow-sm transition-all"
+                              title="Edit Location"
+                          >
+                            <Pencil size={18} />
+                          </button>
+                          <button 
+                              onClick={() => handleDelete(location.id, location)} 
+                              disabled={isDeleting} 
+                              className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-250 border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-500 hover:border-rose-200 dark:hover:border-rose-900 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                              title="Delete Location"
+                          >
+                            {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+            </tbody>
+          </table>
+        </div>
         
         {locations.length === 0 && (
             <div className="py-20 text-center">
@@ -406,7 +459,7 @@ const Locations = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
                     <label className={inputLabelClass}>Destination Name</label>
                     <input
@@ -425,7 +478,7 @@ const Locations = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
                     <label className={inputLabelClass}>Country</label>
                     <input
@@ -644,7 +697,7 @@ const Locations = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
                     <label className={inputLabelClass}>Destination Name</label>
                     <input
@@ -665,7 +718,7 @@ const Locations = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
                     <label className={inputLabelClass}>Country</label>
                     <input

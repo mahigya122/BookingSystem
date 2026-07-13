@@ -57,4 +57,7 @@ export const BlogPostPage = lazy(
 export const LegacyInfoRedirect = lazy(
   () => import("../domains/guests/InfoPage/data/LegacyInfoRedirect"),
 );
+export const FreebiesPage = lazy(
+  () => import("../domains/guests/InfoPage/data/FreebiesPage"),
+);
 

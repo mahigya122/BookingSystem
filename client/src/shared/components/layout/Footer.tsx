@@ -8,7 +8,15 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 
 const footerLinks = {
-  Navigation: ["About", "Cabins", "Booking", "Freebies", "Privacy Policy"],
+  Navigation: [
+    "About",
+    "Blog",
+    "Careers",
+    "Cookies",
+    "FAQs",
+    "Help Center",
+    "Privacy Policy",
+  ],
 };
 
 const socialLinks = [

@@ -37,6 +37,10 @@ export function useCreateBooking() {
           refetchType: "all",
         }),
         queryClient.invalidateQueries({
+          queryKey: ["dashboard-stats"],
+          refetchType: "all",
+        }),
+        queryClient.invalidateQueries({
           queryKey: ["guests"],
           refetchType: "all",
         }),

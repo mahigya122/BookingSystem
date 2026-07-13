@@ -31,7 +31,10 @@ const InvoiceModal: FC<Props> = ({ booking, onClose }) => {
     Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
   );
 
-  const pricePerNight = booking.cabins?.price_per_night || 0;
+  const cabins = (booking.cabins && Object.keys(booking.cabins).length > 0) ? booking.cabins : null;
+  const guests = (booking.guests && Object.keys(booking.guests).length > 0) ? booking.guests : null;
+
+  const pricePerNight = cabins?.price_per_night || booking.price_per_night || 0;
   const accommodationTotal = pricePerNight * nights;
 
   // Parse activities
@@ -78,7 +81,7 @@ const InvoiceModal: FC<Props> = ({ booking, onClose }) => {
   };
 
   const handleShare = async () => {
-    const summaryText = `🏨 CabinHub Booking Invoice\nInvoice ID: ${booking.id.slice(0, 8).toUpperCase()}\nCabin: ${booking.cabins?.name || "Premium Cabin"}\nGuest: ${booking.guests?.full_name}\nDates: ${checkInDate.toLocaleDateString()} - ${checkOutDate.toLocaleDateString()} (${nights} Nights)\nPayment Status: ${(booking.payment_status === "paid" || booking.payment_status === "fully_paid") ? "Fully Paid" : (booking.payment_status === "down-paid" || isDeposit) ? "Deposit Paid (Balance Due)" : "Paid"}\nPaid Amount: Rs. ${paidAmount.toLocaleString()}\nRemaining Balance: Rs. ${remainingBalance.toLocaleString()}\nThank you for choosing CabinHub!`;
+    const summaryText = `🏨 CabinHub Booking Invoice\nInvoice ID: ${booking.id.slice(0, 8).toUpperCase()}\nCabin: ${cabins?.name || "Premium Cabin"}\nGuest: ${guests?.full_name || booking.guest_full_name || "Guest"}\nDates: ${checkInDate.toLocaleDateString()} - ${checkOutDate.toLocaleDateString()} (${nights} Nights)\nPayment Status: ${(booking.payment_status === "paid" || booking.payment_status === "fully_paid") ? "Fully Paid" : (booking.payment_status === "down-paid" || isDeposit) ? "Deposit Paid (Balance Due)" : "Paid"}\nPaid Amount: Rs. ${paidAmount.toLocaleString()}\nRemaining Balance: Rs. ${remainingBalance.toLocaleString()}\nThank you for choosing CabinHub!`;
 
     if (navigator.share) {
       try {
@@ -239,10 +242,10 @@ const InvoiceModal: FC<Props> = ({ booking, onClose }) => {
               </div>
               <div className="space-y-1">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white">
-                  {booking.guests?.full_name || booking.guest_full_name}
+                  {guests?.full_name || booking.guest_full_name}
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{booking.guests?.email || booking.guest_email}</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 font-mono font-bold">{booking.guests?.phone || booking.guest_phone}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{guests?.email || booking.guest_email}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 font-mono font-bold">{guests?.phone || booking.guest_phone}</p>
               </div>
             </div>
 
@@ -254,7 +257,7 @@ const InvoiceModal: FC<Props> = ({ booking, onClose }) => {
               </div>
               <div className="space-y-1">
                 <h3 className="text-sm font-black text-slate-900 dark:text-white">
-                  {booking.cabins?.name || "Premium Cabin"}
+                  {cabins?.name || "Premium Cabin"}
                 </h3>
                 <p className="text-xs text-slate-550 dark:text-slate-400 font-medium">
                   Check In: <span className="font-extrabold text-slate-700 dark:text-slate-350">{checkInDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
@@ -287,7 +290,7 @@ const InvoiceModal: FC<Props> = ({ booking, onClose }) => {
                   {/* Accommodation base rate */}
                   <tr className="hover:bg-slate-50/30 dark:hover:bg-slate-800/10 transition-colors">
                     <td className="py-3.5 px-4 font-black text-slate-800 dark:text-slate-200">
-                      Cabin Accommodation Stay ({booking.cabins?.name || "Standard Room"})
+                      Cabin Accommodation Stay ({cabins?.name || "Standard Room"})
                     </td>
                     <td className="py-3.5 px-4 text-right font-mono text-slate-500">
                       {nights} Nights @ Rs. {pricePerNight.toLocaleString()}

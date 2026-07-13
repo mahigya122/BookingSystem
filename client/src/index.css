@@ -153,6 +153,21 @@ table {
   @apply w-full border-separate border-spacing-0;
 }
 
+.overflow-x-auto {
+  @apply w-full overflow-x-auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.overflow-x-auto table {
+  min-width: 900px;
+}
+
+@media (max-width: 640px) {
+  .overflow-x-auto table {
+    min-width: 750px;
+  }
+}
+
 thead th {
   @apply px-8 py-6 text-left text-[11px] font-black uppercase tracking-[0.3em];
   color: var(--app-text-muted);

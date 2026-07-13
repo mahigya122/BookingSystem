@@ -65,6 +65,9 @@ const ModifyStayModal = ({ booking, onClose }: Props) => {
         }!`
       );
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["cabin-availability"] });
+      queryClient.invalidateQueries({ queryKey: ["cabins-with-bookings"] });
       onClose();
     },
     onError: (err: any) => {
@@ -89,6 +92,9 @@ const ModifyStayModal = ({ booking, onClose }: Props) => {
         }!`
       );
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["cabin-availability"] });
+      queryClient.invalidateQueries({ queryKey: ["cabins-with-bookings"] });
       onClose();
     },
     onError: (err: any) => {

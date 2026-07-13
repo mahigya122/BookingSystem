@@ -25,6 +25,7 @@ import {
   BlogPage,
   BlogPostPage,
   LegacyInfoRedirect,
+  FreebiesPage,
 } from "./lazyClientPages";
 
 export const router = createBrowserRouter([
@@ -92,6 +93,7 @@ export const router = createBrowserRouter([
           { path: PATHS.CAREERS, element: <CareersPage /> },
           { path: PATHS.COOKIES, element: <CookiesPage /> },
           { path: PATHS.BLOG, element: <BlogPage /> },
+          { path: PATHS.FREEBIES, element: <FreebiesPage /> },
           { path: "/blog/:slug", element: <BlogPostPage /> },
 
           { path: "/info/:slug", element: <LegacyInfoRedirect /> },

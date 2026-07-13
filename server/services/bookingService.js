@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase.js";
 import { getPool } from "./dbPool.js";
+import { sendBookingEmail } from "./emailService.js";
 
 const ACTIVE_BOOKING_STATUSES = ["booked", "checked-in"];
 
@@ -72,7 +73,7 @@ export async function getAllBookings(
     query = query.order("total_price", { ascending: true });
   } else {
     query = query.order("start_date", { ascending: true })
-                 .order("created_at", { ascending: true });
+      .order("created_at", { ascending: true });
   }
 
   if (page !== undefined && pageSize !== undefined) {
@@ -226,6 +227,8 @@ export async function createBookingReservation(input) {
   const paymentMethod = input.payment_method || "arrival";
   const paidAt = input.paid_at || null;
   const transactionId = input.transaction_id || null;
+  const createdBy = typeof input.created_by === "string" ? input.created_by.trim() : null;
+  const isAdminBooking = Boolean(input.is_admin_booking);
 
   if (!cabinId) {
     throw new Error("Cabin id is required.");
@@ -277,14 +280,14 @@ export async function createBookingReservation(input) {
         `SELECT id FROM guests WHERE id = $1 LIMIT 1`,
         [guestId]
       );
-      
+
       if (guestResult.rowCount === 0) {
         // If not found by ID, check if a guest with the same email exists
         const emailResult = await client.query(
           `SELECT id FROM guests WHERE lower(email) = lower($1) LIMIT 1`,
           [guestEmail]
         );
-        
+
         if (emailResult.rowCount > 0) {
           // If a guest exists with the same email, update their ID to align with their auth ID
           const existingId = emailResult.rows[0].id;
@@ -339,9 +342,9 @@ export async function createBookingReservation(input) {
     }
 
     const bookingResult = await client.query(
-      `INSERT INTO bookings (guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, extra_activities, extra_offers, payment_status, payment_method, paid_at, transaction_id)
-       VALUES ($1, $2, $3::date, $4::date, $5, 'booked', $6, $7, $8, $9, $10, $11, $12)
-       RETURNING id, guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, extra_activities, extra_offers, payment_status, payment_method, paid_at, transaction_id, created_at`,
+      `INSERT INTO bookings (guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, extra_activities, extra_offers, payment_status, payment_method, paid_at, transaction_id, created_by, is_admin_booking)
+       VALUES ($1, $2, $3::date, $4::date, $5, 'booked', $6, $7, $8, $9, $10, $11, $12, $13, $14)
+       RETURNING id, guest_id, cabin_id, start_date, end_date, total_price, status, has_breakfast, extra_activities, extra_offers, payment_status, payment_method, paid_at, transaction_id, created_by, is_admin_booking, created_at`,
       [
         guestId,
         cabinId,
@@ -354,13 +357,22 @@ export async function createBookingReservation(input) {
         paymentStatus,
         paymentMethod,
         paidAt,
-        transactionId
+        transactionId,
+        createdBy,
+        isAdminBooking
       ]
     );
 
     await client.query("COMMIT");
 
-    return bookingResult.rows[0];
+    const newBooking = bookingResult.rows[0];
+
+    // Fire-and-forget booking confirmation email — never block the API response on this
+    sendBookingEmail(newBooking.id, "create").catch((err) => {
+      console.error("[Booking] Failed to send confirmation email:", err);
+    });
+
+    return newBooking;
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -388,9 +400,10 @@ export async function updateBookingReservation(bookingId, input) {
   try {
     await client.query("BEGIN");
 
-    // Fetch the cabin_id for this booking
+    // Fetch the cabin_id AND prior dates/status for this booking so we can detect
+    // what changed after the update commits (drives which notification email to send)
     const bookingResult = await client.query(
-      "SELECT cabin_id FROM bookings WHERE id = $1 LIMIT 1",
+      "SELECT cabin_id, start_date, end_date, status FROM bookings WHERE id = $1 LIMIT 1",
       [bookingId]
     );
 
@@ -401,6 +414,9 @@ export async function updateBookingReservation(bookingId, input) {
     }
 
     const cabinId = bookingResult.rows[0].cabin_id;
+    const priorStartDate = bookingResult.rows[0].start_date;
+    const priorEndDate = bookingResult.rows[0].end_date;
+    const priorStatus = bookingResult.rows[0].status;
 
     // Acquire lock
     await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [cabinId]);
@@ -458,7 +474,34 @@ export async function updateBookingReservation(bookingId, input) {
     );
 
     await client.query("COMMIT");
-    return updateResult.rows[0];
+
+    const updatedBooking = updateResult.rows[0];
+
+    // Fire-and-forget notification emails based on what changed — never block the API response
+    const datesChanged =
+      toIsoDate(priorStartDate) !== toIsoDate(updatedBooking.start_date) ||
+      toIsoDate(priorEndDate) !== toIsoDate(updatedBooking.end_date);
+    const statusChangedToCancelled = priorStatus !== "cancelled" && updatedBooking.status === "cancelled";
+    const statusChangedToCancelling = priorStatus !== "cancelling" && updatedBooking.status === "cancelling";
+
+    if (statusChangedToCancelled) {
+      sendBookingEmail(updatedBooking.id, "cancel_confirm").catch((err) => {
+        console.error("[Booking] Failed to send cancellation confirmation email:", err);
+      });
+    } else if (statusChangedToCancelling) {
+      sendBookingEmail(updatedBooking.id, "cancel_request").catch((err) => {
+        console.error("[Booking] Failed to send cancellation request email:", err);
+      });
+    } else if (datesChanged) {
+      sendBookingEmail(updatedBooking.id, "reschedule", {
+        oldStartDate: priorStartDate,
+        oldEndDate: priorEndDate,
+      }).catch((err) => {
+        console.error("[Booking] Failed to send reschedule email:", err);
+      });
+    }
+
+    return updatedBooking;
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
@@ -481,6 +524,13 @@ export async function patchBookingReservation(bookingId, updates) {
   const fields = Object.keys(processedUpdates);
   if (fields.length === 0) return null;
 
+  // Fetch prior state so we can detect date/status changes once the patch lands
+  const priorResult = await db.query(
+    "SELECT start_date, end_date, status FROM bookings WHERE id = $1 LIMIT 1",
+    [bookingId]
+  );
+  const prior = priorResult.rows[0] || null;
+
   const setClause = fields
     .map((field, index) => `${field} = $${index + 2}`)
     .join(", ");
@@ -501,7 +551,35 @@ export async function patchBookingReservation(bookingId, updates) {
     throw error;
   }
 
-  return rows[0];
+  const updatedBooking = rows[0];
+
+  // Fire-and-forget notification emails based on what changed — never block the API response
+  if (prior) {
+    const datesChanged =
+      toIsoDate(prior.start_date) !== toIsoDate(updatedBooking.start_date) ||
+      toIsoDate(prior.end_date) !== toIsoDate(updatedBooking.end_date);
+    const statusChangedToCancelled = prior.status !== "cancelled" && updatedBooking.status === "cancelled";
+    const statusChangedToCancelling = prior.status !== "cancelling" && updatedBooking.status === "cancelling";
+
+    if (statusChangedToCancelled) {
+      sendBookingEmail(updatedBooking.id, "cancel_confirm").catch((err) => {
+        console.error("[Booking] Failed to send cancellation confirmation email:", err);
+      });
+    } else if (statusChangedToCancelling) {
+      sendBookingEmail(updatedBooking.id, "cancel_request").catch((err) => {
+        console.error("[Booking] Failed to send cancellation request email:", err);
+      });
+    } else if (datesChanged) {
+      sendBookingEmail(updatedBooking.id, "reschedule", {
+        oldStartDate: prior.start_date,
+        oldEndDate: prior.end_date,
+      }).catch((err) => {
+        console.error("[Booking] Failed to send reschedule email:", err);
+      });
+    }
+  }
+
+  return updatedBooking;
 }
 
 export async function deleteBookingReservation(bookingId) {

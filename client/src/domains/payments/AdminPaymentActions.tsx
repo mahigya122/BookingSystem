@@ -26,6 +26,9 @@ const AdminPaymentActions = ({ booking, bookingId, currentStatus, bookingStatus,
         onSuccess: () => {
             toast.success("Payment marked as paid");
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
+            queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+            queryClient.invalidateQueries({ queryKey: ["cabin-availability"] });
+            queryClient.invalidateQueries({ queryKey: ["cabins-with-bookings"] });
         },
         onError: (err: any) => toast.error(err.message || "Failed to update payment"),
     });
@@ -35,6 +38,9 @@ const AdminPaymentActions = ({ booking, bookingId, currentStatus, bookingStatus,
         onSuccess: () => {
             toast.success("Payment marked as refunded");
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
+            queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+            queryClient.invalidateQueries({ queryKey: ["cabin-availability"] });
+            queryClient.invalidateQueries({ queryKey: ["cabins-with-bookings"] });
         },
         onError: (err: any) => toast.error(err.message || "Failed to update payment"),
     });
@@ -48,6 +54,9 @@ const AdminPaymentActions = ({ booking, bookingId, currentStatus, bookingStatus,
         onSuccess: () => {
             toast.success("Pending booking successfully cancelled");
             queryClient.invalidateQueries({ queryKey: ["bookings"] });
+            queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+            queryClient.invalidateQueries({ queryKey: ["cabin-availability"] });
+            queryClient.invalidateQueries({ queryKey: ["cabins-with-bookings"] });
         },
         onError: (err: any) => toast.error(err.message || "Failed to cancel booking"),
     });

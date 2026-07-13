@@ -273,108 +273,165 @@ const Activities = () => {
 
 
       <div className="mt-6 card overflow-hidden">
-        <div className="overflow-x-auto">
-        <table className="w-full text-left">
-          <thead className="bg-amber-50/50 dark:bg-amber-950/30 border-b border-amber-100/50 dark:border-amber-900/20">
-            <tr>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400 w-28">Image</th>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Activity</th>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Applied To</th>
-              <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Price</th>
-              <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 w-44">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {isLoading
-              ? Array.from({ length: 10 }).map((_, i) => (
-                  <tr key={i}>
-                    <td className="px-8 py-5 text-left w-28">
-                      <div className="h-10 w-16 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                    </td>
-                    <td className="px-8 py-5 text-left">
-                      <div className="space-y-2">
-                        <div className="h-4 w-32 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                        <div className="h-3 w-48 rounded bg-slate-100 dark:bg-slate-900/50 animate-pulse" />
-                      </div>
-                    </td>
-                    <td className="px-8 py-5 text-left">
-                      <div className="h-6 w-20 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                    </td>
-                    <td className="px-8 py-5 text-left">
-                      <div className="h-4 w-12 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                    </td>
-                    <td className="px-8 py-5 text-right w-44">
-                      <div className="flex justify-end gap-2">
-                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                        <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              : activities.map((activity) => (
-              <tr key={activity.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                <td className="px-8 py-5 text-left w-28">
-                    {activity.image_url ? (
-                        <img src={getOptimizedImageUrl(activity.image_url, 'thumbnail')} className="h-10 w-16 object-cover rounded-lg shadow-sm" alt={activity.name} />
-                    ) : (
-                        <div className="h-10 w-16 bg-slate-100 dark:bg-slate-800 rounded-lg" />
-                    )}
-                </td>
-                <td className="px-8 py-5 text-left">
-                  <div className="flex flex-col">
-                    <span className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <Zap size={14} className="text-sky-500" />
-                        {activity.name}
-                    </span>
-                    <span className="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{activity.description || "No description provided."}</span>
-                  </div>
-                </td>
-                <td className="px-8 py-5 text-left">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
-                      <Home size={12} />
-                      <span className="text-[11px] font-black uppercase tracking-wider">{getActivityCount(activity) || 0} Cabins</span>
-                    </div>
-                </td>
-                <td className="px-8 py-5 text-left">
-                  <span className="font-black text-sky-600 dark:text-sky-400 text-sm">${activity.price}</span>
-                </td>
-                <td className="px-8 py-5 text-right w-44">
-                  <div className="flex items-center justify-end gap-2 transition-all duration-300">
-                    <button 
-                        onClick={() => setViewingActivity(activity)} 
-                        className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 dark:hover:border-sky-900 shadow-sm transition-all"
-                        title="View Cabins"
-                    >
-                      <Eye size={18} />
+        {/* MOBILE CARD VIEW */}
+        <div className="block sm:hidden space-y-3 p-3">
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="card p-3 animate-pulse space-y-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 rounded-2xl">
+                <div className="h-3 w-16 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded" />
+                <div className="h-3 w-40 bg-slate-200 dark:bg-slate-800 rounded" />
+              </div>
+            ))
+          ) : activities.length === 0 ? (
+            <div className="text-center py-6 text-xs text-slate-500 font-bold">No activities found.</div>
+          ) : (
+            activities.map((activity) => (
+              <div key={activity.id} className="group card p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/60 rounded-xl shadow-sm space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">Act ID: {activity.id.substring(0, 8)}</span>
+                  <div className="flex gap-2">
+                    <button onClick={() => setViewingActivity(activity)} className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 transition-colors">
+                      <Eye size={12} />
                     </button>
-                    <button 
-                        onClick={() => openEdit(activity)} 
-                        className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-200 dark:hover:border-amber-900 shadow-sm transition-all"
-                        title="Edit Activity"
-                    >
-                      <Pencil size={18} />
+                    <button onClick={() => openEdit(activity)} className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 transition-colors">
+                      <Pencil size={12} />
                     </button>
-                    <button 
-                        onClick={() => handleDelete(activity.id, activity)} 
-                        disabled={isDeleting} 
-                        className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-500 hover:border-rose-200 dark:hover:border-rose-900 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                        title="Delete Activity"
-                    >
-                      {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                    <button onClick={() => handleDelete(activity.id, activity)} disabled={isDeleting} className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-500 transition-colors disabled:opacity-30">
+                      {isDeleting ? <Loader2 size={12} className="animate-spin" /> : <Trash2 size={12} />}
                     </button>
                   </div>
-                </td>
+                </div>
+                <div className="border-t border-slate-50 dark:border-slate-800/60 my-1" />
+                <div className="flex gap-3">
+                  {activity.image_url ? (
+                    <img src={getOptimizedImageUrl(activity.image_url, 'thumbnail')} className="h-10 w-16 object-cover rounded-lg shadow-sm shrink-0" alt={activity.name} />
+                  ) : (
+                    <div className="h-10 w-16 bg-slate-100 dark:bg-slate-800 rounded-lg shrink-0" />
+                  )}
+                  <div className="flex flex-col min-w-0 justify-center">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white truncate">{activity.name}</span>
+                    <p className="text-[9.5px] text-slate-400 line-clamp-1 mt-0.5">{activity.description || "No description provided."}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-[10px] pt-1">
+                  <div>
+                    <span className="text-slate-400 font-semibold block uppercase">Price</span>
+                    <span className="text-sky-600 dark:text-sky-400 font-black block">${activity.price}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-semibold block uppercase">Cabins</span>
+                    <span className="text-slate-600 dark:text-slate-300 font-bold block">{getActivityCount(activity) || 0} Associated</span>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* DESKTOP TABLE VIEW */}
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-amber-50/50 dark:bg-amber-950/30 border-b border-amber-100/50 dark:border-amber-900/20">
+              <tr>
+                <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400 w-28">Image</th>
+                <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Activity</th>
+                <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Applied To</th>
+                <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-400">Price</th>
+                <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 w-44">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {activities.length === 0 && (
-            <div className="py-20 text-center">
-                <Search size={40} className="mx-auto text-slate-200 mb-4" />
-                <p className="text-slate-400 font-bold tracking-tight">No activities found.</p>
-            </div>
-        )}
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {isLoading
+                ? Array.from({ length: 10 }).map((_, i) => (
+                    <tr key={i}>
+                      <td className="px-8 py-5 text-left w-28">
+                        <div className="h-10 w-16 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                      </td>
+                      <td className="px-8 py-5 text-left">
+                        <div className="space-y-2">
+                          <div className="h-4 w-32 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                          <div className="h-3 w-48 rounded bg-slate-100 dark:bg-slate-900/50 animate-pulse" />
+                        </div>
+                      </td>
+                      <td className="px-8 py-5 text-left">
+                        <div className="h-6 w-20 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                      </td>
+                      <td className="px-8 py-5 text-left">
+                        <div className="h-4 w-12 rounded bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                      </td>
+                      <td className="px-8 py-5 text-right w-44">
+                        <div className="flex justify-end gap-2">
+                          <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                          <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                          <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                : activities.map((activity) => (
+                <tr key={activity.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                  <td className="px-8 py-5 text-left w-28">
+                      {activity.image_url ? (
+                          <img src={getOptimizedImageUrl(activity.image_url, 'thumbnail')} className="h-10 w-16 object-cover rounded-lg shadow-sm" alt={activity.name} />
+                      ) : (
+                          <div className="h-10 w-16 bg-slate-100 dark:bg-slate-800 rounded-lg" />
+                      )}
+                  </td>
+                  <td className="px-8 py-5 text-left">
+                    <div className="flex flex-col">
+                      <span className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                          <Zap size={14} className="text-sky-500" />
+                          {activity.name}
+                      </span>
+                      <span className="text-[11px] text-slate-400 line-clamp-1 max-w-xs">{activity.description || "No description provided."}</span>
+                    </div>
+                  </td>
+                  <td className="px-8 py-5 text-left">
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30">
+                        <Home size={12} />
+                        <span className="text-[11px] font-black uppercase tracking-wider">{getActivityCount(activity) || 0} Cabins</span>
+                      </div>
+                  </td>
+                  <td className="px-8 py-5 text-left">
+                    <span className="font-black text-sky-600 dark:text-sky-400 text-sm">${activity.price}</span>
+                  </td>
+                  <td className="px-8 py-5 text-right w-44">
+                    <div className="flex items-center justify-end gap-2 transition-all duration-300">
+                      <button 
+                          onClick={() => setViewingActivity(activity)} 
+                          className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-sky-500 hover:border-sky-200 dark:hover:border-sky-900 shadow-sm transition-all"
+                          title="View Cabins"
+                      >
+                        <Eye size={18} />
+                      </button>
+                      <button 
+                          onClick={() => openEdit(activity)} 
+                          className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-amber-500 hover:border-amber-200 dark:hover:border-amber-900 shadow-sm transition-all"
+                          title="Edit Activity"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                      <button 
+                          onClick={() => handleDelete(activity.id, activity)} 
+                          disabled={isDeleting} 
+                          className="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 hover:text-rose-500 hover:border-rose-200 dark:hover:border-rose-900 shadow-sm transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                          title="Delete Activity"
+                      >
+                        {isDeleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {activities.length === 0 && (
+              <div className="py-20 text-center">
+                  <Search size={40} className="mx-auto text-slate-200 mb-4" />
+                  <p className="text-slate-400 font-bold tracking-tight">No activities found.</p>
+              </div>
+          )}
         </div>
 
         {/* PAGINATION */}
@@ -650,7 +707,7 @@ const Activities = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
                     <label className={inputLabelClass}>Experience Name</label>
                     <input

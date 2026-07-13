@@ -102,6 +102,9 @@ const EditPaymentModal = ({ booking, onClose, onEsewaRedirect }: Props) => {
     onSuccess: () => {
       toast.success("Payment settled successfully!");
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["cabin-availability"] });
+      queryClient.invalidateQueries({ queryKey: ["cabins-with-bookings"] });
       onClose();
     },
     onError: (err: any) => {
@@ -127,6 +130,9 @@ const EditPaymentModal = ({ booking, onClose, onEsewaRedirect }: Props) => {
         }!`
       );
       queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["cabin-availability"] });
+      queryClient.invalidateQueries({ queryKey: ["cabins-with-bookings"] });
       onClose();
     },
     onError: (err: any) => {

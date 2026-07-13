@@ -23,7 +23,7 @@ const StayDurationChart = ({data}: Props) => {
     const colors = isDark ? COLORS_DARK : COLORS_LIGHT;
 
     return (
-        <div className="card bg-white dark:bg-slate-900 border-violet-200/80 dark:border-violet-900/40 h-full flex flex-col">
+        <div className="card bg-white dark:bg-slate-900 border-violet-200/80 dark:border-violet-900/40 h-full flex flex-col min-w-0">
             <div className="card-header">
                 <h2 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Stay Distribution</h2>
                 <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Nights per Guest</span>

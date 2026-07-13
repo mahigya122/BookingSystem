@@ -18,7 +18,8 @@ import {
   MapPin,
   Tag,
   Sparkles,
-  MessageSquare
+  MessageSquare,
+  X
 } from "lucide-react";
 import { useAdminUnreadSupportCount } from "@shared/hooks/useAdminUnreadSupportCount";
 
@@ -33,7 +34,7 @@ const Sidebar = () => {
     setMobileOpen(false);
   }, [pathname, setMobileOpen]);
 
-  const isExpanded = pinned || open;
+  const isExpanded = pinned || open || mobileOpen;
 
   const togglePin = () => {
     setPinned((prev) => {
@@ -59,8 +60,8 @@ const Sidebar = () => {
         onMouseLeave={() => {
           if (!pinned) setOpen(false);
         }}
-        className={`sidebar-panel flex flex-col bg-white dark:bg-slate-900 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] border-r border-slate-100 dark:border-slate-800 relative z-50 shadow-lg lg:shadow-sm fixed inset-y-0 left-0 lg:static lg:h-auto ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        className={`sidebar-panel flex flex-col bg-white dark:bg-slate-900 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] border-r border-slate-100 dark:border-slate-800 z-50 shadow-lg lg:shadow-sm fixed inset-y-0 left-0 lg:static lg:h-auto ${
+          mobileOpen ? "translate-x-0 flex" : "-translate-x-full lg:translate-x-0 hidden lg:flex"
         } w-[220px] ${isExpanded ? "lg:w-[220px]" : "lg:w-[80px]"}`}
       >
         {/* HEADER */}
@@ -82,12 +83,23 @@ const Sidebar = () => {
           </div>
 
           {isExpanded && (
-            <button
-              onClick={togglePin}
-              className="p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-300 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-            >
-              {pinned ? <PinOff size={14} /> : <Pin size={14} />}
-            </button>
+            <>
+              {/* Desktop Pin Button */}
+              <button
+                onClick={togglePin}
+                className="hidden lg:block p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-300 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              >
+                {pinned ? <PinOff size={14} /> : <Pin size={14} />}
+              </button>
+
+              {/* Mobile Close Button */}
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="lg:hidden p-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </>
           )}
         </div>
 

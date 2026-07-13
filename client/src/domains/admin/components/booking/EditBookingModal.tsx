@@ -64,6 +64,15 @@ const Pricing = useMemo(() => {
         return;
     }
 
+    if (status !== booking.status) {
+      if (status === "checked-in" && !window.confirm(`Did the guest ${booking.guests?.full_name ?? "Unknown guest"} arrive? Confirm arrival?`)) {
+        return;
+      }
+      if (status === "checked-out" && !window.confirm(`Did the guest ${booking.guests?.full_name ?? "Unknown guest"} check out? Confirm checkout?`)) {
+        return;
+      }
+    }
+
     editBooking(
       {
         id: booking.id,

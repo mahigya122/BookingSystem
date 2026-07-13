@@ -30,7 +30,7 @@ export async function createBooking(bookingData: CreateBookingRequest) {
 
   if (!guestId) throw new Error("Guest ID is required");
 
-  // Gather guest metadata to prevent NOT NULL constraint violations on upsert
+  // Gather guest metadata so the backend has everything it needs to upsert the guest record
   let fullName = bookingData.guest_full_name;
   let email = bookingData.guest_email;
   let phone = bookingData.guest_phone;
@@ -48,7 +48,7 @@ export async function createBooking(bookingData: CreateBookingRequest) {
         .select("full_name, phone_no")
         .eq("id", user.id)
         .single();
-      
+
       if (profile) {
         fullName = fullName || profile.full_name;
         phone = phone || profile.phone_no;
@@ -61,7 +61,7 @@ export async function createBooking(bookingData: CreateBookingRequest) {
       .select("full_name, email, phone")
       .eq("id", guestId)
       .maybeSingle();
-    
+
     if (existingGuest) {
       fullName = existingGuest.full_name;
       email = email || existingGuest.email;
@@ -73,19 +73,7 @@ export async function createBooking(bookingData: CreateBookingRequest) {
     throw new Error("Guest full name is required to complete the booking");
   }
 
-  // Rule 4: Ensure guest exists in guests table using upsert
-  const { error: guestError } = await supabase
-    .from("guests")
-    .upsert({ 
-      id: guestId,
-      full_name: fullName,
-      email: email || "",
-      phone: phone || ""
-    });
-
-  if (guestError) throw new Error(`Guest preparation failed: ${guestError.message}`);
-
-  // Rule 5 & 6: Payment status logic
+  // Payment status logic
   let paymentStatus = bookingData.payment_status || "pending";
   if (bookingData.payment_method === "arrival") {
     paymentStatus = "pending";
@@ -93,13 +81,21 @@ export async function createBooking(bookingData: CreateBookingRequest) {
     paymentStatus = bookingData.payment_method === "esewa_deposit" ? "down-paid" : "paid";
   }
 
-  // Rule 1, 2, 3: Insert booking
-  const { data, error } = await supabase
-    .from("bookings")
-    .insert([{
+  // Route through the Express server instead of inserting directly into Supabase.
+  // The backend centralizes overlap checks, the guest upsert, and firing the
+  // booking-confirmation email — so the client just sends the raw booking data.
+  const response = await fetch(`${API_BASE}/bookings`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
       guest_id: guestId,
       created_by: user.id,
       is_admin_booking: isAdmin,
+      guest_full_name: fullName,
+      guest_email: email || "",
+      guest_phone: phone || "",
       cabin_id: bookingData.cabin_id,
       start_date: bookingData.start_date,
       end_date: bookingData.end_date,
@@ -111,13 +107,16 @@ export async function createBooking(bookingData: CreateBookingRequest) {
       payment_method: bookingData.payment_method,
       paid_at: paymentStatus === "paid" ? (bookingData.paid_at || new Date().toISOString()) : null,
       transaction_id: paymentStatus === "paid" ? bookingData.transaction_id : null,
-      status: "booked"
-    }])
-    .select()
-    .single();
+    }),
+  });
 
-  if (error) throw error;
-  return data;
+  const payload = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(payload.error || "Failed to create booking");
+  }
+
+  return payload.booking ?? payload;
 }
 
 // CANCEL BOOKING

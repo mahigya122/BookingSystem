@@ -15,6 +15,9 @@ export function useUpdateBooking() {
           queryKey: ["bookings"],
         });
         queryClient.invalidateQueries({
+          queryKey: ["dashboard-stats"],
+        });
+        queryClient.invalidateQueries({
           queryKey: ["cabin-availability"],
         });
         queryClient.invalidateQueries({
